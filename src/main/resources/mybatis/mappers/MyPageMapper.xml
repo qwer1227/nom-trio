@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.mypage.mapper.PostMapper">
+
+    <!--
+        Post getPostByNo(@Param("no") int no);
+    -->
+
+    <resultMap id="PostResultMap" type="store.seub2hu2.mypage.vo.Post">
+        <!-- Post 객체의 필드 매핑 -->
+        <id property="no" column="POST_NO"/> <!-- 게시글 번호 -->
+        <result property="thumbnail" column="THUMBNAIL_IMAGE"/> <!-- 썸네일 -->
+        <result property="postContent" column="POST_CONTEXT"/> <!-- 게시글 내용 -->
+        <result property="postDeleted" column="POST_DELETED"/> <!-- 삭제 여부 -->
+        <result property="postCreatedDate" column="CREATED_DATE"/> <!-- 작성 날짜 -->
+        <!-- User 객체 매핑 -->
+        <association property="user" javaType="store.seub2hu2.user.vo.User">
+            <id property="no" column="USER_NO"/> <!-- 유저 번호 -->
+            <result property="name" column="USER_NAME"/> <!-- 유저 이름 -->
+            <result property="nickname" column="USER_NICKNAME"/>
+        </association>
+        <!-- PostImage 리스트 매핑 -->
+        <collection property="images" ofType="store.seub2hu2.mypage.vo.PostImage">
+            <id property="no" column="IMAGE_NO"/>
+            <result property="imageUrl" column="IMAGE_URL"/>
+        </collection>
+        <collection property="postComment" ofType="store.seub2hu2.mypage.vo.PostComment">
+            <id property="no" column="comment_no"/>
+            <result property="commentRequest.postComment" column="comment_text"/>
+            <result property="userName" column="comment_user_nickname"/>
+            <result property="commentRequest.replyToCommentNo" column="comment_no2"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="getPostByNo" resultMap="PostResultMap">
+        SELECT
+            p.post_no,
+            p.thumbnail_image,
+            p.post_context,
+            p.post_deleted,
+            p.created_date,
+            u.user_no ,
+            u.user_name,
+            u.user_nickname,
+            i.image_no,
+            i.image_url,
+            c.comment_no,
+            c.comment_text,
+            c.comment_no2,
+            cu.user_nickname AS comment_user_nickname
+        FROM
+            POSTS p
+            LEFT JOIN USERS u ON p.user_no = u.user_no  -- 사용자 정보
+            LEFT JOIN POST_IMAGES i ON p.post_no = i.post_no  -- 이미지 정보
+            LEFT JOIN POST_COMMENTS c ON p.post_no = c.post_no  -- 댓글 정보
+            LEFT JOIN USERS cu ON c.user_no = cu.user_no  -- 댓글 작성자 정보
+        WHERE
+            p.post_no = #{no};
+    </select>
+
+    <!-- List<Post> getPostsByNo(@Param("no") int userNo); -->
+
+    <!-- 게시글 목록을 사용자 번호로 조회 -->
+    <select id="getPostsByNo" parameterType="int" resultMap="PostResultMap">
+        SELECT
+            p.post_no,
+            p.thumbnail_image,
+            p.post_context,
+            p.post_deleted,
+            p.created_date,
+            u.user_no,
+            u.user_nickname,
+            i.image_no,
+            i.image_url
+        FROM
+            POSTS p
+                LEFT JOIN USERS u ON p.user_no = u.user_no
+                LEFT JOIN POST_IMAGES i ON p.post_no = i.post_no
+        WHERE
+            p.user_no = #{no}
+          AND p.post_deleted = 'N'
+        ORDER BY
+            p.created_date DESC;
+    </select>
+
+    <!-- void insertPost(@Param("post") Post post); -->
+
+    <insert id="insertPost" useGeneratedKeys="true" keyProperty="post.no">
+    insert into POSTS
+        (THUMBNAIL_IMAGE, POST_CONTEXT, CREATED_DATE, USER_NO)
+    VALUES
+        (#{post.thumbnail, jdbcType=BLOB}, #{post.postContent}, NOW(), #{userNo})
+    </insert>
+
+    <!-- void insertPostImage(Map<String, Object> param); -->
+
+    <insert id="insertPostImages" useGeneratedKeys="true" keyProperty="postNo" parameterType="list">
+        INSERT INTO POST_IMAGES (IMAGE_URL, POST_NO)
+        VALUES
+        <foreach collection="list" item="image" separator=",">
+            (#{image.imageUrl}, #{image.postNo})
+        </foreach>
+    </insert>
+
+    <!-- 게시글 업데이트 -->
+    <!-- void updatePost(Post post); -->
+
+    <update id="updatePost" parameterType="store.seub2hu2.mypage.vo.Post">
+        UPDATE
+            POSTS
+        SET
+            post_context = #{post.postContent},
+            thumbnail_image = #{post.thumbnail}
+        WHERE
+            post_no = #{post.no}
+    </update>
+
+    <!-- void deletePost(@Param("no") int postNo); -->
+
+    <update id="deletePost" parameterType="store.seub2hu2.mypage.vo.Post">
+        UPDATE
+            POSTS
+        SET
+            post_deleted = 'Y'
+        WHERE
+            post_no = #{no}
+    </update>
+
+    <!-- int deletePostImagesByPostNo(@Param("no") int imageNo); -->
+
+    <delete id="deletePostImagesByPostNo">
+        DELETE FROM POST_IMAGES
+        WHERE image_no = #{no}
+    </delete>
+
+    <!-- int insertComment(@Param("comment") CommentRequest commentRequest); -->
+
+    <insert id="insertComment" parameterType="store.seub2hu2.mypage.vo.PostComment">
+        insert into POST_COMMENTS(COMMENT_TEXT, CREATED_DATE, POST_NO, USER_NO, COMMENT_NO2)
+        VALUES
+            (#{comment.commentRequest.postComment}, now(), #{comment.commentRequest.postId}, #{comment.commentRequest.userNo}, #{comment.commentRequest.replyToCommentNo})
+    </insert>
+
+    <!-- User findByUserNo(@Param("no") String userNo); -->
+
+    <select id="findByUserNo" resultType="String">
+        select
+            USER_NICKNAME
+        from
+            USERS
+        where
+            USER_NO = #{no}
+    </select>
+
+    <!-- List<CommentResponse> getCommentsByPostNo(@Param("postNo") int postNo); -->
+
+    <select id="getCommentsByPostNo" resultType="store.seub2hu2.mypage.dto.CommentResponse">
+        SELECT
+            comment_no as commentNo,
+            comment_text as commentText,
+            created_date as createdDate,
+            post_no as postNo,
+            user_no as userNo,
+            comment_no2 as replyCommentNo
+        FROM
+            POST_COMMENTS
+        WHERE
+            post_no = #{postNo}
+        ORDER BY
+            created_date desc
+    </select>
+
+</mapper>

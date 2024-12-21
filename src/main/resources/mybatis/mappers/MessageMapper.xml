@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.message.mapper.MessageMapper">
+
+    <!-- 메시지 삽입 -->
+    <insert id="insertMessage" parameterType="store.seub2hu2.message.vo.Message">
+        INSERT INTO MESSAGES (USER_NO, MESSAGE_TITLE, MESSAGE_CONTENT, MESSAGE_CREATED_DATE)
+        VALUES (#{message.userNo}, #{message.title}, #{message.content}, NOW())
+        <!-- 자동 생성된 MESSAGE_NO를 반환 -->
+        <selectKey resultType="int" keyProperty="message.messageNo" keyColumn="MESSAGE_NO" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 파일 삽입 -->
+    <insert id="insertMessageFile" parameterType="store.seub2hu2.message.vo.MessageFile">
+        INSERT INTO MESSAGE_FILES (
+        FILE_UPLOAD_DATE, FILE_TYPE, MESSAGE_NO, FILE_CREATED_DATE, FILE_SAVED_NAME, FILE_ORIGINAL_NAME, FILE_SIZE, FILE_DELETED)
+        VALUES (CURRENT_TIMESTAMP,      <!-- 업로드 날짜 -->
+        #{messageFile.type},                <!-- 파일 타입 -->
+        #{messageFile.messageNo},           <!-- 메시지 번호 -->
+        CURRENT_TIMESTAMP,      <!-- 파일 생성 날짜 -->
+        #{messageFile.savedName},           <!-- 저장된 파일명 -->
+        #{messageFile.originalName},        <!-- 원본 파일명 -->
+        #{messageFile.size},                 <!-- 파일 사이즈 -->
+        'N'                    <!-- 삭제 여부 (기본값 'N') -->
+        )
+    </insert>
+
+
+    <update id="deleteMessage" parameterType="store.seub2hu2.message.vo.Message">
+        UPDATE MESSAGES
+        SET MESSAGE_DELETE = 'Y'
+        WHERE MESSAGE_NO = #{messageNo}
+    </update>
+
+    <update id="deleteMessageRcv" parameterType="store.seub2hu2.message.vo.Message">
+        UPDATE MESSAGE_RECEIVERS
+        SET MESSAGE_DELETE = 'Y'
+        WHERE MESSAGE_NO = #{messageNo}
+          AND USER_NO = #{userNo}
+    </update>
+
+    <update id="updateReadMarkMessageRcv">
+        UPDATE MESSAGE_RECEIVERS
+        SET MESSAGE_READ      = 'Y',
+            MESSAGE_READ_DATE = NOW()
+        WHERE MESSAGE_NO = #{messageNo}
+          AND USER_NO = #{userNo}
+    </update>
+
+    <update id="updateReadMarkMessage">
+        UPDATE MESSAGES
+        SET MESSAGE_READ = 'Y'
+        WHERE MESSAGE_NO = #{messageNo}
+    </update>
+
+
+    <!-- 조건에 맞는 메시지 수 조회 -->
+    <select id="getMessageTotalRows" resultType="int">
+        SELECT COUNT(*)
+        FROM MESSAGES
+        where MESSAGE_DELETE = 'N'
+          and USER_NO = #{condition.userNo}
+        <if test="condition.title != null">
+            AND MESSAGE_TITLE LIKE CONCAT('%', #{condition.title}, '%')
+        </if>
+        <if test="condition.content != null">
+            AND MESSAGE_CONTENT LIKE CONCAT('%', #{condition.content}, '%')
+        </if>
+        <if test="condition.keyword != null">
+            AND (MESSAGE_TITLE LIKE CONCAT('%', #{condition.keyword}, '%')
+            OR MESSAGE_CONTENT LIKE CONCAT('%', #{condition.keyword}, '%'))
+        </if>
+
+    </select>
+
+    <select id="getMessageRcvTotalRows" resultType="int">
+        SELECT COUNT(*)
+        FROM
+        MESSAGES m
+        JOIN MESSAGE_RECEIVERS r ON m.MESSAGE_NO = r.MESSAGE_NO
+        JOIN USERS u ON m.USER_NO = u.USER_NO -- 발신자 정보 조회
+        WHERE
+        r.USER_NO = #{condition.userNo}
+        AND r.MESSAGE_DELETE = 'N'
+        <if test="condition.keyword != null and condition.opt != null">
+            AND (
+            <choose>
+                <when test="condition.opt == 'title'">
+                    m.MESSAGE_TITLE LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'content'">
+                    m.MESSAGE_CONTENT LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'senderNickname'">
+                    u.USER_NICKNAME LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+            </choose>
+            )
+        </if>
+    </select>
+
+    <!-- 조건에 맞는 메시지 목록 조회 -->
+    <select id="getMessages" resultType="store.seub2hu2.message.dto.MessageReceived">
+        SELECT MESSAGE_NO AS messageNo, USER_NO AS userNo, MESSAGE_TITLE AS title,
+        MESSAGE_CREATED_DATE AS createdDate, MESSAGE_UPDATED_DATE AS updatedDate, MESSAGE_DELETE AS deleted
+        FROM MESSAGES
+        <where>
+            <if test="condition.title != null">
+                AND MESSAGE_TITLE LIKE CONCAT('%', #{condition.title}, '%')
+            </if>
+            <if test="condition.content != null">
+                AND MESSAGE_CONTENT LIKE CONCAT('%', #{condition.content}, '%')
+            </if>
+            <if test="condition.keyword != null">
+                AND (MESSAGE_TITLE LIKE CONCAT('%', #{condition.keyword}, '%')
+                OR MESSAGE_CONTENT LIKE CONCAT('%', #{condition.keyword}, '%'))
+            </if>
+            <!-- 조건 추가 가능 -->
+        </where>
+        <choose>
+            <when test="condition.sort == 'desc'">
+                ORDER BY MESSAGE_CREATED_DATE DESC
+            </when>
+            <otherwise>
+                ORDER BY MESSAGE_CREATED_DATE ASC
+            </otherwise>
+        </choose>
+        LIMIT #{condition.rows} OFFSET #{condition.offset}
+    </select>
+
+    <!-- 메시지 수신자 삽입 -->
+    <insert id="insertMessageReceiver" parameterType="map">
+        INSERT INTO MESSAGE_RECEIVERS (MESSAGE_NO, USER_NO)
+        VALUES (#{messageNo}, #{userNo})
+    </insert>
+
+    <select id="getReceiverNickname" parameterType="int" resultType="string">
+        SELECT nickname
+        FROM users
+        WHERE no = #{userNo}
+    </select>
+
+
+    <select id="getReceivedMessages" resultType="store.seub2hu2.message.dto.MessageReceived">
+        SELECT
+        m.MESSAGE_NO AS messageNo,
+        m.USER_NO AS userNo,
+        m.MESSAGE_TITLE AS title,
+        m.MESSAGE_CREATED_DATE AS createdDate,
+        m.MESSAGE_UPDATED_DATE AS updatedDate,
+        m.MESSAGE_DELETE AS deleted,
+        u.USER_NICKNAME AS senderNickname, -- 발신자 닉네임 추가
+        r.MESSAGE_READ AS readStatus,
+        r.MESSAGE_READ_DATE AS readDate
+        FROM
+        MESSAGES m
+        JOIN MESSAGE_RECEIVERS r ON m.MESSAGE_NO = r.MESSAGE_NO
+        JOIN USERS u ON m.USER_NO = u.USER_NO -- 발신자 정보 조회
+        WHERE
+        r.USER_NO = #{condition.userNo}
+        AND r.MESSAGE_DELETE = 'N'
+        <if test="condition.keyword != null and condition.opt != null">
+            AND (
+            <choose>
+                <when test="condition.opt == 'title'">
+                    m.MESSAGE_TITLE LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'content'">
+                    m.MESSAGE_CONTENT LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'senderNickname'">
+                    u.USER_NICKNAME LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+            </choose>
+            )
+        </if>
+        <choose>
+            <when test="condition.sort == 'desc'">
+                ORDER BY MESSAGE_CREATED_DATE DESC
+            </when>
+            <otherwise>
+                ORDER BY MESSAGE_CREATED_DATE ASC
+            </otherwise>
+        </choose>
+        LIMIT #{condition.rows} OFFSET #{condition.offset}
+    </select>
+
+    <select id="getSentMessages" resultType="store.seub2hu2.message.dto.MessageReceived">
+        SELECT
+        m.MESSAGE_NO AS messageNo,
+        m.USER_NO AS userNo,
+        m.MESSAGE_TITLE AS title,
+        m.MESSAGE_CONTENT AS content,
+        m.MESSAGE_CREATED_DATE AS createdDate,
+        m.MESSAGE_UPDATED_DATE AS updatedDate,
+        m.MESSAGE_DELETE AS deleted,
+        r.MESSAGE_READ AS readStatus,               <!-- 수신자의 읽음 상태 -->
+        r.MESSAGE_READ_DATE AS readDate,            <!-- 수신자가 읽은 날짜 -->
+        u.USER_NICKNAME AS receiverNickname         <!-- 수신자 닉네임 -->
+        FROM MESSAGES m
+        JOIN MESSAGE_RECEIVERS r ON m.MESSAGE_NO = r.MESSAGE_NO
+        JOIN USERS u ON r.USER_NO = u.USER_NO        <!-- 수신자 정보 조회 -->
+        WHERE m.USER_NO = #{condition.userNo}
+        AND m.MESSAGE_DELETE = 'N'
+        <if test="condition.keyword != null and condition.opt != null">
+            AND (
+            <choose>
+                <when test="condition.opt == 'title'">
+                    m.MESSAGE_TITLE LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'content'">
+                    m.MESSAGE_CONTENT LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.opt == 'receiverNickname'">
+                    u.USER_NICKNAME LIKE CONCAT('%', #{condition.keyword}, '%')
+                </when>
+            </choose>
+            )
+        </if>
+        <choose>
+            <when test="condition.sort == 'desc'">
+                ORDER BY m.MESSAGE_CREATED_DATE DESC
+            </when>
+            <otherwise>
+                ORDER BY m.MESSAGE_CREATED_DATE ASC
+            </otherwise>
+        </choose>
+        LIMIT #{condition.rows} OFFSET #{condition.offset}
+    </select>
+
+
+    <!-- 메시지 상세 조회 -->
+    <select id="getMessageDetailByNo" parameterType="int" resultType="store.seub2hu2.message.vo.Message">
+        SELECT m.MESSAGE_NO           AS messageNo,
+               m.MESSAGE_TITLE        AS title,
+               m.MESSAGE_CONTENT      AS content,
+               m.MESSAGE_CREATED_DATE AS createdDate,
+               m.MESSAGE_UPDATED_DATE AS updatedDate,
+               u.USER_NICKNAME        AS senderNickname,
+               m.MESSAGE_READ         AS readStatus,
+               F.FILE_NO                AS "messageFile.fileNo",
+               F.FILE_SAVED_NAME      as "messageFile.savedName",
+               F.FILE_ORIGINAL_NAME    as "messageFile.originalName"-- 발신자 닉네임
+
+        FROM MESSAGES m
+                 JOIN USERS u ON m.USER_NO = u.USER_NO -- 발신자 정보
+                 LEFT OUTER JOIN  MESSAGE_FILES F ON m.MESSAGE_NO = F.MESSAGE_NO
+        WHERE m.MESSAGE_NO = #{messageNo}
+
+    </select>
+
+    <select id="hasFiles" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+        FROM MESSAGE_FILES
+        WHERE MESSAGE_NO = #{messageNo}
+          AND FILE_DELETED = 'N'
+    </select>
+
+
+</mapper>
+
+
+

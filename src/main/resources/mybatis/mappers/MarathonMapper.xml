@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.MarathonMapper">
+
+  <!-- void insertMarathon(@Param("marathon") Marathon marathon); -->
+  <insert id="insertMarathon">
+    insert into MARATHONS
+    (
+    marathon_title
+    , marathon_content
+    , marathon_thumbnail
+    , marathon_date
+    , apply_start_date
+    , apply_end_date
+    , marathon_url
+    , marathon_place
+    )
+    values (
+    #{marathon.title}
+    , #{marathon.content}
+    , #{marathon.thumbnail}
+    , #{marathon.marathonDate}
+    , #{marathon.startDate}
+    , #{marathon.endDate}
+    , #{marathon.url}
+    , #{marathon.place}
+    )
+    <selectKey resultType="int" keyProperty="marathon.no" keyColumn="marathon_no" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
+
+  <!-- void insertMarathonOrgan(@Param("organ") MarathonOrgan organ); -->
+  <insert id="insertMarathonOrgan">
+    insert into ORGANS
+    (
+    marathon_no
+    , organ_name
+    , organ_role
+    )
+    values
+    (
+    #{organ.marathonNo}
+    , #{organ.organName}
+    <if test="organ.organRole == 'host'">
+      , '주최'
+    </if>
+    <if test="organ.organRole == 'organizer'">
+      , '주관'
+    </if>
+    )
+  </insert>
+
+  <!-- List<Marathon> getMarathons(@Param("condition") Map<String, Object> condition); -->
+  <select id="getMarathons" resultType="store.seub2hu2.community.vo.Marathon">
+    select *
+    from (select row_number() over(order by m.marathon_date desc) rn
+    , m.marathon_no as no
+    , m.marathon_title as title
+    , m.marathon_date as marathonDate
+    , m.marathon_thumbnail as thumbnail
+    from MARATHONS m join ORGANS o
+    on m.marathon_no = o.marathon_no
+    where m.is_deleted = 'N'
+    <if test="condition.category != null">
+      <choose>
+        <when test="condition.category == '진행중'">
+          and DATE(m.marathon_date) > DATE(now())
+        </when>
+        <otherwise>
+          and DATE(m.marathon_date) &lt; DATE(now())
+        </otherwise>
+      </choose>
+    </if>
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+          || m.marathon_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'content'">
+          and m.marathon_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'organ'">
+          and o.organ_name like concat ('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+    group by no) as marathon
+    where rn between #{condition.begin} and #{condition.end}
+    order by rn
+  </select>
+
+  <!-- List<Marathon> getMarathonTopFive(@Param("condition") Map<String, Object> condition); -->
+  <select id="getMarathonTopFive" resultType="store.seub2hu2.community.vo.Marathon">
+    select *
+    from (select row_number() over(order by marathon_view_cnt desc) rn
+                    , marathon_no as no
+                    , marathon_title as title
+                    , marathon_thumbnail as thumbnail
+                    , marathon_date as marathonDate
+          from MARATHONS
+          where is_deleted = 'N') crew limit 5
+  </select>
+
+  <!-- int getTotalMarathons(@Param("condition") Map<String, Object> condition); -->
+  <select id="getTotalMarathons" resultType="int">
+    select count(*)
+    from MARATHONS m
+    <if test="condition.opt == 'organ'">
+      join ORGANS o
+      on m.marathon_no = o.marathon_no
+    </if>
+    where is_deleted = 'N'
+    <if test="condition.category != null">
+      <choose>
+        <when test="condition.category == '진행중'">
+          and DATE(m.marathon_date) > DATE(now())
+        </when>
+        <otherwise>
+          and DATE(m.marathon_date) &lt; DATE(now())
+        </otherwise>
+      </choose>
+    </if>
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+          || m.marathon_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'content'">
+          and m.marathon_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'organ'">
+          and o.organ_name like concat ('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+  </select>
+
+  <!-- Marathon getMarathonDetailByNo(@Param("no") int marathonNo); -->
+  <select id="getMarathonDetailByNo" resultType="store.seub2hu2.community.vo.Marathon">
+    select m.marathon_no as no
+            , m.marathon_thumbnail  as thumbnail
+            , m.marathon_title      as title
+            , m.marathon_content    as content
+            , m.marathon_date       as marathonDate
+            , m.apply_start_date    as startDate
+            , m.apply_end_date      as endDate
+            , m.marathon_url        as url
+            , m.marathon_place      as place
+            , m.marathon_created_date as createdDate
+            , m.marathon_view_cnt   as viewCnt
+    from MARATHONS m
+    where m.is_deleted = 'N'
+      and m.marathon_no = #{no}
+  </select>
+
+  <!-- List<MarathonOrgan> getMarathonOrganDetailByNo(@Param("no") int marathonNo); -->
+  <select id="getMarathonOrganDetailByNo" parameterType="int" resultType="store.seub2hu2.community.vo.MarathonOrgan">
+    select marathon_no as marathonNo
+         , organ_name  as organName
+         , organ_role  as organRole
+    from ORGANS
+    where marathon_no = #{no}
+  </select>
+
+  <!-- void updateMarathonCnt(@Param("marathon") Marathon marathon); -->
+  <update id="updateMarathonCnt">
+    update MARATHONS
+    set marathon_view_cnt = #{marathon.viewCnt}
+    where marathon_no = #{marathon.no}
+  </update>
+
+  <!-- void updateMarathon(@Param("marathon") Marathon marathon); -->
+  <update id="updateMarathon">
+    update MARATHONS
+    set marathon_thumbnail    = #{marathon.thumbnail}
+      , marathon_title        = #{marathon.title}
+      , marathon_content      = #{marathon.content}
+      , marathon_date         = #{marathon.marathonDate}
+      , marathon_url          = #{marathon.url}
+      , apply_start_date      = #{marathon.startDate}
+      , apply_end_date        = #{marathon.endDate}
+      , marathon_updated_date = sysdate()
+      , marathon_place        = #{marathon.place}
+      , is_deleted            = #{marathon.deleted}
+    where marathon_no = #{marathon.no}
+  </update>
+
+  <!-- void deleteMarathonOrgan(@Param("no") int marathonNo); -->
+  <delete id="deleteMarathonOrgan">
+    delete
+    from ORGANS
+    where marathon_no = #{no}
+  </delete>
+</mapper>

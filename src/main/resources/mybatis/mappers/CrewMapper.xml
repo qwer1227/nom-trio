@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.CrewMapper">
+
+  <!-- void insertCrew(@Param("crew") Crew crew); -->
+  <insert id="insertCrew">
+    insert into CREWS
+    (
+    crew_schedule
+    , crew_location
+    , crew_title
+    , crew_name
+    , crew_description
+    <if test="crew.thumbnail != null">
+      , crew_thumbnail
+    </if>
+    , crew_updated_date
+    <if test="crew.uploadFile != null">
+      , file_name
+    </if>
+    )
+    values
+    (
+    #{crew.schedule}
+    , #{crew.location}
+    , #{crew.title}
+    , #{crew.name}
+    , #{crew.description}
+    <if test="crew.thumbnail != null">
+      , #{crew.thumbnail.saveName}
+    </if>
+    , null
+    <if test="crew.uploadFile != null">
+      , #{crew.uploadFile.saveName}
+    </if>
+    )
+    <selectKey resultType="int" keyProperty="crew.no" keyColumn="crew_no" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
+
+  <!-- void insertCrewMember(@Param("member") CrewMember member); -->
+  <insert id="insertCrewMember">
+    insert into CREW_MEMBERS
+    ( crew_no
+    , is_reader
+    , crew_join_date
+    , is_join
+    , user_no)
+    values ( #{member.crewNo}
+           , #{member.reader}
+           , sysdate()
+           , #{member.join}
+           , #{member.user.no})
+  </insert>
+
+  <!-- List<Crew> getCrews(@Param("condition") Map<String, Object> condition); -->
+  <select id="getCrews" resultType="store.seub2hu2.community.vo.Crew">
+    select *
+    from (select row_number() over(order by c.crew_created_date desc) rn
+    , c.crew_no as no
+    , c.crew_title as title
+    , c.crew_location as location
+    , c.crew_name as name
+    , c.is_entered as entered
+    , coalesce ((select f.file_save_name
+    from CREW_FILES f
+    where f.crew_no = c.crew_no
+    and f.file_save_name = c.crew_thumbnail
+    and f.is_deleted = 'N'), null) as "thumbnail.saveName"
+    , c.crew_view_cnt as viewCnt
+    , (select count(*) from REPLIES cr where c.crew_no = cr.reply_type_no) as replyCnt
+    from CREWS c join CREW_MEMBERS cm
+    on c.crew_no = cm.crew_no
+    join USERS u
+    on cm.user_no = u.user_no
+    <if test="condition.opt == 'reply'">
+      join REPLIES r
+      on r.reply_type_no = c.crew_no
+    </if>
+    where c.is_deleted = 'N'
+    and cm.is_reader = 'Y'
+    <if test="condition.category != null">
+      and c.is_entered = #{condition.category}
+    </if>
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+          || c.crew_description like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'content'">
+          and c.crew_description like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'name'">
+          and c.crew_name like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'reply'">
+          and r.reply_content like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'nickname'">
+          and u.user_nickname like concat('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+    group by no
+    ) as crew
+    where rn between #{condition.begin} and #{condition.end}
+    order by rn
+  </select>
+
+  <!-- List<Crew> getCrewsTopFive(@Param("condition") Map<String, Object> condition); -->
+  <select id="getCrewsTopFive" resultType="store.seub2hu2.community.vo.Crew">
+    select *
+    from (select row_number() over(order by c.crew_view_cnt desc) rn
+                    , c.crew_no as no
+                    , c.crew_title as title
+                    , c.crew_name as name
+                    , (select count(*)
+                            from CREW_MEMBERS cm
+                            where cm.is_join = 'Y'
+                                and cm.crew_no = c.crew_no
+                                ) as memberCnt
+          from CREWS c
+          where c.is_deleted = 'N'
+            and c.is_entered = 'Y') crew limit 5
+  </select>
+
+  <!-- List<CrewMember> getCrewMembers(@Param("no") int crewNo);); -->
+  <select id="getCrewMembers" resultType="int">
+    select cm.user_no
+    from CREW_MEMBERS cm
+    where cm.is_join = 'Y'
+      and cm.crew_no = #{no}
+  </select>
+
+  <!-- int getTotalRowsForCrew(@Param("condition") Map<String, Object> condition); -->
+  <select id="getTotalRowsForCrew" resultType="int">
+    select count(distinct c.crew_no)
+    from CREWS c
+    join CREW_MEMBERS cm on cm.crew_no = c.crew_no
+    join USERS u on cm.user_no = u.user_no
+    <if test="condition.opt == 'reply'">
+      join REPLIES r on c.crew_no = r.reply_type_no
+    </if>
+    where c.is_deleted = 'N'
+    <if test="condition.category != null">
+      and c.is_entered = #{condition.category}
+    </if>
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+          || c.crew_description like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'description'">
+          and c.crew_description like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'name'">
+          and c.crew_name like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'reply'">
+          and r.reply_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'nickname'">
+          and u.user_nickname like concat ('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+  </select>
+
+  <!-- Crew getCrewDetailByNo(@Param("no") int crewNo); -->
+  <select id="getCrewDetailByNo" resultType="store.seub2hu2.community.vo.Crew">
+    select c.crew_no as no
+     , c.crew_title             as title
+     , c.crew_schedule          as schedule
+     , c.crew_location          as location
+     , c.crew_name              as name
+     , c.crew_description       as description
+     , c.crew_created_date      as createdDate
+     , coalesce ((select cf.file_original_name
+                 from CREW_FILES cf
+                 where cf.crew_no = c.crew_no
+                   and cf.file_save_name = c.file_name
+                   and cf.is_deleted = 'N'), null) as "uploadFile.originalName"
+     , coalesce ((select f.file_save_name
+                 from CREW_FILES f
+                 where f.crew_no = c.crew_no
+                   and f.file_save_name = c.crew_thumbnail
+                   and f.is_deleted = 'N'), null) as "thumbnail.saveName"
+     , c.is_entered             as entered
+     , c.crew_view_cnt          as viewCnt
+     , u.user_no                as "user.no"
+     , u.user_nickname          as "user.nickname"
+    from CREWS c join CREW_MEMBERS cm
+    on c.crew_no = cm.crew_no
+      join USERS u
+      on cm.user_no = u.user_no
+    where
+      c.crew_no = #{no}
+      and cm.is_reader = 'Y'
+      and cm.is_join = 'Y'
+  </select>
+
+  <!-- void updateCrewCnt(@Param("crew") Crew crew); -->
+  <update id="updateCrewCnt">
+    update CREWS
+    set crew_view_cnt = #{crew.viewCnt}
+    where crew_no = #{crew.no}
+  </update>
+
+  <!-- void updateCrew(@Param("crew") Crew crew); -->
+  <update id="updateCrew">
+    update CREWS
+    set crew_title = #{crew.title}
+    , crew_description = #{crew.description}
+    , crew_schedule = #{crew.schedule}
+    , crew_location = #{crew.location}
+    , crew_name = #{crew.name}
+    , crew_thumbnail = #{crew.thumbnail.saveName}
+    , crew_updated_date = sysdate()
+    <if test="crew.uploadFile != null">
+      , file_name = #{crew.uploadFile.saveName}
+    </if>
+    , is_deleted = #{crew.deleted}
+    where
+    crew_no = #{crew.no}
+
+  </update>
+
+  <!-- void updateCrewCondition(@Param("no") int crewNo, @Param("condition") String condition); -->
+  <update id="updateCrewCondition">
+    update CREWS
+    set is_entered = #{condition}
+    where crew_no = #{no}
+  </update>
+
+  <!-- void updateCrewMember(@Param("member") CrewMember member); -->
+  <update id="updateCrewMember">
+    update CREW_MEMBERS
+    set is_join                = #{member.join}
+      , crew_join_updated_date = sysdate()
+      , user_no                = #{member.user.no}
+    where crew_no = #{member.crewNo}
+      and user_no = #{member.user.no}
+  </update>
+
+  <!-- int getCrewMemberCnt(@Param("no") int crewNo); -->
+  <select id="getCrewMemberCnt" parameterType="int">
+    select count(*)
+    from CREW_MEMBERS
+    where is_join = 'Y'
+      and crew_no = #{no}
+  </select>
+
+  <!-- List<Crew> getCrewByUserNo(@Param("userNo") int userNo); -->
+  <select id="getCrewByUserNo" resultType="store.seub2hu2.community.vo.Crew">
+    select *
+    from (select c.crew_no as no
+            , c.crew_title as title
+            , c.crew_name as name
+            , c.crew_description as description
+            , c.crew_thumbnail as "thumbnail.saveName"
+            , cm.is_reader as reader
+            , (select count(*)
+               from CREW_MEMBERS cm
+               where cm.crew_no =  c.crew_no
+               and cm.is_join = 'Y'
+                   ) as memberCnt
+          from CREWS c
+            inner join CREW_MEMBERS cm
+          on cm.crew_no = c.crew_no
+          where c.is_deleted = 'N'
+            and cm.is_join = 'Y'
+            and cm.user_no = #{userNo}) crew
+  </select>
+
+  <!-- List<CrewMember> getByCrewNo(@Param("no") int crewNo); -->
+  <select id="getByCrewNo" resultType="store.seub2hu2.community.vo.CrewMember">
+    select
+      cm.crew_no as crewNo
+         ,   cm.is_reader as reader
+         ,   cm.is_join as "join"
+         ,   cm.user_no as "user"
+         ,   u.user_nickname as "user.nickname"
+         ,   u.user_no as "user.no"
+    from
+      CREW_MEMBERS cm
+        JOIN
+      USERS u
+      ON
+        cm.user_no = u.user_no
+    where
+      crew_no = #{no}
+      and
+      cm.is_join = 'Y'
+  </select>
+  <!-- void updateReader(@Param("userNo") int userNo); -->
+  <update id="updateReader">
+    update CREW_MEMBERS
+    set is_reader = 'Y'
+    where user_no = #{userNo}
+      and crew_no = #{crewNo}
+  </update>
+  <!-- void exitCrew(@Param("readerNo") int readerNo); -->
+  <update id="exitCrew">
+    update CREW_MEMBERS
+    set is_reader = 'N'
+    where user_no = #{readerNo}
+      and crew_no = #{crewNo}
+  </update>
+</mapper>

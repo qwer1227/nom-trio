@@ -1,0 +1,1734 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store.seub2hu2.admin.mapper.AdminMapper">
+
+    <!--
+        void updateReportStatus(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="updateReportStatus">
+        update
+            REPORTS
+        set
+            iscomplete = '처리완료'
+        where
+            report_type = #{condition.reportType}
+        and
+            report_no = #{condition.reportNo}
+    </update>
+
+    <!--
+        void updateBoardStatus(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="updateBoardStatus">
+        update
+        <if test="condition.reportType == 'board'">
+            BOARDS
+        </if>
+        set
+            is_report = 'Y'
+        where
+        <if test="condition.reportType == 'board'">
+            board_no = #{condition.reportNo}
+        </if>
+    </update>
+    <!--
+        void updateBoardReplyStatus(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="updateBoardReplyStatus">
+        update
+        <if test="condition.reportType == 'boardReply'">
+            REPLIES
+        </if>
+        set
+            is_report = 'Y'
+        where
+        <if test="condition.reportType == 'boardReply'">
+            reply_no = #{condition.reportNo}
+        </if>
+    </update>
+    <!--
+         void updateCrewStatus(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="updateCrewStatus">
+        update
+        <if test="condition.reportType == 'crew'">
+            CREWS
+        </if>
+        set
+            is_report = 'Y'
+        where
+        <if test="condition.reportType == 'crew'">
+            crew_no = #{condition.reportNo}
+        </if>
+    </update>
+    <!--
+        void updateCrewReplyStatus(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="updateCrewReplyStatus">
+        update
+        <if test="condition.reportType == 'crewReply'">
+            CREW_REPLIES
+        </if>
+        set
+            is_report = 'Y'
+        where
+        <if test="condition.reportType == 'crewReply'">
+            reply_no = #{condition.reportNo}
+        </if>
+    </update>
+    <!--
+        int getReportTotalRows(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getReportTotalRows" resultType="int">
+        select
+           count(*)
+        from
+        (
+        select
+        <if test="condition.sort != null">
+            <choose>
+                <when test="condition.sort == 'latest'">
+                    ROW_NUMBER() OVER (ORDER BY R.REPORT_ID DESC) RN,
+                </when>
+                <when test="condition.sort == 'oldest'">
+                    ROW_NUMBER() OVER (ORDER BY R.REPORT_ID ASC) RN,
+                </when>
+            </choose>
+        </if>
+        R.REPORT_ID                 as reportId
+        , R.REPORT_TYPE            as reportType
+        , R.REPORT_NO              as reportNo
+        , U.USER_NAME              as userName
+        , U.USER_NICKNAME          as userNickname
+        , R.REPORT_CREATED_DATE    as reportDate
+        , R.REPORT_RESOLVED_DATE   as reportResolveDate
+        , R.REPORT_REASON          as reportReason
+        , R.ISCOMPLETE             as isComplete
+        from
+        REPORTS R
+        JOIN USERS U ON R.USER_NO = U.USER_NO
+        where
+            1 = 1
+        <if test="condition.keyword != null">
+            <choose>
+                <when test="condition.keyword == 'all'">
+
+                </when>
+                <when test="condition.keyword == 'name'">
+                    and U.USER_NAME like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'nickName'">
+                    and U.USER_NICKNAME like CONCAT('%',#{condition.value},'%')
+                </when>
+            </choose>
+        </if>
+        <if test="condition.opt != null">
+            <choose>
+                <when test="condition.opt == 'all'">
+
+                </when>
+                <when test="condition.opt == 'board'">
+                    and R.REPORT_TYPE = 'board'
+                </when>
+                <when test="condition.opt == 'boardRe'">
+                    and R.REPORT_TYPE = 'boardReply'
+                </when>
+                <when test="condition.opt == 'crew'">
+                    and R.REPORT_TYPE = 'crew'
+                </when>
+                <when test="condition.opt == 'crewRe'">
+                    and R.REPORT_TYPE = 'crewReply'
+                </when>
+            </choose>
+        </if>
+        <if test="condition.day != null and condition.day != ''">
+            AND (
+            DATE_FORMAT(R.REPORT_CREATED_DATE, '%Y-%m-%d') = #{condition.day}
+            OR DATE_FORMAT(R.REPORT_CREATED_DATE, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        ) AS SUBQUERY
+    </select>
+
+    <!--
+        List<ReportDto> getReports(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getReports" resultType="store.seub2hu2.admin.dto.ReportDto">
+    select
+        *
+    from
+        (
+        select
+            <if test="condition.sort != null">
+                <choose>
+                    <when test="condition.sort == 'latest'">
+                        ROW_NUMBER() OVER (ORDER BY R.REPORT_ID DESC) RN,
+                    </when>
+                    <when test="condition.sort == 'oldest'">
+                        ROW_NUMBER() OVER (ORDER BY R.REPORT_ID ASC) RN,
+                    </when>
+                </choose>
+            </if>
+            R.REPORT_ID                 as reportId
+             , R.REPORT_TYPE            as reportType
+             , R.REPORT_NO              as reportNo
+             , U.USER_NAME              as userName
+             , U.USER_NICKNAME          as userNickname
+             , R.REPORT_CREATED_DATE    as reportDate
+             , R.REPORT_RESOLVED_DATE   as reportResolveDate
+             , R.REPORT_REASON          as reportReason
+             , R.ISCOMPLETE             as isComplete
+        from
+            REPORTS R
+                JOIN USERS U ON R.USER_NO = U.USER_NO
+        where
+            1 = 1
+        <if test="condition.keyword != null">
+            <choose>
+                <when test="condition.keyword == 'all'">
+
+                </when>
+                <when test="condition.keyword == 'name'">
+                    and U.USER_NAME like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'nickName'">
+                    and U.USER_NICKNAME like CONCAT('%',#{condition.value},'%')
+                </when>
+            </choose>
+        </if>
+        <if test="condition.opt != null">
+            <choose>
+                <when test="condition.opt == 'all'">
+
+                </when>
+                <when test="condition.opt == 'board'">
+                    and R.REPORT_TYPE = 'board'
+                </when>
+                <when test="condition.opt == 'boardRe'">
+                    and R.REPORT_TYPE = 'boardReply'
+                </when>
+                <when test="condition.opt == 'crew'">
+                    and R.REPORT_TYPE = 'crew'
+                </when>
+                <when test="condition.opt == 'crewRe'">
+                    and R.REPORT_TYPE = 'crewReply'
+                </when>
+            </choose>
+        </if>
+        <if test="condition.day != null and condition.day != ''">
+            AND (
+            DATE_FORMAT(R.REPORT_CREATED_DATE, '%Y-%m-%d') = #{condition.day}
+            OR DATE_FORMAT(R.REPORT_CREATED_DATE, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        ) AS SUBQUERY
+    where
+        RN BETWEEN #{condition.begin} AND #{condition.end}
+    </select>
+
+    <!--
+        void getUpdateDeliverySetDelivered(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="getUpdateDeliverySetDelivered">
+        UPDATE DELIVERIES D
+            JOIN ORDERS O ON D.ORDER_NO = O.ORDER_NO
+            JOIN ADDRESSES A ON D.ADDR_NO = A.ADDR_NO
+            JOIN PAYMENTS P ON O.PAY_NO = P.PAY_NO
+            SET
+                D.DELI_STATUS = #{condition.deliStatus}
+                , O.ORDER_STATUS = '상품배송완료'
+                , P.PAY_STATUS = '결제완료'
+        WHERE
+            DELI_NO = #{condition.deliNo}
+    </update>
+
+    <!--
+        void getUpdateDeliverySetShipped(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="getUpdateDeliverySetShipped">
+        UPDATE DELIVERIES D
+            JOIN ORDERS O ON D.ORDER_NO = O.ORDER_NO
+            JOIN ADDRESSES A ON D.ADDR_NO = A.ADDR_NO
+            JOIN PAYMENTS P ON O.PAY_NO = P.PAY_NO
+            SET
+                D.DELI_STATUS = #{condition.deliStatus}
+                    , O.ORDER_STATUS = '상품배송중'
+        WHERE
+            DELI_NO = #{condition.deliNo}
+    </update>
+    <!--
+        void getUpdateDeliverySetReady(@Param("condition")Map<String, Object> condition);
+    -->
+    <update id="getUpdateDeliverySetReady">
+        UPDATE DELIVERIES D
+            JOIN ORDERS O ON D.ORDER_NO = O.ORDER_NO
+            JOIN ADDRESSES A ON D.ADDR_NO = A.ADDR_NO
+            JOIN PAYMENTS P ON O.PAY_NO = P.PAY_NO
+            SET
+                D.DELI_STATUS = #{condition.deliStatus}
+                , O.ORDER_STATUS = '상품준비중'
+        WHERE
+            DELI_NO = #{condition.deliNo}
+    </update>
+
+    <!--
+        List<orderDeliveryDto> getOrderDeliveries(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getOrderDeliveries" resultType="store.seub2hu2.admin.dto.orderDeliveryDto">
+        SELECT
+            *
+        FROM (
+              SELECT
+                <if test="condition.sort != null">
+                    <choose>
+                        <when test="condition.sort == 'latest'">
+                            ROW_NUMBER() OVER (ORDER BY D.DELI_NO desc) as RN ,
+                        </when>
+                        <when test="condition.sort == 'oldestDate'">
+                            ROW_NUMBER() OVER (ORDER BY D.DELI_NO asc) as RN ,
+                        </when>
+                    </choose>
+                </if>
+                   D.DELI_NO          as deliNo
+                   , D.DELI_COM         as deliCom
+                   , D.DELI_STATUS      as deliStatus
+                   , D.DELI_MEMO        as deliMemo
+                   , D.DELI_PHONENUMBER as deliPhone
+                   , O.ORDER_NUMBER     as orderNumber
+                   , O.ORDER_STATUS     as orderStatus
+                   , O.ORDER_DATE       as orderDate
+                   , O.DEL_PAYMENT      as deliPay
+                   , A.ZIP_CODE         as zipCode
+                   , A.ADDR_NAME        as addrName
+                   , A.ADDR_1           as addr1
+                   , A.ADDR_2           as addr2
+                   , P.PAY_STATUS       as payStatus
+                FROM
+                    DELIVERIES D
+                JOIN ORDERS O ON D.ORDER_NO = O.ORDER_NO
+                JOIN ADDRESSES A ON D.ADDR_NO = A.ADDR_NO
+                JOIN PAYMENTS P ON O.PAY_NO = P.PAY_NO
+                JOIN USERS U ON O.USER_NO = U.USER_NO
+                WHERE
+                    P.pay_type = '상품'
+                    <if test="condition.keyword != null">
+                        <choose>
+                            <when test="condition.keyword == 'all'">
+                                and A.ADDR_NAME like CONCAT('%',#{condition.value},'%')
+                            </when>
+                            <when test="condition.keyword == 'orderName'">
+                                and A.ADDR_NAME like CONCAT('%',#{condition.value},'%')
+                            </when>
+                        </choose>
+                    </if>
+                    <if test="condition.opt != null">
+                        <choose>
+                            <when test="condition.opt == 'all'">
+
+                            </when>
+                            <when test="condition.opt == 'notReady'">
+                                and O.ORDER_STATUS = '상품준비중'
+                            </when>
+                            <when test="condition.opt == 'ready'">
+                                and O.ORDER_STATUS = '상품배송중'
+                            </when>
+                            <when test="condition.opt == 'complete'">
+                                and O.ORDER_STATUS = '상품배송완료'
+                            </when>
+                            <when test="condition.opt == 'cancel'">
+                                and O.ORDER_STATUS = '주문취소'
+                            </when>
+                        </choose>
+                    </if>
+        <if test="condition.day != null and condition.day != ''">
+            AND (
+            DATE_FORMAT(O.order_date, '%Y-%m-%d') = #{condition.day}
+            OR DATE_FORMAT(O.order_date, '%Y-%m') = #{condition.day}
+            )
+        </if>
+              ) AS SUBQUERY
+             WHERE
+                 RN BETWEEN #{condition.begin} AND #{condition.end}
+    </select>
+
+        <!--
+            int getDeliveryTotalRows(@Param("condition")Map<String, Object> condition);
+        -->
+    <select id="getDeliveryTotalRows" resultType="int">
+        SELECT
+        count(*)
+        FROM (
+        SELECT
+        <if test="condition.sort != null">
+            <choose>
+                <when test="condition.sort == 'latest'">
+                    ROW_NUMBER() OVER (ORDER BY D.DELI_NO desc) as RN ,
+                </when>
+                <when test="condition.sort == 'oldestDate'">
+                    ROW_NUMBER() OVER (ORDER BY D.DELI_NO asc) as RN ,
+                </when>
+            </choose>
+        </if>
+        D.DELI_NO          as deliNo
+        , D.DELI_COM         as deliCom
+        , D.DELI_STATUS      as deliStatus
+        , D.DELI_MEMO        as deliMemo
+        , D.DELI_PHONENUMBER as deliPhone
+        , O.ORDER_NUMBER     as orderNumber
+        , O.ORDER_STATUS     as orderStatus
+        , O.ORDER_DATE       as orderDate
+        , O.DEL_PAYMENT      as deliPay
+        , A.ZIP_CODE         as zipCode
+        , A.ADDR_NAME        as addrName
+        , A.ADDR_1           as addr1
+        , A.ADDR_2           as addr2
+        , P.PAY_STATUS       as payStatus
+        FROM
+        DELIVERIES D
+        JOIN ORDERS O ON D.ORDER_NO = O.ORDER_NO
+        JOIN ADDRESSES A ON D.ADDR_NO = A.ADDR_NO
+        JOIN PAYMENTS P ON O.PAY_NO = P.PAY_NO
+        JOIN USERS U ON O.USER_NO = U.USER_NO
+        WHERE
+        P.pay_type = '상품'
+        <if test="condition.keyword != null">
+            <choose>
+                <when test="condition.keyword == 'all'">
+                    and A.ADDR_NAME like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'orderName'">
+                    and A.ADDR_NAME like CONCAT('%',#{condition.value},'%')
+                </when>
+            </choose>
+        </if>
+        <if test="condition.opt != null">
+            <choose>
+                <when test="condition.opt == 'all'">
+
+                </when>
+                <when test="condition.opt == 'notReady'">
+                    and O.ORDER_STATUS = '상품준비중'
+                </when>
+                <when test="condition.opt == 'ready'">
+                    and O.ORDER_STATUS = '상품배송중'
+                </when>
+                <when test="condition.opt == 'complete'">
+                    and O.ORDER_STATUS = '상품배송완료'
+                </when>
+                <when test="condition.opt == 'cancel'">
+                    and O.ORDER_STATUS = '주문취소'
+                </when>
+            </choose>
+        </if>
+        <if test="condition.day != null and condition.day != ''">
+            AND (
+            DATE_FORMAT(O.order_date, '%Y-%m-%d') = #{condition.day}
+            OR DATE_FORMAT(O.order_date, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        ) AS SUBQUERY
+    </select>
+
+    <!--
+        int getTotalProdMan(@Param("day")String day);
+
+        int getTotalProdWoman(@Param("day")String day);
+
+        int getTotalProdRun(@Param("day")String day);
+    -->
+    <select id="getTotalProdMan" resultType="int">
+        select
+            count(*)
+        from
+            (
+            select
+                CAT.top_cat_no
+            from
+                ORDERS O
+                    JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                    JOIN USERS U ON O.user_no = U.user_no
+                    JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                    JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                    JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                    JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+            where
+                PM.pay_type = '상품'
+              and
+                CAT.top_cat_no = 10
+              and
+                (
+                    DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{day}
+                    )
+            ) as subquery;
+    </select>
+
+    <select id="getTotalProdWoman" resultType="int">
+        select
+            count(*)
+        from
+            (
+                select
+                    CAT.top_cat_no
+                from
+                    ORDERS O
+                        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                        JOIN USERS U ON O.user_no = U.user_no
+                        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                        JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+                where
+                    PM.pay_type = '상품'
+                  and
+                    CAT.top_cat_no = 20
+                  and
+                    (
+                        DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{day}
+                        )
+            ) as subquery;
+    </select>
+
+    <select id="getTotalProdRun" resultType="int">
+        select
+            count(*)
+        from
+            (
+                select
+                    CAT.top_cat_no
+                from
+                    ORDERS O
+                        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                        JOIN USERS U ON O.user_no = U.user_no
+                        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                        JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+                where
+                    PM.pay_type = '상품'
+                  and
+                    CAT.top_cat_no = 30
+                  and
+                    (
+                        DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{day}
+                        )
+            ) as subquery;
+    </select>
+
+    <!--
+        int getTotalOrderProdAmount(String yesterday);
+    -->
+    <select id="getTotalOrderProdAmount" resultType="int">
+        SELECT
+            COALESCE(SUM(OP.order_prod_amount), 0) as totalOrderProdAmount
+        FROM
+            ORDERS O
+                JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                JOIN USERS U ON O.user_no = U.user_no
+                JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+        WHERE
+            PM.pay_type = '상품'
+          AND PM.pay_status = '결제완료'
+          AND DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{yesterday}
+    </select>
+
+    <!--
+        int getTotalProdPriceByDay(String yesterday);
+    -->
+    <select id="getTotalProdPriceByDay" resultType="int">
+        SELECT
+            COALESCE(SUM(PM.pay_price), 0) as totalPrice
+        FROM
+            ORDERS O
+                JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                JOIN USERS U ON O.user_no = U.user_no
+                JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+        WHERE
+            PM.pay_type = '상품'
+          AND PM.pay_status = '결제완료'
+          AND DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{yesterday}
+    </select>
+
+    <!--
+        List<prevOrderProdDto> orderProdPrev(int orderProdNo);
+    -->
+    <select id="orderProdPrev" resultType="store.seub2hu2.admin.dto.prevOrderProdDto">
+        select
+        PM.pay_no               as payNo
+        , O.order_no            as orderNo
+        , O.order_number        as orderNum
+        , OP.order_prod_no      as orderProdNo
+        , PM.pay_type           as payType
+        , U.user_name           as userName
+        , U.user_id             as userId
+        , U.user_tel            as userTel
+        , PM.pay_price          as payPrice
+        , O.order_price         as orderPrice
+        , PM.pay_status         as payStatus
+        , PM.pay_method         as payMethod
+        , P.prod_name           as prodName
+        , P.prod_price          as prodPrice
+        , PC.color_name			as colorName
+        , PS.prod_size          as prodSize
+        , OP.order_prod_amount  as orderProdAmount
+        , O.dis_price           as orderDisPrice
+        , O.real_price          as orderRealPrice
+        from
+            ORDERS O
+        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+        JOIN USERS U ON O.user_no = U.user_no
+        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+        JOIN PROD_COLORS PC ON PS.color_no = PC.color_no
+        where
+            PM.pay_type = '상품'
+        and
+            OP.order_no = #{orderNo}
+    </select>
+
+    <!--
+        List<OrderProductDto> getSettleProdList(Map<String, Object> condition);
+    -->
+    <select id="getSettleProdList" resultType="store.seub2hu2.admin.dto.OrderProductDto">
+        select
+            *,
+            totalSummary.totalPrice
+        from
+        (
+        select
+        ROW_NUMBER() OVER (PARTITION BY PM.pay_no ORDER BY OP.order_prod_no asc) as RN
+                , PM.pay_no               as payNo
+                , O.order_no            as orderNo
+                , O.order_number        as orderNum
+                , OP.order_prod_no      as orderProdNo
+                , PM.pay_type           as payType
+                , U.user_name           as userName
+                , U.user_id             as userId
+                , U.user_tel            as userTel
+                , PM.pay_price          as payPrice
+                , PM.pay_status         as payStatus
+                , PM.pay_method         as payMethod
+                , P.prod_name           as prodName
+                , PS.prod_size          as prodSize
+                , OP.order_prod_amount  as orderProdAmount
+                , PM.pay_date           as payDate
+                from
+                    ORDERS O
+                JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                JOIN USERS U ON O.user_no = U.user_no
+                JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                where
+                    PM.pay_type = '상품'
+                    <if test="condition.day != null">
+                        and (
+                        DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{condition.day}
+                        or DATE_FORMAT(PM.pay_date, '%Y-%m') = #{condition.day}
+                        )
+                    </if>
+                    <if test="condition.opt != null">
+                        <choose>
+                            <when test="condition.opt == 'all'">
+
+                            </when>
+                            <when test="condition.opt == 'notReady'">
+                                and PM.pay_status = '결제완료'
+                            </when>
+                            <when test="condition.opt == 'cancel'">
+                                and PM.pay_status = '취소'
+                            </when>
+                        </choose>
+                    </if>
+                    <if test="condition != null and condition.keyword != null">
+                        <choose>
+                            <when test="condition.keyword == 'all'">
+
+                            </when>
+                            <when test="condition.keyword == 'payName'">
+                                and U.user_name like CONCAT('%',#{condition.value},'%')
+                            </when>
+                            <when test="condition.keyword == 'payId'">
+                                and U.user_id like CONCAT('%',#{condition.value},'%')
+                            </when>
+                        </choose>
+                    </if>
+        ) as subquery
+        JOIN
+            (
+            SELECT
+                SUM(PM.pay_price) AS totalPrice
+            FROM
+            ORDERS O
+            JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+            WHERE
+                PM.pay_type = '상품'
+            AND
+                PM.pay_status = '결제완료'
+            <if test="condition.day != null">
+                and (
+                DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{condition.day}
+                or DATE_FORMAT(PM.pay_date, '%Y-%m') = #{condition.day}
+                )
+            </if>
+            ) AS totalSummary ON 1 = 1
+        where RN = 1
+        <if test="condition.sort != null">
+            <choose>
+                <when test="condition.sort == 'latest'">
+                    order by payNo desc
+                </when>
+                <when test="condition.sort == 'oldestDate'">
+                    order by payNo asc
+                </when>
+                <when test="condition.sort == 'price'">
+                    order by payPrice desc
+                </when>
+            </choose>
+        </if>
+    </select>
+    <!--
+        int getTotalOrderProd(condition);
+    -->
+    <select id="getTotalOrderProd" resultType="int">
+        select
+        COUNT(*)
+        from
+        (
+        select
+        ROW_NUMBER() OVER (PARTITION BY PM.pay_no ORDER BY OP.order_prod_no asc) as RN
+        from
+            ORDERS O
+        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+        JOIN USERS U ON O.user_no = U.user_no
+        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+        where
+        PM.pay_type = '상품'
+        <if test="condition.day != null">
+            and (
+            DATE_FORMAT(PM.pay_date, '%Y-%m-%d') = #{condition.day}
+            or DATE_FORMAT(PM.pay_date, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        <if test="condition.opt != null">
+            <choose>
+                <when test="condition.opt == 'all'">
+
+                </when>
+                <when test="condition.opt == 'notReady'">
+                    and PM.pay_status = '결제완료'
+                </when>
+                <when test="condition.opt == 'cancel'">
+                    and PM.pay_status = '취소'
+                </when>
+            </choose>
+        </if>
+        <if test="condition != null and condition.keyword != null">
+            <choose>
+                <when test="condition.keyword == 'all'">
+
+                </when>
+                <when test="condition.keyword == 'payName'">
+                    and U.user_name like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'payId'">
+                    and U.user_id like CONCAT('%',#{condition.value},'%')
+                </when>
+            </choose>
+        </if>
+        ) as subquery
+        where RN = 1
+    </select>
+
+    <!--
+        int getTotalPriceByDay(String yesterday);
+    -->
+    <select id="getTotalPriceByDay" resultType="int">
+        select
+            (
+                select COALESCE(SUM(P2.pay_price), 0)
+                from PAYMENTS P2, USERS U2, LESSON_RESERVATIONS R2, LESSONS L2
+                where P2.user_id = U2.user_id
+                  and P2.pay_id = R2.lesson_reservation_pay_id
+                  and R2.lesson_no = L2.lesson_no
+                  and P2.pay_type = '레슨'
+                  and P2.PAY_STATUS = '결제확정'
+                  and (
+                    DATE_FORMAT(P2.pay_date, '%Y-%m-%d') = #{yesterday}
+                    )
+            ) as totalPrice
+        from
+            (
+                select
+                    P.pay_no		as payNo
+                     , P.pay_type	as settleType
+                     , U.user_name 	as name
+                     , U.user_id	as id
+                     , L.lesson_title    as title
+                     , P.pay_price	as price
+                     , P.pay_date	as payDate
+                     , P.pay_cancel_date as payCancelDate
+                     , P.pay_method as payMethod
+                     , P.pay_status as status
+                     , L.lesson_subject as lessonSubject
+                from
+                    PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+                where
+                    P.user_id = U.user_id
+                  and
+                    P.pay_id = R.lesson_reservation_pay_id
+                  and
+                    R.lesson_no = L.lesson_no
+                  and
+                    P.pay_type = '레슨'
+                    LIMIT 1
+            )as subquery;
+    </select>
+    <!--
+        void getTotalBreath(@Param("day")String day);
+
+        void getTotalAction(@Param("day")String day);
+
+        void getTotalExercise(@Param("day")String day);
+    -->
+    <select id="getTotalBreath" resultType="int">
+        select
+            count(*)
+        from
+            (
+                select
+                    L.lesson_subject
+                from PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+                where
+                    P.user_id = U.user_id
+                  and
+                    P.pay_id = R.lesson_reservation_pay_id
+                  and
+                    R.lesson_no = L.lesson_no
+                  and
+                    P.pay_type = '레슨'
+                  and
+                    L.LESSON_SUBJECT = '호흡'
+                  and
+                    DATE_FORMAT(P.pay_date, '%Y-%m-%d') = #{day}
+            ) as subquery;
+
+    </select>
+
+    <select id="getTotalAction" resultType="int">
+        select
+            count(*)
+        from
+            (
+                select
+                    L.lesson_subject
+                from PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+
+                where
+                    P.user_id = U.user_id
+                  and
+                    P.pay_id = R.lesson_reservation_pay_id
+                  and
+                    R.lesson_no = L.lesson_no
+                  and
+                    P.pay_type = '레슨'
+                  and
+                    L.LESSON_SUBJECT = '운동'
+                  and
+                    DATE_FORMAT(P.pay_date, '%Y-%m-%d') = #{day}
+            ) as subquery;
+    </select>
+
+    <select id="getTotalExercise" resultType="int">
+        select
+            count(*)
+        from
+            (
+            select
+                L.lesson_subject
+            from
+                PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+            where
+                P.user_id = U.user_id
+              and
+                P.pay_id = R.lesson_reservation_pay_id
+              and
+                R.lesson_no = L.lesson_no
+              and
+                P.pay_type = '레슨'
+              and
+                L.LESSON_SUBJECT = '자세'
+              and
+                DATE_FORMAT(P.pay_date, '%Y-%m-%d') = #{day}
+            ) as subquery;
+    </select>
+
+    <!--
+        int getSettleTotalRows(Map<String, Object> condition);
+    -->
+    <select id="getSettleTotalRows" resultType="int">
+        select
+            count(*),
+        (
+        select SUM(P2.pay_price)
+        from PAYMENTS P2, USERS U2, LESSON_RESERVATIONS R2, LESSONS L2
+        where P2.user_id = U2.user_id
+        and P2.pay_id = R2.lesson_reservation_pay_id
+        and R2.lesson_no = L2.lesson_no
+        and P2.pay_type = '레슨'
+        and P2.PAY_STATUS &lt;&gt; '취소'
+        <if test="condition.day != null">
+            and (
+            DATE_FORMAT(P2.pay_date, '%Y-%m-%d') = #{condition.day}
+            or DATE_FORMAT(P2.pay_date, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        ) as totalPrice
+        from
+            PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+        where
+            P.user_id = U.user_id
+          and
+            P.pay_id = R.lesson_reservation_pay_id
+          and
+            R.lesson_no = L.lesson_no
+          and
+            P.pay_type = '레슨'
+        <!-- condition 객체가 null이 아닐 때만 실행 -->
+        <if test="condition.day != null">
+            and (
+            DATE_FORMAT(P.pay_date, '%Y-%m-%d') = #{condition.day}
+            or DATE_FORMAT(P.pay_date, '%Y-%m') = #{condition.day}
+            )
+        </if>
+        <if test="condition.opt != null">
+            <choose>
+                <when test="condition.opt == 'all'">
+
+                </when>
+                <when test="condition.opt == 'ready'">
+                    and P.pay_status = '결제확정'
+                </when>
+                <when test="condition.opt == 'notReady'">
+                    and P.pay_status = '결제완료'
+                </when>
+                <when test="condition.opt == 'cancel'">
+                    and P.pay_status = '취소'
+                </when>
+            </choose>
+        </if>
+        <if test="condition != null and condition.keyword != null">
+            <choose>
+                <when test="condition.keyword == 'all'">
+
+                </when>
+                <when test="condition.keyword == 'payName'">
+                    and U.user_name like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'payId'">
+                    and U.user_id like CONCAT('%',#{condition.value},'%')
+                </when>
+                <when test="condition.keyword == 'lessonName'">
+                    and L.lesson_title like CONCAT('%',#{condition.value},'%')
+                </when>
+            </choose>
+        </if>
+    </select>
+
+    <!--
+        List<SettlementDto> getSettleLists(Map<String, Object> condition);
+    -->
+    <select id="getSettleLists" resultType="store.seub2hu2.admin.dto.SettlementDto">
+        select
+            *,
+        (
+        select SUM(P2.pay_price)
+        from PAYMENTS P2, USERS U2, LESSON_RESERVATIONS R2, LESSONS L2
+        where P2.user_id = U2.user_id
+        and P2.pay_id = R2.lesson_reservation_pay_id
+        and R2.lesson_no = L2.lesson_no
+        and P2.pay_type = '레슨'
+        and P2.PAY_STATUS &lt;&gt; '취소'
+            <if test="condition.day != null">
+                and (
+                DATE_FORMAT(P2.pay_date, '%Y-%m-%d') = #{condition.day}
+                or DATE_FORMAT(P2.pay_date, '%Y-%m') = #{condition.day}
+                )
+            </if>
+        ) as totalPrice
+        from
+            (
+            select
+        <if test="condition.sort != null">
+                <choose>
+                    <when test="condition.sort == 'latest'">
+                         ROW_NUMBER() OVER (ORDER BY P.pay_no desc) as RN ,
+                    </when>
+                    <when test="condition.sort == 'oldestDate'">
+                         ROW_NUMBER() OVER (ORDER BY P.pay_no asc) as RN ,
+                    </when>
+                    <when test="condition.sort == 'price'">
+                         ROW_NUMBER() OVER (ORDER BY P.pay_price desc) as RN ,
+                    </when>
+                </choose>
+        </if>
+                  P.pay_no		as payNo
+                 , P.pay_type	as settleType
+                 , U.user_name 	as name
+                 , U.user_id	as id
+                 , L.lesson_title    as title
+                 , P.pay_price	as price
+                 , P.pay_date	as payDate
+                 , P.pay_cancel_date as payCancelDate
+                 , P.pay_method as payMethod
+                 , P.pay_status as status
+                 , L.lesson_subject as lessonSubject
+                 , L.lesson_no      as lessonNo
+            from
+                PAYMENTS P, USERS U, LESSON_RESERVATIONS R, LESSONS L
+            where
+                P.user_id = U.user_id
+            and
+                P.pay_id = R.lesson_reservation_pay_id
+            and
+                R.lesson_no = L.lesson_no
+            and
+                P.pay_type = '레슨'
+                <if test="condition.day != null">
+                    and (
+                    DATE_FORMAT(P.pay_date, '%Y-%m-%d') = #{condition.day}
+                    or DATE_FORMAT(P.pay_date, '%Y-%m') = #{condition.day}
+                    )
+                </if>
+                <if test="condition.opt != null">
+                    <choose>
+                        <when test="condition.opt == 'all'">
+
+                        </when>
+                        <when test="condition.opt == 'ready'">
+                            and P.pay_status = '결제확정'
+                        </when>
+                        <when test="condition.opt == 'notReady'">
+                            and P.pay_status = '결제완료'
+                        </when>
+                        <when test="condition.opt == 'cancel'">
+                            and P.pay_status = '취소'
+                        </when>
+                    </choose>
+                </if>
+                <if test="condition != null and condition.keyword != null">
+                    <choose>
+                        <when test="condition.keyword == 'all'">
+
+                        </when>
+                        <when test="condition.keyword == 'payName'">
+                            and U.user_name like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.keyword == 'payId'">
+                            and U.user_id like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.keyword == 'lessonName'">
+                            and L.lesson_title like CONCAT('%',#{condition.value},'%')
+                        </when>
+                    </choose>
+                </if>
+            ) as subquery
+        where
+            RN between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        void getChangeIsDeleted(Object sizeNo);
+    -->
+
+    <update id="getChangeIsDeleted">
+        update
+            PROD_SIZES
+        set
+            deleted_size = 'N'
+        where
+            prod_size = #{size.size}
+        and
+            color_no = #{size.color.no}
+    </update>
+
+    <!--
+        void getDeleteSize(int sizeNo);
+    -->
+    <update id="getDeleteSize">
+        update
+            PROD_SIZES
+        set
+            deleted_size = 'Y'
+        where
+            size_no = #{sizeNo};
+    </update>
+
+    <!--
+        void getInsertSize(@Param("size") Size size);
+    -->
+    <insert id="getInsertSize">
+        insert into PROD_SIZES
+        (color_no, prod_size, prod_amount)
+        values
+        (#{size.color.no}, #{size.size}, 0)
+    </insert>
+
+    <!--
+         Size getCheckSizeByCon(@Param("size") Size size);
+    -->
+
+    <select id="getCheckSizeByCon" resultType="store.seub2hu2.product.vo.Size">
+        SELECT
+            size_no         as no
+            , color_no      as "color.no"
+            , prod_size     as size
+            , prod_amount   as amount
+            , deleted_size  as isDeleted
+        FROM
+            PROD_SIZES
+        WHERE
+            prod_size = #{size.size}
+          AND color_no = #{size.color.no}
+    </select>
+    <!--
+        List<Size> getAllSizesByColorNo(Integer colorNo);
+    -->
+    <select id="getAllSizesByColorNo">
+        select
+            size_no         as no
+             , color_no     as "color.no"
+             , prod_size    as size
+             , prod_amount  as amount
+             , deleted_size  as isDeleted
+        from
+            PROD_SIZES
+        where
+            color_no = #{colorNo}
+        and
+            deleted_size = 'N'
+        order by
+            prod_size ASC
+    </select>
+    <!--
+        이미지 수정
+        void EditUrl(Image img);
+    -->
+    <update id="editUrl" parameterType="store.seub2hu2.product.vo.Image">
+        update
+            PROD_IMGS
+        set
+            img_url = #{url}
+        where
+            img_no = #{no}
+    </update>
+
+    <!--
+        이미지 테이블의 IMG_THUM을 전부 null로 바꾼 후 해당 imgNo에만 Y설정
+        void getNullImageThum(Integer imgNo);
+        void getIsThumByNo(Integer imgNo);
+    -->
+    <update id="getNullImageThum">
+        UPDATE PROD_IMGS
+        SET img_thum = NULL
+        WHERE color_no = (
+            SELECT color_no_sub
+            FROM (SELECT color_no AS color_no_sub FROM PROD_IMGS WHERE img_no = #{imgNo}) AS temp_table
+        );
+    </update>
+
+    <update id="getIsThumByNo">
+        UPDATE
+            PROD_IMGS
+        SET
+            img_thum = 'Y'
+        WHERE
+            img_no = #{imgNo};
+    </update>
+
+    <!--
+        컬러번호로 컬러정보 조회
+        Color getColorNoByNo(int colorNo);
+    -->
+    <select id="getColorNoByNo" resultType="store.seub2hu2.product.vo.Color">
+        select
+            prod_no         as "product.no"
+             , color_no     as no
+             , color_name   as name
+        from
+            PROD_COLORS
+        where
+            color_no = #{colorNo};
+    </select>
+
+    <!--
+        해당 컬러번호에 해당하는 이미지URL 조회하기
+
+        List<Image> getImageByColorNum(Integer colorNo);
+    -->
+    <select id="getImageByColorNum" resultType="store.seub2hu2.product.vo.Image">
+        select
+            img_no          as no
+             , color_no     as colorNo
+             , img_url      as url
+             , img_thum     as isthum
+        from
+            PROD_IMGS
+        where
+            color_no = #{colorNo};
+    </select>
+
+    <!--
+        이미지 추가
+        void insertImage(Image img);
+    -->
+    <insert id="insertImage" parameterType="store.seub2hu2.product.vo.Image">
+        insert into PROD_IMGS
+        (color_no, img_url)
+        values
+        (#{colorNo}, #{url})
+    </insert>
+
+    <!--
+        List<Color> insertStock(@Param("condition") Map<String, Object> condition);
+    -->
+
+    <update id="insertStock">
+        update
+            PROD_SIZES PS
+        JOIN
+            PROD_COLORS PC
+        ON
+            PC.color_no = PS.color_no
+        set
+            PS.PROD_AMOUNT = #{condition.amount}
+        where
+            PC.prod_no = #{condition.no}
+        and
+            PC.color_name = #{condition.colorName}
+        and
+            PS.prod_size = #{condition.size}
+    </update>
+
+    <!--
+        void getUpdateShows(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="getUpdateShows">
+        update PRODUCTS
+        set
+            ISSHOW = #{condition.show}
+        where
+            prod_no = #{condition.no}
+    </update>
+
+    <!--
+        void getDeletedProds(@Param("condition") Map<String, Object> condition);
+    -->
+    <update id="getDeletedProds">
+        update PRODUCTS
+        set
+            prod_deleted = 'Y'
+        where
+            prod_no = #{condition.no}
+    </update>
+
+    <!--
+        List<ProdListDto> getStockProducts(Map<String, Object> condition);
+    -->
+
+        <select id="getStockProducts" resultType="store.seub2hu2.product.dto.ProdListDto">
+            SELECT *
+            FROM(
+            SELECT
+            <if test="condition.sort != null">
+                <choose>
+                    <when test="condition.sort == 'date'">
+                        ROW_NUMBER() OVER(ORDER BY P.PROD_CREATED_AT DESC) AS RN ,
+                    </when>
+                    <when test="condition.sort == 'name'">
+                        ROW_NUMBER() OVER(ORDER BY P.PROD_NAME ASC) AS RN ,
+                    </when>
+                    <when test="condition.sort == 'price'">
+                        ROW_NUMBER() OVER(ORDER BY P.PROD_PRICE ASC) AS RN ,
+                    </when>
+                </choose>
+            </if>
+            P.PROD_NO AS no,
+            P.PROD_NAME AS name,
+            P.PROD_PRICE AS price,
+            P.PROD_STATUS AS status,
+            P.PROD_COLOR_NUM AS colorNum,
+            P.PROD_CREATED_AT AS createdAt,
+            P.PROD_IMG_THUM AS imgThum,
+            PC.CAT_NO AS "category.no",
+            PC.CAT_NAME AS "category.name",
+            PB.BRAND_NAME AS "brand.name",
+            PL.COLOR_NO   AS "color.no",
+            PL.COLOR_NAME AS "color.name",
+            P.ISSHOW AS "isShow"
+            FROM PRODUCTS P
+            JOIN PROD_CATEGORIES PC ON P.CAT_NO = PC.CAT_NO
+            JOIN PROD_BRANDS PB ON P.BRAND_NO = PB.BRAND_NO
+            LEFT OUTER JOIN PROD_COLORS PL ON P.PROD_COLOR_NUM = PL.COLOR_NO
+            WHERE
+                P.prod_deleted = 'N'
+            <if test="condition != null">
+                <choose>
+                    <when test="condition.opt == 'name'">
+                        AND P.PROD_NAME LIKE CONCAT ('%', #{condition.value},'%')
+                    </when>
+                    <when test="condition.opt == 'minPrice'">
+                        AND P.PROD_PRICE >= #{condition.value}
+                    </when>
+                    <when test="condition.opt == 'maxPrice'">
+                        AND P.PROD_PRICE &lt;= #{condition.value}
+                    </when>
+                </choose>
+            </if>
+            <if test="condition.topNo != null and condition.topNo != ''">
+                AND PC.TOP_CAT_NO IN (#{condition.topNo})
+            </if>
+            <if test="condition.catNo != null and condition.catNo != ''">
+                AND PC.CAT_NO IN (#{condition.catNo})
+            </if>
+            ) AS subquery
+            WHERE
+            RN BETWEEN #{condition.begin} AND #{condition.end}
+        </select>
+
+    <!--
+        상품번호와 색상명으로 재고수량 조회
+        List<Color> getStockByColorNumber(Map<String, Object> condition);
+    -->
+    <select id="getStockByColorNumber" resultType="store.seub2hu2.product.vo.Color">
+        select
+            PC.prod_no         as "product.no"
+            , PC.color_no      as no
+            , PC.color_name    as name
+            , PS.PROD_SIZE	   as "size.size"
+            , PS.prod_amount   as "size.amount"
+        from
+            PROD_COLORS PC
+        JOIN
+            PROD_SIZES PS
+        ON
+            PC.COLOR_NO = PS.COLOR_NO
+        where
+            prod_no = #{condition.no}
+        and
+            color_name = #{condition.colorName}
+        order by
+            PS.prod_size asc;
+    </select>
+
+    <!--
+        상품 번호로 상품색상 테이블 내용 조회
+        List<Color> colorNames(int no);
+    -->
+    <select id="colorNames" resultType="store.seub2hu2.product.vo.Color">
+        select
+            prod_no         as "product.no"
+            , color_no      as no
+            , color_name    as name
+        from
+            PROD_COLORS
+        where
+            prod_no = #{no}
+    </select>
+    <!--
+        상품 수정 & 대표이미지 설정
+        void updateProduct(Product product);
+    -->
+    <update id="updateProduct">
+        update PRODUCTS
+        set
+            cat_no = #{category.no}
+            , brand_no = #{brand.no}
+            , prod_name = #{name}
+            , prod_price = #{price}
+            , prod_content = #{content}
+            , prod_status = #{status}
+            , prod_img_thum = #{imgThum}
+            , prod_color_num = #{colorNum}
+        where
+            prod_no = #{no}
+    </update>
+
+    <!--
+        상품 번호로 그 상품에 해당 정보 조회
+        Product getProductByNo(int no);
+    -->
+    <select id="getProductByNo">
+        select
+            PROD_NO             as no
+             , CAT_NO           as "category.no"
+             , BRAND_NO         as "brand.no"
+             , PROD_NAME        as name
+             , PROD_PRICE       as price
+             , PROD_CONTENT     as content
+             , ISNEW            as isNew
+             , PROD_STATUS      as status
+             , PROD_CREATED_AT  as createdAt
+             , PROD_UPDATED_AT  as updatedAt
+             , PROD_IMG_THUM    as imgThum
+             , PROD_CNT         as cnt
+             , PROD_RATING      as rating
+             , PROD_COLOR_NUM   as colorNum
+        from
+            PRODUCTS
+        where
+            PROD_NO = #{no}
+    </select>
+    <!--
+        int getColorNo(@Param("color")HashMap<String, Object> condition);
+    -->
+    <select id="getColorNo" resultType="Integer">
+        select color_no
+        from PROD_COLORS
+        where prod_no = #{condition.no}
+        and color_name = #{condition.color};
+    </select>
+
+    <!--
+         void insertColor(@Param("condition") HashMap<String, Object> condition);
+    -->
+    <insert id="insertColor" parameterType="store.seub2hu2.product.vo.Color">
+        insert into PROD_COLORS
+            (PROD_NO, COLOR_NAME)
+        VALUES
+            (#{condition.no}, #{condition.name});
+    </insert>
+    <!--
+        카테고리에 해당하는 상위 카테고리 조회
+        Category getTopCategoryNo(@Param("category")int categoryNo);
+    -->
+        <select id="getTopCategoryNo" resultType="store.seub2hu2.product.vo.Category">
+            select
+                cat_no as no
+                , cat_name as name
+                , top_cat_no as topNo
+            from
+                PROD_CATEGORIES
+            where
+                cat_no = #{categoryNo}
+        </select>
+    <!--
+        void insertProduct(@Param("condition") HashMap<String, Object> condition);
+    -->
+    <insert id="insertProduct">
+        insert into PRODUCTS
+            (
+             prod_name
+            , prod_price
+            , brand_no
+            , cat_no
+            , prod_content
+            , prod_img_thum
+            )
+        values
+            (
+            #{condition.name}
+            , #{condition.price}
+            , #{condition.brandNo}
+            , #{condition.categoryNo}
+            , #{condition.content}
+            , #{condition.thumbnail}
+            )
+    </insert>
+
+    <!--
+        void getDeletedCourses(@Param("courseNo")int courseNo);
+    -->
+    <update id="getDeletedCourses">
+        update COURSES
+        set
+            IS_DELETED = 'Y'
+        where
+            course_no = #{courseNo}
+    </update>
+    <!--
+        void updateCourse(@Param("course") Course course);
+    -->
+    <update id="updateCourse">
+        update COURSES
+        set
+          course_no = #{course.no}
+        , course_name = #{course.name}
+        , course_time = #{course.time}
+        , course_distance = #{course.distance}
+        , course_level = #{course.level}
+        <if test="course.filename != null">
+            , course_filename =  #{course.filename}
+        </if>
+        ,region_no = #{course.region.no}
+        where
+            course_no = #{course.no}
+    </update>
+
+    <!--
+            Course getCourseByNos(int courseNo);
+    -->
+    <select id="getCourseByNos" resultType="store.seub2hu2.course.vo.Course">
+        select
+            C.course_no             as no
+             , C.course_name        as name
+             , C.course_time        as time
+             , C.course_distance    as distance
+             , C.course_level       as level
+             , C.course_filename    as filename
+             , R.region_no          as "region.no"
+             , R.region_si          as "region.si"
+             , R.region_gu          as "region.gu"
+             , R.region_dong        as "region.dong"
+        from
+            COURSES C, COURSE_REGION R
+        where
+            C.REGION_NO = R.REGION_NO
+          and
+            C.course_no = #{courseNo}
+    </select>
+
+    <!--
+        List<Region> getRegions(@Param("region") Region region);
+    -->
+    <select id="getRegions" resultType="store.seub2hu2.course.vo.Region">
+        select
+            REGION_NO       as no
+            , REGION_SI     as si
+            , REGION_GU     as gu
+            , REGION_DONG   as dong
+        from
+            COURSE_REGION
+        where
+            REGION_NO = (SELECT MAX(REGION_NO) FROM COURSE_REGION);
+    </select>
+
+    <!--
+        코스등록
+        void insertCourse(@Param("course") Course course);
+        + 지역등록
+        void insertRegion(@Param("region")Region region);
+    -->
+    <insert id="insertCourse">
+        insert into COURSES
+        (
+         course_name
+        , course_time
+        , course_distance
+        , course_level
+        <if test="course.filename != null">
+        , course_filename
+        </if>
+        , region_no
+        )
+        values
+        (
+        #{course.name}
+        , #{course.time}
+        , #{course.distance}
+        , #{course.level}
+        <if test="course.filename != null">
+            , #{course.filename}
+        </if>
+        , #{course.region.no}
+        )
+    </insert>
+
+    <!--
+        void checkRegion(@Param("region")Region region);
+    -->
+    <select id="checkRegion" resultType="store.seub2hu2.course.vo.Region">
+        select
+            R.region_no as no
+            , R.region_si as si
+            , R.region_gu as gu
+            , R.region_dong as dong
+        from
+            COURSE_REGION R
+        where
+            R.REGION_SI = #{region.si}
+          and
+            R.REGION_GU = #{region.gu}
+          and
+            R.REGION_DONG = #{region.dong}
+    </select>
+
+    <insert id="insertRegion" parameterType="store.seub2hu2.course.vo.Region">
+        insert into COURSE_REGION
+        (
+        region_si
+        , region_gu
+        , region_dong
+        )
+        values
+        (
+         #{region.si}
+         , #{region.gu}
+         , #{region.dong}
+        )
+        <selectKey resultType="Long" keyProperty="no" keyColumn="region_no" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <!--
+        User getUserByNo(@Param("no") int no);
+    -->
+    <select id="getUserByNo" resultType="store.seub2hu2.user.vo.User">
+        select
+            user_no               as no
+            , user_id               as id
+            , user_name             as name
+            , password
+            , user_nickname         as nickname
+            , user_tel              as tel
+            , user_email            as email
+            , user_created_date     as createdDate
+            , user_type             as type
+            , provider              as provider
+        from
+            USERS
+        where
+            user_no = #{no}
+    </select>
+
+    <!--
+        int getTotalRows(@Param("condition") Map<String, Object> condition);
+    -->
+        <select id="getTotalRows" resultType="int">
+            SELECT
+                count(*) cnt
+            FROM
+                USERS
+            <where>
+                <if test="condition.opt != null">
+                    <choose>
+                        <when test="condition.opt == 'name'">
+                            user_name like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.opt == 'id'">
+                            user_id like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.opt == 'email'">
+                            user_email like CONCAT('%',#{condition.value},'%')
+                        </when>
+                    </choose>
+                </if>
+            </where>
+        </select>
+
+    <!--
+        List<User> getUsers(@Param("condition")Map<String, Object> condition);
+    -->
+    <select id="getUsers" resultType="store.seub2hu2.user.vo.User">
+        select
+            *
+        from (
+            select
+             user_no               as no
+            , user_id               as id
+            , user_name             as name
+            , password
+            , user_nickname         as nickname
+            , user_tel              as tel
+            , user_email            as email
+            , user_created_date     as createdDate
+            , user_type             as type
+            , provider              as provider
+            , ROW_NUMBER() OVER (ORDER BY user_no desc) as rn
+            from
+                USERS
+            <where>
+                <if test="condition.opt != null">
+                    <choose>
+                        <when test="condition.opt == 'name'">
+                             user_name like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.opt == 'id'">
+                             user_id like CONCAT('%',#{condition.value},'%')
+                        </when>
+                        <when test="condition.opt == 'email'">
+                             user_email like CONCAT('%',#{condition.value},'%')
+                        </when>
+                    </choose>
+                </if>
+            </where>
+            ) as subquery
+        where
+            rn between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        List<Lesson> getLessonUserByNo(int lessonNo);
+    -->
+    <select id="getLessonUserByNo" parameterType="Integer" resultType="store.seub2hu2.admin.dto.LessonUsersDto">
+        select
+              L.PARTICIPANT                as "participant"
+             , LR.USER_ID                   as "id"
+             , U.USER_NO                    as "no"
+             , U.USER_NAME                  as "name"
+             , U.USER_NICKNAME              as "nickname"
+             , U.USER_EMAIL                 as "email"
+             , U.USER_TEL                   as "tel"
+        from
+            LESSONS L , LESSON_RESERVATIONS LR, USERS U
+        where
+            L.LESSON_NO = LR.LESSON_NO
+          and
+            LR.USER_ID = U.USER_ID
+          and
+            LR.LESSON_RESERVATION_STATUS &lt;&gt; '취소'
+          and
+            L.LESSON_NO = #{lessonNo}
+    </select>
+
+    <!--
+        List<Lesson> getAllLessons(@Param("condition") Map<String, Object> condition);
+    -->
+
+    <select id="getAllLessons" resultType="store.seub2hu2.lesson.vo.Lesson">
+        select
+            *
+        from
+            (
+                select L.LESSON_NO           as lessonNo
+                     , U.USER_NAME           as "lecturer.name"
+                     , L.LESSON_TITLE        as title
+                     , L.LESSON_PRICE        as price
+                     , L.PARTICIPANT         as participant
+                     , L.LESSON_STATUS       as status
+                     , L.LESSON_CREATED_DATE as createdDate
+                     , L.LESSON_PLAN         as plan
+                     , L.LESSON_START_DATE   as start
+                     , L.LESSON_END_DATE     as end
+                     , L.LESSON_SUBJECT      as subject
+                from
+                    LESSONS L, USERS U
+                where
+                    L.user_ID = U.user_ID
+                    <if test="condition.opt != null">
+                        <choose>
+                            <when test="condition.opt == 'name'">
+                                and U.user_name like CONCAT('%',#{condition.value},'%')
+                            </when>
+                            <when test="condition.opt == 'lessonname'">
+                                and L.lesson_title like CONCAT('%',#{condition.value},'%')
+                            </when>
+                            <when test="condition.opt == 'course'">
+                                and L.lesson_subject like CONCAT('%',#{condition.value},'%')
+                            </when>
+                        </choose>
+                    </if>
+                    <if test="condition.day != null">
+                        and DATE(L.lesson_start_date) =  #{condition.day}
+                    </if>
+            ) as subquery
+    </select>
+</mapper>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.CrewReplyMapper">
+
+  <!-- void updateReply(@Param("reply") Reply reply); -->
+  <update id="updateReply">
+    update CREW_REPLIES
+    set prev_reply_no      = #{reply.prevNo}
+      , reply_content      = #{reply.content}
+      , is_deleted         = #{reply.deleted}
+      , reply_updated_date = #{reply.updatedDate}
+    where reply_no = #{reply.no}
+  </update>
+
+  <!-- void insertReply(@Param("reply") Reply reply); -->
+  <insert id="insertReply">
+    insert into CREW_REPLIES
+    (
+    crew_no
+    , reply_content
+    , user_no
+    )
+    values
+    (
+    #{reply.crewNo}
+    , #{reply.content}
+    , #{reply.user.no}
+    )
+
+    <selectKey resultType="int" keyProperty="reply.no" keyColumn="reply_no" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
+
+  <!-- List<Reply> getRepliesByCrewNo(@Param("no") int crewNo); -->
+  <select id="getRepliesByCrewNo" resultType="store.seub2hu2.community.vo.Reply" parameterType="int">
+    select c.crew_no               as crewNo
+         , u.user_no               as "user.no"
+         , u.user_nickname         as "user.nickname"
+         , cr.reply_no             as no
+        , cr.prev_reply_no         as prevNo
+        , cr.reply_content         as content
+        , cr.reply_created_date    as createdDate
+        , cr.reply_updated_date    as updatedDate
+        , cr.is_report             as report
+        , cr.crew_reply_like       as replyLike
+        , cr.is_deleted            as deleted
+    from CREWS c join CREW_REPLIES cr
+    on c.crew_no = cr.crew_no
+      join USERS u
+      on cr.user_no = u.user_no
+    where c.crew_no = #{no}
+    order by cr.prev_reply_no asc, cr.reply_no asc
+  </select>
+
+  <!-- Reply getReplyByReplyNo(@Param("no") int replyNo); -->
+  <select id="getReplyByReplyNo" parameterType="int">
+    select cr.reply_no as no
+        , cr.prev_reply_no          as prevNo
+        , c.crew_no                 as crewNo
+        , cr.reply_content          as content
+        , cr.reply_created_date     as createdDate
+        , cr.reply_updated_date     as updatedDate
+        , u.user_no                 as "user.no"
+        , u.user_nickname           as "user.nickname"
+        , cr.is_report              as report
+        , cr.crew_reply_like       as replyLike
+        , cr.is_deleted             as deleted
+    from
+      CREW_REPLIES cr join CREWS c
+    on cr.crew_no = c.crew_no
+      join USERS u
+      on cr.user_no = u.user_no
+    where
+      cr.reply_no = #{no}
+      and cr.is_deleted = 'N'
+  </select>
+
+  <!-- int getReplyCntByCrewNo(@Param("no") int crewNo); -->
+  <select id="getReplyCntByCrewNo" parameterType="int">
+    select
+      count(*)
+    from
+      CREW_REPLIES
+    where crew_no = #{no}
+  </select>
+
+  <!-- void deleteReplyByNo(@Param("no") int replyNo); -->
+  <update id="deleteReplyByNo" parameterType="int">
+    update CREW_REPLIES
+    set is_deleted = 'Y'
+    where reply_no = #{no}
+  </update>
+
+  <!-- int hasUserLikedReply(@Param("rno") int replyNo, @Param("userNo") int userNo); -->
+  <select id="hasUserLikedReply" resultType="int">
+    select EXISTS (SELECT 1
+                   FROM CREW_REPLY_LIKES
+                   WHERE reply_no = #{rno}
+                     and user_no = #{userNo})
+  </select>
+
+  <!-- void insertReplyLike(@Param("rno") int replyNo, @Param("userNo") int userNo); -->
+  <insert id="insertReplyLike">
+    insert into CREW_REPLY_LIKES
+    ( reply_no
+    , user_no)
+    values ( #{rno}
+           , #{userNo})
+  </insert>
+
+  <!-- void deleteReplyLike(@Param("rno") int replyNo, @Param("userNo") int userNo); -->
+  <delete id="deleteReplyLike">
+    delete
+    from CREW_REPLY_LIKES
+    where reply_no = #{rno}
+      and user_no = #{userNo}
+  </delete>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.lesson.mapper.LessonFileMapper">
+
+<!--
+    void insertLessonFile(@Param("lessonFile") LessonFile file);
+
+    List<LessonFile> getLessonFiles(@Param("lessonNo") int lessonNo);
+
+    List<LessonFile> getImagesByLessonNo(@Param("lessonNo") int lessonNo);
+
+    int lastInsertedLessonNo();
+
+    void updateLessonFile(@Param("lessonNo") LessonFile file);
+-->
+
+    <select id="lastInsertedLessonNo" resultType="int">
+        SELECT L.LESSON_NO as lessonNo
+        FROM LESSONS L
+                 INNER JOIN
+             USERS U
+             ON L.USER_ID = U.USER_ID
+        ORDER BY L.LESSON_NO DESC LIMIT 1;
+    </select>
+
+    <select id="getImagesByLessonNo" resultType="store.seub2hu2.lesson.vo.LessonFile">
+        SELECT file_name as fileName
+             , file_type as fileType
+             , file_path as filePath
+        FROM LESSON_FIELS
+        WHERE lesson_no = #{lessonNo}
+    </select>
+
+    <insert id="insertLessonFile" parameterType="store.seub2hu2.lesson.vo.LessonFile">
+        INSERT INTO LESSON_FIELS (LESSON_NO, FILE_NAME, FILE_PATH, FILE_TYPE)
+        VALUES (#{lessonFile.lessonNo}, #{lessonFile.fileName}, #{lessonFile.filePath}, #{lessonFile.fileType});
+    </insert>
+
+    <update id="updateLessonFile">
+        UPDATE LESSON_FIELS
+        SET FILE_NAME = #{lessonFile.fileName}
+        , FILE_PATH = #{lessonFile.filePath}
+        WHERE lesson_no = #{lessonFile.lessonNo}
+            AND FILE_TYPE = #{lessonFile.fileType};
+    </update>
+</mapper>

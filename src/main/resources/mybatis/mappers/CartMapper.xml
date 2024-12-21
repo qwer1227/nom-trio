@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="store.seub2hu2.mypage.mapper.CartMapper">
+
+    <!--
+        void addCart(@Param("carts") List<CartRegisterForm> cartRegisterForm);
+    -->
+    <insert id="addCart" >
+        INSERT INTO CARTS (
+            SIZE_NO
+            , PROD_NO
+            , USER_NO
+            , CART_AMOUNT
+            , COLOR_NO
+        )
+        values
+        <foreach item="cart" index="index" collection="carts" separator=",">
+         (
+            #{cart.sizeNo}
+            , #{cart.prodNo}
+            , #{cart.userNo}
+            , #{cart.stock}
+            , #{cart.colorNo}
+            )
+        </foreach>
+    </insert>
+
+    <!--
+        void addToCart(@Param("cart") Cart cart);
+    -->
+    <insert id="addToCart">
+        INSERT INTO CARTS (
+        SIZE_NO
+        , PROD_NO
+        , USER_NO
+        , COLOR_NO
+        , CART_AMOUNT
+        )
+        values
+            (
+            #{cart.size.no}
+            , #{cart.product.no}
+            , #{cart.user.no}
+            , #{cart.color.no}
+            , 1
+            )
+    </insert>
+
+    <!--
+        void updateCart(@Param("cart") Cart cart);
+    -->
+    <update id="updateCart">
+        UPDATE CARTS
+        SET
+            CART_AMOUNT = #{cart.amount}
+        WHERE SIZE_NO = #{cart.size.no}
+    </update>
+
+    <!--
+        void deleteCartItems(@Param("cartNoList") List<Integer> cartNoList)
+    -->
+    <delete id="deleteCartItems">
+        DELETE FROM CARTS
+        WHERE CART_NO IN
+        <foreach collection="cartNoList" item="cartNo" open="(" separator="," close=")">
+              #{cartNo}
+        </foreach>
+
+    </delete>
+
+    <!--
+        List<CartItemDto> getCartItemsByUserNo(@Param("userNo") int userNo);
+    -->
+    <select id="getCartItemsByUserNo" resultType="store.seub2hu2.cart.dto.CartItemDto">
+        SELECT
+            CA.CART_NO AS no
+             , CA.CART_AMOUNT AS stock
+             , P.PROD_NO AS "product.no"
+             , P.PROD_NAME AS "product.name"
+             , P.PROD_PRICE AS "product.price"
+             , PC.COLOR_NO AS "color.no"
+             , PC.COLOR_NAME AS "color.name"
+             , PS.SIZE_NO AS "size.no"
+             , PS.PROD_SIZE AS "size.size"
+             , U.USER_NO AS "user.no"
+             , U.USER_NAME AS "user.name"
+             , PI.IMG_URL AS imgThum
+        FROM CARTS CA
+            JOIN PRODUCTS P
+        ON CA.PROD_NO = P.PROD_NO
+            JOIN PROD_COLORS PC
+            ON CA.COLOR_NO = PC.COLOR_NO
+            JOIN PROD_SIZES PS
+            ON CA.SIZE_NO = PS.SIZE_NO
+            JOIN USERS U
+            ON CA.USER_NO = U.USER_NO
+            JOIN PROD_IMGS PI
+            ON PC.COLOR_NO = PI.COLOR_NO
+        WHERE PI.IMG_THUM = 'Y'
+          AND U.USER_NO = #{userNo}
+    </select>
+
+    <!--
+         Cart getCartByUserNoAndSizeNo(@Param("userNo") int userNo, @Param("sizeNo") int sizeNo);
+    -->
+    <select id="getCartByUserNoAndSizeNo" resultType="store.seub2hu2.cart.vo.Cart">
+        SELECT
+            CA.CART_NO AS no
+             , CA.CART_AMOUNT AS amount
+             , P.PROD_NO AS "product.no"
+             , P.PROD_NAME AS "product.name"
+             , P.PROD_PRICE AS "product.price"
+             , PC.COLOR_NO AS "color.no"
+             , PC.COLOR_NAME AS "color.name"
+             , PS.SIZE_NO AS "size.no"
+             , PS.PROD_SIZE AS "size.size"
+             , U.USER_NO AS "user.no"
+             , U.USER_NAME AS "user.name"
+             , PI.IMG_URL AS imgThum
+        FROM CARTS CA
+            JOIN PRODUCTS P
+        ON CA.PROD_NO = P.PROD_NO
+            JOIN PROD_COLORS PC
+            ON CA.COLOR_NO = PC.COLOR_NO
+            JOIN PROD_SIZES PS
+            ON CA.SIZE_NO = PS.SIZE_NO
+            JOIN USERS U
+            ON CA.USER_NO = U.USER_NO
+            JOIN PROD_IMGS PI
+            ON PC.COLOR_NO = PI.COLOR_NO
+        WHERE PI.IMG_THUM = 'Y'
+          AND U.USER_NO = #{userNo}
+          AND PS.SIZE_NO = #{sizeNo}
+    </select>
+</mapper>

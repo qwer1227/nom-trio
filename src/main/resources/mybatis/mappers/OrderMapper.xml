@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="store.seub2hu2.order.mapper.OrderMapper">
+
+    <!--
+        void insertOrderItems(@Param("orderItems") List<OrderItem> orderItems);
+    -->
+    <insert id="insertOrderItems">
+        INSERT INTO ORDER_PRODUCTS (
+                                    PROD_NO
+                                   , SIZE_NO
+                                   , ORDER_NO
+                                   , ORDER_PROD_AMOUNT
+                                   , ORDER_UNIT_PRICE
+                                   , ORDER_EACH_PRICE
+                                )
+                            VALUES
+                            <foreach collection="orderItems" item="item" index="index" separator=",">
+                                (#{item.prodNo}
+                                , #{item.sizeNo}
+                                , #{item.orderNo}
+                                , #{item.stock}
+                                , #{item.price}
+                                , #{item.eachTotalPrice}
+                                )
+                            </foreach>
+    </insert>
+
+    <!--
+        Order insertOrders(@Param("order") Order order);
+    -->
+    <insert id="insertOrders">
+        INSERT INTO ORDERS (
+                            ORDER_NUMBER
+                            , ORDER_PRICE
+                            , DEL_PAYMENT
+                            , DIS_PRICE
+                            , REAL_PRICE
+                            , USER_NO
+                            )
+                VALUES (
+                        #{order.orderId}
+                        , #{order.totalPrice}
+                        , #{order.deliveryPrice}
+                        , #{order.discountPrice}
+                        , #{order.finalTotalPrice}
+                        , #{order.userNo}
+                       )
+        <selectKey resultType="int" keyProperty="order.no" keyColumn="order_no" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!--
+        int updateOrder(@Param("order") OrdersDTO order);
+    -->
+    <update id="updateOrder">
+        UPDATE ORDERS
+        SET
+            PAY_NO = #{order.payNo}
+        WHERE ORDER_NO = #{order.orderNo}
+    </update>
+    <!--
+        void updateOrderStatus(@Param("orderNo") int orderNo, @Param("status") String status);
+    -->
+    <update id="updateOrderStatus">
+        UPDATE ORDERS
+            SET ORDER_STATUS = #{order.status}
+            WHERE ORDER_NO = #{order.no}
+    </update>
+
+    <!--
+        List<CartItemDto> getOrderItemBySizeNo(@Param("sizeNoList") List<Integer> sizeNoList);
+    -->
+    <select id="getOrderItemBySizeNo" resultType="store.seub2hu2.cart.dto.CartItemDto">
+        SELECT
+        P.PROD_NO AS "product.no"
+        ,P.PROD_NAME AS "product.name"
+        , P.PROD_PRICE AS "product.price"
+        , PC.COLOR_NAME AS "COLOR.NAME"
+        , PS.SIZE_NO  AS "SIZE.NO"
+        , PS.PROD_SIZE "SIZE.SIZE"
+        , PI.IMG_URL AS imgThum
+        , C.CART_NO AS no
+        , U.USER_NO AS "user.no"
+        FROM PRODUCTS P
+        JOIN PROD_COLORS PC
+        ON P.PROD_NO = PC.PROD_NO
+        JOIN PROD_SIZES PS
+        ON PC.COLOR_NO = PS.COLOR_NO
+        JOIN PROD_IMGS PI
+        ON PC.COLOR_NO = PI.COLOR_NO
+        JOIN CARTS C
+        ON P.PROD_NO = C.PROD_NO AND C.SIZE_NO = PS.SIZE_NO
+        JOIN USERS U
+        ON C.USER_NO = U.USER_NO
+        WHERE U.USER_NO = #{userNo}
+        AND PI.IMG_THUM = 'Y'
+        AND PS.SIZE_NO IN
+        <foreach collection="sizeNoList" item="sizeNo" open="(" separator="," close=")">
+            #{sizeNo}
+        </foreach>
+    </select>
+
+    <resultMap id="responseDTOResultMap" type="store.seub2hu2.mypage.dto.ResponseDTO">
+        <id property="no" column="pay_no" />
+        <!-- 먼저 association 태그로 객체 관계를 매핑 -->
+        <association property="payments" resultMap="paymentsResultMap"/>
+        <association property="productImg" resultMap="productImgResultMap"/>
+        <association property="orders" resultMap="ordersResultMap"/>
+        <association property="product" resultMap="productResultMap"/>
+        <association property="addrDto" resultMap="addrResultMap"/>
+        <association property="deliveryDto" resultMap="deliveryResultMap"/>
+
+        <!-- 여러 상품 정보를 리스트로 매핑 -->
+        <collection property="products" ofType="store.seub2hu2.mypage.dto.ProductDTO">
+            <result property="prodName" column="prod_Name"/>
+            <result property="sizeName" column="prod_size"/>
+            <result property="colorNo" column="color_No"/>
+            <result property="colorName" column="color_Name"/>
+            <result property="prodPrice" column="prod_price"/>
+            <result property="prodImgUrl" column="prod_img_thum"/>
+            <result property="orderQty" column="order_prod_amount"/>
+            <result property="orderStatus" column="deli_status" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="paymentsResultMap" type="store.seub2hu2.mypage.dto.PaymentsDTO">
+        <id property="payNo" column="pay_no"/>
+        <result property="payId" column="pay_id"/>
+        <result property="payMethod" column="pay_method"/>
+        <result property="payAmount" column="pay_amount"/>
+        <result property="refund" column="refund"/>
+        <result property="payDate" column="pay_date"/>
+        <result property="payType" column="pay_type"/>
+    </resultMap>
+
+    <resultMap id="productImgResultMap" type="store.seub2hu2.mypage.dto.ProductImgDTO">
+        <result property="prodNo" column="prod_no"/>
+        <result property="prodImgUrl" column="prod_img_url"/>
+    </resultMap>
+
+    <resultMap id="ordersResultMap" type="store.seub2hu2.mypage.dto.OrdersDTO">
+        <id property="orderNo" column="order_no"/>
+        <result property="payNo" column="pay_no"/>
+        <result property="orderId" column="order_number"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="orderPrice" column="order_price"/>
+        <result property="receiverName" column="user_name"/>
+        <result property="deliveryAddress" column="addr_no"/>
+        <result property="receiverPhone" column="user_tel"/>
+        <result property="delPayment" column="del_payment"/>
+        <result property="disPrice" column="dis_price"/>
+        <result property="realPrice" column="real_price"/>
+    </resultMap>
+
+    <resultMap id="productResultMap" type="store.seub2hu2.mypage.dto.ProductDTO">
+        <result property="prodName" column="prod_Name"/>
+        <result property="sizeName" column="prod_size"/>
+        <result property="colorNo" column="color_No"/>
+        <result property="colorName" column="color_Name"/>
+        <result property="prodPrice" column="prod_price"/>
+        <result property="prodImgUrl" column="prod_img_thum"/>
+        <result property="orderQty" column="order_prod_amount"/>
+        <result property="orderStatus" column="deli_status"/>
+    </resultMap>
+    
+    <resultMap id="addrResultMap" type="store.seub2hu2.mypage.dto.AddrDto">
+        <result property="addrNo" column="ADDR_NO"/>
+        <result property="addrName" column="ADDR_NAME"/>
+        <result property="postcode" column="ZIP_CODE"/>
+        <result property="addr" column="ADDR_1"/>
+        <result property="addrDetail" column="ADDR_2"/>
+    </resultMap>
+
+    <resultMap id="deliveryResultMap" type="store.seub2hu2.mypage.dto.DeliveryDto">
+        <result property="deliNo" column="DELI_NO"/>
+        <result property="deliCom" column="DELI_COM"/>
+        <result property="deliStatus" column="DELI_STATUS"/>
+        <result property="deliMemo" column="DELI_MEMO"/>
+        <result property="deliPhoneNumber" column="DELI_PHONENUMBER"/>
+    </resultMap>
+
+    <!-- ResponseDTO getOrderDetails(@Param("orderNo") int orderNo); -->
+
+    <select id="getOrderDetails" resultMap="responseDTOResultMap">
+        SELECT DISTINCT
+        p.pay_no,
+        p.pay_id,
+        p.pay_method,
+        p.pay_amount,
+        p.pay_date,
+        p.pay_type,
+        p.refund,
+        o.order_no,
+        o.order_number,
+        o.order_date,
+        o.order_status,
+        o.order_price,
+        o.del_payment,
+        o.dis_price,
+        o.real_price,
+        op.order_prod_amount,
+        ps.prod_size,
+        pc.color_no,
+        pc.color_name,
+        pi.prod_name,
+        pi.prod_price,
+        pi.prod_img_thum,
+        u.user_name,
+        u.user_tel,
+        d.addr_no,
+        d.deli_no,
+        d.deli_com,
+        d.deli_status,
+        d.deli_memo,
+        d.deli_phonenumber,
+        a.addr_name,
+        a.zip_code,
+        a.addr_1,
+        a.addr_2
+        FROM
+        PAYMENTS p
+        JOIN ORDERS o ON p.pay_no = o.pay_no                <!-- 결제와 주문 연결 -->
+        LEFT JOIN ORDER_PRODUCTS op ON o.order_no = op.order_no  <!-- 주문 상품 연결 -->
+        LEFT JOIN PRODUCTS pi ON op.prod_no = pi.prod_no          <!-- 상품과 상품 이미지 연결 -->
+        LEFT JOIN PROD_SIZES ps ON op.size_no = ps.size_no        <!-- 상품 사이즈 연결 -->
+        LEFT JOIN PROD_COLORS pc ON ps.color_no = pc.color_no      <!-- 상품 색상 연결 -->
+        LEFT JOIN PROD_IMGS pi_img ON pc.color_no = pi_img.color_no  <!-- 상품 색상과 상품 이미지 연결 -->
+        LEFT JOIN USERS u ON o.user_no = u.user_no
+        LEFT JOIN DELIVERIES d ON o.order_no = d.order_no
+        LEFT JOIN ADDRESSES a ON a.addr_no = d.addr_no
+        WHERE
+        o.order_no = #{orderNo}
+    </select>
+
+    <!-- List<OrderRequest> getOrders(@Param("userNo") int userNo); -->
+
+    <select id="getOrders" resultType="store.seub2hu2.mypage.dto.OrderResponse">
+        SELECT
+            o.order_no AS orderNo,
+            o.order_number AS orderId,
+            o.ORDER_DATE AS orderDate,
+            p.prod_name AS productName,
+            p.prod_img_thum AS productImage,
+            o.REAL_PRICE AS productPrice,
+            op.order_prod_amount AS quantity,
+            op.SIZE_NO as sizeNo,
+            o.order_status AS orderStatus,
+            d.deli_status AS deliveryStatus,
+            d.deli_no AS deliveryNo,
+            p.prod_no AS productNo,
+            pc.color_no AS colorNo
+        FROM
+            ORDERS o
+                JOIN
+            ORDER_PRODUCTS op ON o.ORDER_NO = op.ORDER_NO
+                JOIN
+            PRODUCTS p ON op.PROD_NO = p.PROD_NO
+                JOIN
+            DELIVERIES d ON o.ORDER_NO = d.ORDER_NO
+                JOIN
+            PROD_COLORS pc on p.prod_no = pc.prod_no
+        WHERE
+            o.USER_NO = #{userNo}
+    </select>
+
+    <!--
+        OrderResultDto getOrderResult(@Param("orderNo") int orderNo);
+    -->
+
+    <resultMap id="orderResultMap" type="store.seub2hu2.mypage.dto.OrderResultDto">
+        <id property="orderNo" column="ORDER_NO" />
+        <!-- 결제 관련 -->
+        <result property="payNo" column="PAY_NO"/>
+        <result property="payId" column="PAY_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="payDate" column="PAY_DATE"/>
+        <result property="payCancelDate" column="PAY_CANCEL_DATE"/>
+        <result property="payMethod" column="PAY_METHOD"/>
+        <result property="payPrice" column="PAY_PRICE"/>
+        <result property="payAmount" column="PAY_AMOUNT"/>
+        <result property="payType" column="PAY_TYPE"/>
+        <result property="refund" column="REFUND"/>
+
+        <!-- 주문 관련 -->
+        <result property="orderDate" column="ORDER_DATE"/>
+        <result property="orderId" column="ORDER_NUMBER"/>
+        <result property="orderStatus" column="ORDER_STATUS"/>
+        <result property="orderPrice" column="ORDER_PRICE"/>
+        <result property="delPayment" column="DEL_PAYMENT"/>
+        <result property="disPrice" column="DIS_PRICE"/>
+        <result property="realPrice" column="REAL_PRICE"/>
+
+        <!-- 배송 관련 -->
+        <result property="delNo" column="DELI_NO"/>
+        <result property="delCom" column="DELI_COM"/>
+        <result property="delStatus" column="DELI_STATUS"/>
+        <result property="delMemo" column="DELI_MEMO"/>
+        <result property="delPhoneNumber" column="DELI_PHONENUMBER"/>
+
+        <!-- 배송 주소 관련 -->
+        <result property="addrNo" column="ADDR_NO"/>
+        <result property="userNo" column="USER_NO"/>
+        <result property="addrName" column="ADDR_NAME"/>
+        <result property="postcode" column="ZIP_CODE"/>
+        <result property="addr" column="ADDR_1"/>
+        <result property="addrDetail" column="ADDR_2"/>
+        <result property="isHome" column="IS_HOME"/>
+
+        <!-- 주문 상품 리스트 -->
+        <collection property="items" ofType="store.seub2hu2.mypage.dto.OrderResultItemDto">
+            <id property="orderProdNo" column="ORDER_PROD_NO"/>
+            <result property="prodNo" column="PROD_NO"/>
+            <result property="prodName" column="PROD_NAME"/>
+            <result property="orderProdAmount" column="ORDER_PROD_AMOUNT"/>
+            <result property="orderUnitPrice" column="ORDER_UNIT_PRICE"/>
+            <result property="orderEachPrice" column="ORDER_EACH_PRICE"/>
+            <result property="sizeNo" column="SIZE_NO"/>
+            <result property="prodSize" column="PROD_SIZE"/>
+            <result property="prodColor" column="COLOR_NAME"/>
+        </collection>
+    </resultMap>
+
+    <select id="getOrderResult" resultMap="orderResultMap">
+        SELECT
+        PA.PAY_NO
+        ,PA.PAY_ID
+        ,PA.PAY_AMOUNT
+        ,PA.PAY_CANCEL_DATE
+        ,PA.PAY_DATE
+        ,PA.PAY_METHOD
+        ,PA.PAY_PRICE
+        ,PA.PAY_TYPE
+        ,O.ORDER_NO
+        ,O.ORDER_NUMBER
+        ,O.ORDER_DATE
+        ,O.ORDER_STATUS
+        ,O.ORDER_PRICE
+        ,O.DIS_PRICE
+        ,O.DEL_PAYMENT
+        ,O.REAL_PRICE
+        ,O.ORDER_CREATED_DATE
+        ,O.ORDER_UPDATED_DATE
+        ,OP.ORDER_PROD_NO
+        ,OP.ORDER_PROD_AMOUNT
+        ,OP.ORDER_UNIT_PRICE
+        ,OP.ORDER_EACH_PRICE
+        ,PS.SIZE_NO
+        ,PS.PROD_SIZE
+        ,PS.PROD_AMOUNT
+        ,PC.COLOR_NO
+        ,PC.COLOR_NAME
+        ,P.PROD_NO
+        ,P.PROD_NAME
+        ,D.DELI_NO
+        ,D.DELI_COM
+        ,D.DELI_STATUS
+        ,D.DELI_MEMO
+        ,D.DELI_PHONENUMBER
+        ,AD.ADDR_NO
+        ,AD.ADDR_NAME
+        ,AD.ZIP_CODE
+        ,AD.ADDR_1
+        ,AD.ADDR_2
+        from PAYMENTS PA
+        JOIN ORDERS O
+        ON PA.PAY_NO = O.PAY_NO
+        JOIN ORDER_PRODUCTS OP
+        ON O.ORDER_NO = OP.ORDER_NO
+        JOIN PROD_SIZES PS
+        ON PS.SIZE_NO = OP.SIZE_NO
+        JOIN PROD_COLORS PC
+        ON PC.COLOR_NO = PS.COLOR_NO
+        JOIN PRODUCTS P
+        ON P.PROD_NO = PC.PROD_NO
+        JOIN DELIVERIES D
+        ON D.ORDER_NO = O.ORDER_NO
+        JOIN ADDRESSES AD
+        ON AD.ADDR_NO = D.ADDR_NO
+        WHERE O.ORDER_NO = #{orderNo}
+    </select>
+
+    <!--
+        List<OrderResultDto> getOrderResultItems(@Param("orderNo") int orderNo);
+    -->
+
+    <resultMap id="orderResultItemMap" type="store.seub2hu2.mypage.dto.OrderResultDto">
+        <id property="orderNo" column="ORDER_NO" />
+        <!-- 결제 관련 -->
+        <result property="payNo" column="PAY_NO"/>
+        <result property="payId" column="PAY_ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="payDate" column="PAY_DATE"/>
+        <result property="payCancelDate" column="PAY_CANCEL_DATE"/>
+        <result property="payMethod" column="PAY_METHOD"/>
+        <result property="payPrice" column="PAY_PRICE"/>
+        <result property="payAmount" column="PAY_AMOUNT"/>
+        <result property="payType" column="PAY_TYPE"/>
+        <result property="refund" column="REFUND"/>
+
+        <!-- 주문 관련 -->
+        <result property="orderDate" column="ORDER_DATE"/>
+        <result property="orderId" column="ORDER_NUMBER"/>
+        <result property="orderStatus" column="ORDER_STATUS"/>
+        <result property="orderPrice" column="ORDER_PRICE"/>
+        <result property="delPayment" column="DEL_PAYMENT"/>
+        <result property="disPrice" column="DIS_PRICE"/>
+        <result property="realPrice" column="REAL_PRICE"/>
+
+        <!-- 배송 관련 -->
+        <result property="delNo" column="DELI_NO"/>
+        <result property="delCom" column="DELI_COM"/>
+        <result property="delStatus" column="DELI_STATUS"/>
+        <result property="delMemo" column="DELI_MEMO"/>
+        <result property="delPhoneNumber" column="DELI_PHONENUMBER"/>
+
+        <!-- 배송 주소 관련 -->
+        <result property="addrNo" column="ADDR_NO"/>
+        <result property="userNo" column="USER_NO"/>
+        <result property="addrName" column="ADDR_NAME"/>
+        <result property="postcode" column="ZIP_CODE"/>
+        <result property="addr" column="ADDR_1"/>
+        <result property="addrDetail" column="ADDR_2"/>
+        <result property="isHome" column="IS_HOME"/>
+
+        <!-- 주문 상품 리스트 -->
+        <collection property="items" ofType="store.seub2hu2.mypage.dto.OrderResultItemDto">
+            <id property="orderProdNo" column="ORDER_PROD_NO"/>
+            <result property="prodNo" column="PROD_NO"/>
+            <result property="prodName" column="PROD_NAME"/>
+            <result property="orderProdAmount" column="ORDER_PROD_AMOUNT"/>
+            <result property="orderUnitPrice" column="ORDER_UNIT_PRICE"/>
+            <result property="orderEachPrice" column="ORDER_EACH_PRICE"/>
+            <result property="prodSize" column="PROD_SIZE"/>
+            <result property="prodColor" column="COLOR_NAME"/>
+        </collection>
+    </resultMap>
+    <select id="getOrderResultItems" resultMap="orderResultItemMap">
+        SELECT
+            PA.PAY_NO
+             ,PA.PAY_ID
+             ,PA.PAY_AMOUNT
+             ,PA.PAY_CANCEL_DATE
+             ,PA.PAY_DATE
+             ,PA.PAY_METHOD
+             ,PA.PAY_PRICE
+             ,PA.PAY_TYPE
+             ,O.ORDER_NO
+             ,O.ORDER_NUMBER
+             ,O.ORDER_DATE
+             ,O.ORDER_STATUS
+             ,O.ORDER_PRICE
+             ,O.DIS_PRICE
+             ,O.DEL_PAYMENT
+             ,O.REAL_PRICE
+             ,O.ORDER_CREATED_DATE
+             ,O.ORDER_UPDATED_DATE
+             ,OP.ORDER_PROD_NO
+             ,OP.ORDER_PROD_AMOUNT
+             ,OP.ORDER_UNIT_PRICE
+             ,OP.ORDER_EACH_PRICE
+             ,PS.SIZE_NO
+             ,PS.PROD_SIZE
+             ,PS.PROD_AMOUNT
+             ,PC.COLOR_NO
+             ,PC.COLOR_NAME
+             ,P.PROD_NO
+             ,P.PROD_NAME
+             ,D.DELI_NO
+             ,D.DELI_COM
+             ,D.DELI_STATUS
+             ,D.DELI_MEMO
+             ,D.DELI_PHONENUMBER
+             ,AD.ADDR_NO
+             ,AD.ADDR_NAME
+             ,AD.ZIP_CODE
+             ,AD.ADDR_1
+             ,AD.ADDR_2
+        from PAYMENTS PA
+                 JOIN ORDERS O
+                      ON PA.PAY_NO = O.PAY_NO
+                 JOIN ORDER_PRODUCTS OP
+                      ON O.ORDER_NO = OP.ORDER_NO
+                 JOIN PROD_SIZES PS
+                      ON PS.SIZE_NO = OP.SIZE_NO
+                 JOIN PROD_COLORS PC
+                      ON PC.COLOR_NO = PS.COLOR_NO
+                 JOIN PRODUCTS P
+                      ON P.PROD_NO = PC.PROD_NO
+                 JOIN DELIVERIES D
+                      ON D.ORDER_NO = O.ORDER_NO
+                 JOIN ADDRESSES AD
+                      ON AD.ADDR_NO = D.ADDR_NO
+        WHERE O.ORDER_NO = #{orderNo}
+    </select>
+
+</mapper>

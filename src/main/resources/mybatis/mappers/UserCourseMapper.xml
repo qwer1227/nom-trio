@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.course.mapper.UserCourseMapper">
+    <!--
+        int getLevelRecordRows(@Param("userNo") int userNo, @Param("level") int level);
+    -->
+    <select id="getLevelRecordRows" resultType="int">
+        select count(*)
+        from (
+                 select row_number() over (order by ar.finished_hour, ar.finished_minute, ar.finished_second) rn
+						, ar.*
+                 from (
+                          select
+                              rank() over (order by r.finished_hour, r.finished_minute, r.finished_second) as no
+								, c.course_no
+                               , c.course_name
+                               , c.course_distance
+                               , c.course_level
+                               , r.finished_no
+                               , r.finished_date
+                               , r.finished_hour
+                               , r.finished_minute
+                               , r.finished_second
+                               , u.user_no
+                               , u.user_nickname
+                          from COURSES c inner join COURSE_RECORDS r
+                          on c.course_no = r.course_no
+                              inner join USERS u
+                              on r.user_no = u.user_no
+                      ) ar
+                 where ar.user_no = #{userNo}
+                   and ar.course_level = #{level}) x;
+    </select>
+
+    <!--
+        int getTotalRows(@Param("condition") Map<String, Object> condition);
+     -->
+    <select id="getTotalRows" resultType="int">
+        select count(*)
+        from COURSE_RECORDS
+        <where>
+            <if test="condition.courseNo != null">
+                and course_no = #{condition.courseNo}
+            </if>
+            <if test="condition.userNo != null">
+                and user_no = #{condition.userNo}
+            </if>
+        </where>
+    </select>
+
+    <!--
+        int getTotalRegisterRows(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getTotalRegisterRows" resultType="int">
+        select count(*)
+        from CHALLENGE_WHETHER
+        where user_no = #{condition.userNo}
+    </select>
+
+    <!--
+        int getTotalSuccessCourseRows(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getTotalSuccessCourseRows" resultType="int">
+        select count(*)
+        from (select c.course_no
+                   , c.course_name
+                   , c.course_distance
+                   , c.course_level
+                   , count(*)
+              from COURSE_RECORDS r inner join COURSES c
+              on r.course_no = c.course_no
+              where r.user_no = #{condition.userNo}
+              group by c.course_no) cr
+    </select>
+
+    <!--
+        int getTotalAllSuccessCountRankRows(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getTotalAllSuccessCountRankRows" resultType="int">
+        select count(*)
+        from (select u.user_no
+                   , u.user_nickname
+                   , count(*)
+                   , rank() over (order by count(*) desc) as rn
+              from COURSE_RECORDS r inner join USERS u
+              on r.user_no = u.user_no
+              group by u.user_no) cr;
+    </select>
+
+    <!--
+        List<UserBadge> getUserBadge(@Param("userNo") int userNo);
+    -->
+    <select id="getUserBadge" resultType="store.seub2hu2.course.vo.UserBadge">
+        select ub.user_no as "user.no"
+             , b.badge_no as "badge.no"
+             , b.badge_name as "badge.name"
+             , b.badge_description as "badge.description"
+             , b.badge_img as "badge.image"
+        from USER_BADGES ub inner join BADGES b
+        on ub.badge_no = b.badge_no
+        where ub.user_no = #{userNo}
+        order by b.badge_no
+    </select>
+
+    <!--
+        UserLevel getUserLevel(@Param("userNo") int userNo);
+    -->
+    <select id="getUserLevel" resultType="store.seub2hu2.course.vo.UserLevel">
+        select u.user_no as userNo
+            , l.challenge_level as level
+        from USERS u inner join COURSE_USER_LEVELS l
+        on u.user_no = l.user_no
+        where u.user_no = #{userNo}
+    </select>
+
+    <!--
+        List<Records> getRecords(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getRecords" resultType="store.seub2hu2.course.vo.Records">
+        select *
+        from (
+                select
+                        <if test="condition.courseNo != null">
+                            rank() over (order by r.finished_hour, r.finished_minute, r.finished_second) as no
+                            , row_number() over (order by r.finished_hour, r.finished_minute, r.finished_second) as rn
+                        </if>
+                        <if test="condition.courseNo == null">
+                            row_number() over (order by r.finished_no desc) as rn
+                        </if>
+                        , c.course_no
+                        , c.course_name as "course.name"
+                        , c.course_distance as "course.distance"
+                        , c.course_level as "course.level"
+                        , r.finished_no
+                        , r.finished_date as finishedDate
+                        , r.finished_hour as hour
+                        , r.finished_minute as minute
+                        , r.finished_second as second
+                        , r.course_no as "course.no"
+                        , u.user_no as "user.no"
+                        , u.user_nickname as "user.nickname"
+                from COURSES c inner join COURSE_RECORDS r
+                on c.course_no = r.course_no
+                inner join USERS u
+                on r.user_no = u.user_no
+                <where>
+                    <if test="condition.courseNo != null">
+                        c.course_no = #{condition.courseNo}
+                    </if>
+                    <if test="condition.userNo != null">
+                        and r.user_no = #{condition.userNo}
+                    </if>
+                </where>
+            ) ar
+        where rn between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        List<Course> getCoursesToChallenge(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getCoursesToChallenge" resultType="store.seub2hu2.course.vo.Course">
+        select *
+        from (
+                 select row_number() over (order by w.challenge_no desc) as rn
+                      , c.course_no as no
+                      , c.course_name as name
+                      , c.course_distance as distance
+                      , c.course_level as level
+                      , w.challenge_no
+                      , w.user_no as "user.no"
+                      , r.region_si as "region.si"
+                      , r.region_gu as "region.gu"
+                      , r.region_dong as "region.dong"
+                 from COURSES c inner join CHALLENGE_WHETHER w
+                 on c.course_no = w.course_no
+                 inner join COURSE_REGION r
+                 on c.region_no = r.region_no
+                 where w.user_no = #{condition.userNo}
+             ) ar
+        where rn between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        List<Records> getMyRecords(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getMyRecords" resultType="store.seub2hu2.course.vo.Records">
+        select x.rn
+            , x.no
+            , x.course_no as "course.no"
+            , x.course_name as "course.name"
+            , x.course_distance as "course.distance"
+            , x.course_level as "course.level"
+            , x.finished_no as no
+            , x.finished_date as finishedDate
+            , x.finished_hour as hour
+            , x.finished_minute as minute
+            , x.finished_second as second
+            , x.user_no as "user.no"
+            , x.user_nickname as "user.nickname"
+        from (
+                 select row_number() over (order by ar.finished_hour, ar.finished_minute, ar.finished_second) rn
+						, ar.*
+                 from (
+                          select
+                              rank() over (order by r.finished_hour, r.finished_minute, r.finished_second) as no
+								, c.course_no
+                               , c.course_name
+                               , c.course_distance
+                               , c.course_level
+                               , r.finished_no
+                               , r.finished_date
+                               , r.finished_hour
+                               , r.finished_minute
+                               , r.finished_second
+                               , u.user_no
+                               , u.user_nickname
+                          from COURSES c inner join COURSE_RECORDS r
+                          on c.course_no = r.course_no
+                          inner join USERS u
+                          on r.user_no = u.user_no
+                          where c.course_no = #{condition.courseNo}
+                      ) ar
+                 where ar.user_no = #{condition.userNo}) x
+        where x.rn between #{condition.myBegin} and #{condition.myEnd};
+    </select>
+
+    <!--
+        SuccessRankForm getMySuccessCountRank(@Param("userNo") int userNo);
+    -->
+    <select id="getMySuccessCountRank" resultType="store.seub2hu2.course.dto.SuccessCountRankForm">
+        select cr.user_no as userNo
+             , cr.user_nickname as nickName
+             , cr.cnt as successCount
+             , cr.rn as ranking
+        from (select u.user_no
+                   , u.user_nickname
+                   , count(*) as cnt
+                   , rank() over (order by count(*) desc) as rn
+              from COURSE_RECORDS r inner join USERS u
+                                               on r.user_no = u.user_no
+              group by u.user_no) cr
+        where cr.user_no = #{userNo};
+    </select>
+
+    <!--
+        List<SuccessCoursesForm> getSuccessCourses(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getSuccessCourses" resultType="store.seub2hu2.course.dto.SuccessCoursesForm">
+        select cr.course_no as courseNo
+             , cr.course_name as courseName
+             , cr.course_distance as distance
+             , cr.course_level as level
+             , cr.user_no as userNo
+             , cr.user_nickname as nickname
+             , cr.rn
+             , cr.count as successCount
+        from (select c.course_no
+                   , c.course_name
+                   , c.course_distance
+                   , c.course_level
+                   , u.user_no
+                   , u.user_nickname
+                   , row_number() over (order by c.course_no asc) as rn
+                   , count(*) as count
+              from COURSE_RECORDS r inner join COURSES c
+              on r.course_no = c.course_no
+              inner join USERS u
+              on r.user_no = u.user_no
+              where r.user_no = #{condition.userNo}
+              group by c.course_no) cr
+        where rn between #{condition.begin} and #{condition.end};
+    </select>
+
+    <!--
+        List<SuccessRankForm> getAllSuccessCountRanks(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getAllSuccessCountRanks" resultType="store.seub2hu2.course.dto.SuccessCountRankForm">
+        select cr.user_no as userNo
+             , cr.user_nickname as nickName
+             , cr.cnt as successCount
+             , cr.rn as ranking
+        from (select u.user_no
+                   , u.user_nickname
+                   , count(*) as cnt
+                   , rank() over (order by count(*) desc) as rn
+                   , row_number() over (order by count(*) desc) as rn2
+              from COURSE_RECORDS r inner join USERS u
+              on r.user_no = u.user_no
+              group by u.user_no) cr
+        where cr.rn2 between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        SuccessWhether checkSuccess(@Param("userNo") int userNo, @Param("courseNo") int courseNo);
+    -->
+    <select id="checkSuccess" resultType="store.seub2hu2.course.vo.SuccessWhether">
+        select s.course_no as "courseNo"
+             , u.user_no as "user.no"
+             , u.user_nickname as "user.nickname"
+        from SUCCESS_WHETHER s
+        inner join USERS u
+        on s.user_no = u.user_no
+        where u.user_no = #{userNo}
+        and s.course_no = #{courseNo};
+    </select>
+
+    <!--
+        ChallengeWhether checkChallenge(@Param("courseNo") int courseNo, @Param("userNo") int userNo);
+    -->
+    <select id="checkChallenge" resultType="store.seub2hu2.course.vo.ChallengeWhether">
+        select course_no as courseNo
+             , user_no as "user.no"
+        from CHALLENGE_WHETHER
+        where course_no = #{courseNo}
+        and user_no = #{userNo}
+    </select>
+
+    <!--
+        CourseLike getCourseLike(@Param("courseNo") int courseNo, @Param("userNo") int userNo);
+    -->
+    <select id="getCourseLike" resultType="store.seub2hu2.course.vo.CourseLike">
+        select course_no as "course.no"
+             , user_no as "user.no"
+        from COURSE_LIKES
+        where course_no = #{courseNo}
+        and user_no = #{userNo}
+    </select>
+
+    <!--
+        void insertRecord(@Param("form") AddRecordForm form, int userNo);
+    -->
+    <insert id="insertRecord">
+        insert into COURSE_RECORDS
+            (finished_date
+            , finished_hour
+            , finished_minute
+            , finished_second
+            , user_no
+            , course_no)
+        values
+            (#{form.finishedDate}
+            , #{form.hour}
+            , #{form.minute}
+            , #{form.second}
+            , #{userNo}
+            , #{form.courseNo})
+    </insert>
+
+    <!--
+        void insertSuccess(@Param("courseNo") int courseNo, @Param("userNo") int userNo);
+    -->
+    <insert id="insertSuccess">
+        insert into SUCCESS_WHETHER
+            (course_no
+            , user_no)
+        values
+            (#{courseNo}
+            , #{userNo})
+    </insert>
+
+    <!--
+        void insertUserBadge(@Param("userNo") int userNo);
+    -->
+    <insert id="insertUserBadge">
+        insert into USER_BADGES
+            (user_no
+            , badge_no)
+        values
+            (#{userNo}
+            , #{badgeNo})
+    </insert>
+
+    <!--
+        void updateUserLevel(@Param("level") int level);
+    -->
+    <update id="updateUserLevel">
+        update COURSE_USER_LEVELS
+        set challenge_level = #{level}
+        where user_no = #{userNo}
+    </update>
+
+    <!--
+        void insertChallenger(@Param("courseNo") int courseNo, @Param("userNo") int userNo);
+    -->
+    <insert id="insertChallenger">
+        insert into CHALLENGE_WHETHER
+            (course_no
+            , user_no)
+        values
+            (#{courseNo}
+            , #{userNo})
+    </insert>
+
+    <!--
+        void deleteChallenger(@Param("courseNo") int courseNo, @Param("userNo") int userNo);
+    -->
+    <delete id="deleteChallenger">
+        delete from CHALLENGE_WHETHER
+        where course_no = #{courseNo}
+        and user_no = #{userNo}
+    </delete>
+
+    <!--
+        void updateLikeCount(@Param("courseNo") int courseNo);
+    -->
+    <update id="updateLikeCount">
+        update COURSES
+        set course_like_cnt = #{likeCount}
+        where course_no = #{courseNo}
+    </update>
+
+    <!--
+        void insertLikeUser(@Param("userNo") int userNo, @Param("courseNo") int courseNo);
+    -->
+    <insert id="insertLikeUser">
+        insert into COURSE_LIKES
+            (course_no
+            , user_no)
+        values
+            (#{courseNo}
+            , #{userNo})
+    </insert>
+
+    <!--
+        void deleteLikeUser(@Param("userNo") int userNo, @Param("courseNo") int courseNo);
+    -->
+    <delete id="deleteLikeUser">
+        delete from COURSE_LIKES
+        where user_no = #{userNo}
+        and course_no = #{courseNo}
+    </delete>
+</mapper>

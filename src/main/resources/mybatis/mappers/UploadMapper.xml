@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.UploadMapper">
+
+  <!-- void insertBoardFile(UploadFile uploadFile); -->
+  <insert id="insertBoardFile" parameterType="store.seub2hu2.community.vo.UploadFile">
+    insert into BOARD_UPLOADFILES
+    ( board_no
+    , file_original_name
+    , file_save_name)
+    values ( #{uploadFile.no}
+           , #{uploadFile.originalName}
+           , #{uploadFile.saveName})
+  </insert>
+
+  <!-- List<UploadFile> getBoardFiles(); 관리자가 필요할 수도 있어서 만들어놓음 -->
+  <select id="getBoardFiles" resultType="store.seub2hu2.community.vo.UploadFile">
+    select file_no as fileNo
+         , board_no as no
+        , file_original_name    as originalName
+        , file_save_name        as saveName
+        , is_deleted            as deleted
+        , file_created_date     as createdDate
+    from
+      BOARD_CATEGOIES
+    where
+      is_deleted is not null
+    order by file_no desc
+  </select>
+
+  <!-- UploadFile getFileByBoardNo(int boardNo); -->
+  <select id="getFileByBoardNo" parameterType="int" resultType="store.seub2hu2.community.vo.UploadFile">
+    select b.board_no as no
+         , bu.file_no                   as fileNo
+         , bu.file_original_name        as originalName
+         , bu.file_save_name            as saveName
+         , bu.is_deleted                as deleted
+         , bu.file_created_date         as createdDate
+    from
+      BOARDS b join BOARD_UPLOADFILES bu
+    on b.board_no = bu.board_no
+    where
+      b.board_no = #{uploadFile.no}
+      and bu.is_deleted = 'N'
+  </select>
+
+  <!-- void updateBoardFile(UploadFile uploadFile); -->
+  <update id="updateBoardFile" parameterType="store.seub2hu2.community.vo.UploadFile">
+    update
+      BOARD_UPLOADFILES
+    set is_deleted        = #{deleted}
+      , file_updated_date = sysdate()
+    where board_no = #{no}
+  </update>
+
+  <!-- void insertNoticeFile(@Param("uploadFile") UploadFile uploadFile); -->
+  <insert id="insertNoticeFile">
+    insert into NOTICE_UPLOADFILES
+    ( notice_no
+    , file_original_name
+    , file_save_name)
+    values ( #{uploadFile.no}
+           , #{uploadFile.originalName}
+           , #{uploadFile.saveName})
+  </insert>
+
+  <!-- UploadFile getFileByNoticeNo(int noticeNo); -->
+  <select id="getFileByNoticeNo" parameterType="int" resultType="store.seub2hu2.community.vo.UploadFile">
+    select n.notice_no as no
+        , nu.file_no            as fileNo
+        , nu.file_original_name as originalName
+        , nu.file_save_name     as saveName
+        , nu.is_deleted         as deleted
+        , nu.file_created_date  as createdDate
+    from
+      NOTICES n join NOTICE_UPLOADFILES nu
+    on n.notice_no = nu.notice_no
+    where
+      n.notice_no = #{uploadFile.no}
+      and nu.is_deleted = 'N'
+  </select>
+
+  <!-- void updateNoticeFile(UploadFile uploadFile); -->
+  <update id="updateNoticeFile" parameterType="store.seub2hu2.community.vo.UploadFile">
+    update NOTICE_UPLOADFILES
+    set is_deleted        = #{deleted}
+      , file_updated_date = sysdate()
+    where notice_no = #{no}
+  </update>
+
+  <!-- void insertCrewFile(@Param("uploadFile") UploadFile uploadFile); -->
+  <insert id="insertCrewFile">
+    insert into CREW_FILES
+    ( crew_no
+    , file_original_name
+    , file_save_name)
+    values ( #{uploadFile.no}
+           , #{uploadFile.originalName}
+           , #{uploadFile.saveName})
+  </insert>
+
+  <!-- UploadFile getThumbnailByCrewNo(int crewNo); -->
+  <select id="getThumbnailByCrewNo" parameterType="int" resultType="store.seub2hu2.community.vo.UploadFile">
+    select c.crew_no as no
+        , cf.file_no            as fileNo
+        , cf.file_original_name as originalName
+        , cf.file_save_name     as saveName
+        , cf.is_deleted         as deleted
+        , cf.file_created_date  as createdDate
+    from
+      CREWS c join CREW_FILES cf
+    on c.crew_no = cf.crew_no
+    where
+      c.crew_no = #{uploadFile.no}
+      and cf.file_save_name = c.crew_thumbnail
+      and cf.is_deleted = 'N'
+  </select>
+
+  <!-- UploadFile getFileByCrewNo(int crewNo); -->
+  <select id="getFileByCrewNo" parameterType="int" resultType="store.seub2hu2.community.vo.UploadFile">
+    select c.crew_no as no
+        , cf.file_no            as fileNo
+        , cf.file_original_name as originalName
+        , cf.file_save_name     as saveName
+        , cf.is_deleted         as deleted
+        , cf.file_created_date  as createdDate
+    from
+      CREWS c join CREW_FILES cf
+    on c.crew_no = cf.crew_no
+    where
+      c.crew_no = #{uploadFile.no}
+      and cf.file_save_name = c.file_name
+      and cf.is_deleted = 'N'
+  </select>
+
+  <!-- void updateCrewFile(@Param("fileNo") int fileNo); -->
+  <update id="updateCrewFile" parameterType="store.seub2hu2.community.vo.UploadFile">
+    update CREW_FILES
+    set is_deleted        = 'Y'
+      , file_updated_date = sysdate()
+    where file_no = #{fileNo}
+  </update>
+
+</mapper>

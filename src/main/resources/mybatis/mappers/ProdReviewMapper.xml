@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="store.seub2hu2.product.mapper.ProdReviewMapper">
+
+    <!--
+        void insertProdReview(ProdReview prodReview);
+    -->
+    <insert id="insertProdReview">
+        INSERT INTO PROD_REVIEWS
+        (PROD_NO, USER_NO, REVIEW_TITLE, REVIEW_CONTENT, REVIEW_RATING)
+        VALUES
+        (#{review.prodNo}, #{review.userNo}, #{review.title}, #{review.content}, #{review.rating})
+
+
+        <selectKey resultType="int" keyProperty="review.no" keyColumn="review_no" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!--
+        void insertProdReviewsImg(ProdReviewImg prodReviewImg);
+    -->
+    <insert id="insertProdReviewsImg">
+        INSERT INTO REVIEW_PROD_IMGS
+        (REVIEW_PROD_IMG_NAME, REVIEW_NO)
+        VALUES
+        (#{imgName}, #{reviewNo})
+    </insert>
+
+    <!--
+        void updateProdReview(@Param("review") ProdReview prodReview);
+    -->
+    <update id="updateProdReview">
+        UPDATE PROD_REVIEWS
+        SET
+            REVIEW_TITLE = #{review.title},
+            REVIEW_CONTENT = #{review.content},
+            REVIEW_RATING = #{review.rating}
+        WHERE REVIEW_NO = #{review.no}
+    </update>
+
+
+    <!--
+       void deleteProdReview(@Param("reviewNo") int reviewNo);
+    -->
+    <update id="deleteProdReview">
+        UPDATE PROD_REVIEWS
+        SET
+            ISDELETED = 'Y'
+        WHERE REVIEW_NO = #{reviewNo}
+    </update>
+
+    <resultMap id="ProdReviewDtoResultMap" type="store.seub2hu2.product.dto.ProdReviewDto">
+
+        <!-- 리뷰 정보 -->
+        <id property="reviewNo" column="REVIEW_NO"/>
+        <result property="reviewTitle" column="REVIEW_TITLE"/>
+        <result property="reviewContent" column="REVIEW_CONTENT"/>
+        <result property="rating" column="REVIEW_RATING"/>
+        <result property="reviewDate" column="REVIEW_DATE"/>
+
+        <!-- 상품 정보 -->
+        <result property="prodNo" column="PROD_NO"/>
+        <result property="prodName" column="PROD_NAME"/>
+
+        <!-- 색상 정보 -->
+        <result property="colorNo" column="COLOR_NO"/>
+        <result property="colorName" column="COLOR_NAME"/>
+
+        <result property="userNo" column="USER_NO"/>
+        <result property="userName" column="USER_NAME"/>
+        <result property="userNickname" column="USER_NICKNAME"/>
+
+        <collection property="prodReviewImgs" ofType="store.seub2hu2.product.vo.ProdReviewImg">
+            <id property="no" column="REVIEW_PROD_IMG_NO"/>
+            <result property="imgName" column="REVIEW_PROD_IMG_NAME"/>
+        </collection>
+    </resultMap>
+    <select id="prodReviewDto" resultMap="ProdReviewDtoResultMap">
+        SELECT PR.REVIEW_NO
+             ,PR.REVIEW_TITLE
+             ,PR.REVIEW_CONTENT
+             ,PR.REVIEW_DATE
+             ,PR.REVIEW_UPDATED_DATE
+             ,PR.REVIEW_RATING
+             ,PR.ISDELETED
+             ,PRI.REVIEW_PROD_IMG_NO
+             ,PRI.REVIEW_PROD_IMG_NAME
+             ,P.PROD_NO
+             ,P.PROD_NAME
+             ,P.PROD_RATING
+             ,PC.COLOR_NO
+             ,PC.COLOR_NAME
+             ,U.USER_NO
+             ,U.USER_NAME
+             ,U.USER_NICKNAME
+        FROM PROD_REVIEWS PR
+                 JOIN USERS U
+                      ON PR.USER_NO = U.USER_NO
+                 JOIN REVIEW_PROD_IMGS PRI
+                      ON PR.REVIEW_NO = PRI.REVIEW_NO
+                 JOIN PRODUCTS P
+                      ON PR.PROD_NO = P.PROD_NO
+                 JOIN PROD_COLORS PC
+                      ON P.PROD_NO = PC.PROD_NO
+        WHERE P.PROD_NO= #{prodNo}
+          AND PR.ISDELETED = 'N'
+    </select>
+
+    <!--
+        ProdReview prodReview(@Param("reviewNo") int reviewNo);
+    -->
+    <select id="getProdReviewByNo" resultType="store.seub2hu2.product.vo.ProdReview">
+        SELECT REVIEW_NO AS no
+              ,PROD_NO as prodNo
+              ,USER_NO as userNo
+             ,REVIEW_TITLE AS title
+             ,REVIEW_CONTENT AS content
+             ,REVIEW_DATE AS createdDate
+             ,REVIEW_UPDATED_DATE AS updatedDate
+             ,REVIEW_RATING AS rating
+             ,ISDELETED AS isDeleted
+        FROM PROD_REVIEWS
+        WHERE REVIEW_NO = #{reviewNo}
+        AND ISDELETED = 'N'
+    </select>
+
+    <select id="calculateAverageRatingByProdNo" resultType="java.lang.Double">
+        SELECT COALESCE(AVG(REVIEW_RATING), 0)
+        FROM PROD_REVIEWS
+        WHERE PROD_NO = #{prodNo};
+    </select>
+</mapper>

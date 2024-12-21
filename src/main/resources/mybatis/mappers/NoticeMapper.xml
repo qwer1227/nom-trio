@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.NoticeMapper">
+
+  <!-- void insertNotice(@Param("notice") Notice notice); -->
+  <insert id="insertNotice">
+    insert into NOTICES
+    (
+    notice_title
+    , notice_content
+    , notice_first
+    , notice_updated_date
+    <if test="notice.uploadFile != null">
+      , file_name
+    </if>
+    )
+    values
+    (
+    #{notice.title}
+    , #{notice.content}
+    , #{notice.first}
+    , null
+    <if test="notice.uploadFile != null">
+      , #{notice.uploadFile.originalName}
+    </if>
+    )
+    <selectKey resultType="int" keyProperty="notice.no" keyColumn="notice_no" order="AFTER">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+  </insert>
+
+  <!-- List<Notice> getNotices(@Param("condition") Map<String, String> condition); -->
+  <select id="getNotices" resultType="store.seub2hu2.community.vo.Notice">
+    select *
+    from (select
+    <if test="condition.sort != null">
+      <choose>
+        <when test="condition.sort == 'import'">
+          row_number() over(order by notice_first desc, notice_created_date desc) rn
+        </when>
+        <when test="condition.sort == 'date'">
+          row_number() over(order by notice_created_date desc) rn
+        </when>
+        <when test="condition.sort == 'viewCnt'">
+          row_number() over(order by notice_view_cnt desc) rn
+        </when>
+      </choose>
+    </if>
+    , notice_no as no
+    , notice_title as title
+    , notice_content      as content
+    , notice_created_date as createdDate
+    , notice_first        as `first`
+    , notice_view_cnt     as viewCnt
+    from NOTICES
+    where is_deleted = 'N') n
+    where rn between #{condition.begin} and #{condition.end}
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and title like concat ('%', #{condition.keyword}, '%')
+          || content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'content'">
+          and content like concat('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+    order by rn
+  </select>
+
+  <!-- List<Notice> getNoticesTopFive(@Param("condition") Map<String, Object> condition); -->
+  <select id="getNoticesTopFive" resultType="store.seub2hu2.community.vo.Notice">
+    select *
+    from (select row_number() over(order by notice_created_date desc) rn
+                    , notice_no as no
+                    , notice_title as title
+          from NOTICES
+          where notice_first = '1'
+            and is_deleted = 'N') notice limit 5
+  </select>
+
+  <!-- int getTotalRowsForNotice(@Param("condition") Map<String, String> condition); -->
+  <select id="getTotalRowsForNotice" resultType="int">
+    select count(*)
+    from NOTICES
+    where is_deleted = "N"
+    <if test="condition.opt != null">
+      <choose>
+        <when test="condition.opt == 'all'">
+          and notice_title like concat ('%', #{condition.keyword}, '%')
+          || notice_content like concat('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'title'">
+          and notice_title like concat ('%', #{condition.keyword}, '%')
+        </when>
+        <when test="condition.opt == 'content'">
+          and notice_content like concat('%', #{condition.keyword}, '%')
+        </when>
+      </choose>
+    </if>
+  </select>
+
+  <!-- Notice getNoticeByNo(@Param("no") int noticeNo); -->
+  <select id="getNoticeByNo" resultType="store.seub2hu2.community.vo.Notice">
+    select notice_no as no
+         , notice_title        as title
+         , notice_content      as content
+         , file_name           as "uploadFile.originalName"
+         , notice_created_date as createdDate
+         , notice_view_cnt     as viewCnt
+    from NOTICES
+    where is_deleted = 'N'
+      and notice_no = #{no}
+  </select>
+
+  <!-- void updateNotice(@Param("notice") Notice notice); -->
+  <update id="updateNotice">
+    update NOTICES
+    set notice_first = #{notice.first}
+    , notice_title = #{notice.title}
+    , notice_content = #{notice.content}
+    , notice_updated_date = sysdate()
+    , is_deleted = #{notice.deleted}
+    <if test="notice.uploadFile != null">
+      , file_name = #{notice.uploadFile.originalName}
+    </if>
+    where notice_no = #{notice.no}
+  </update>
+
+  <!-- void updateNoticeCnt(@Param("notice") Notice notice); -->
+  <update id="updateNoticeCnt">
+    update NOTICES
+    set notice_view_cnt = #{notice.viewCnt}
+    where notice_no = #{notice.no}
+  </update>
+
+  <!-- int getTopNoticeCnt(); -->
+  <select id="getTopNoticeCnt">
+    select count(*)
+    from NOTICES
+    where is_deleted = 'N'
+      and notice_first = 1
+  </select>
+
+  <!-- void updateTopNoticeToNotFirst(); -->
+  <update id="updateTopNoticeToNotFirst">
+    update NOTICES
+    set notice_first = '0'
+    where notice_no = (
+      select no from (
+      select notice_no as no
+      from NOTICES
+      where notice_first = '1' and is_deleted = 'N'
+      order by notice_created_date asc
+      limit 1
+      ) temp
+      )
+  </update>
+</mapper>

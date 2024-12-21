@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.BoardScrapMapper">
+
+  <!-- int hasUserScrapedBoard(@Param("no") int boardNo, @Param("userNo") int userNo); -->
+  <select id="hasUserScrapedBoard">
+    select EXISTS (
+      SELECT 1
+      FROM BOARD_SCRAPS
+      WHERE board_no = #{no} and user_no = #{userNo});
+  </select>
+
+  <!-- void insertScrap(@Param("no") int boardNo, @Param("userNo") int userNo); -->
+  <insert id="insertScrap">
+    insert into BOARD_SCRAPS
+        (
+         board_no
+          , user_no
+          , scrap_date
+        )
+    values
+        (
+         #{no}
+          , #{userNo}
+          , sysdate()
+        )
+  </insert>
+
+  <!-- void deleteScrap(@Param("no") int boardNo, @Param("userNo") int userNo); -->
+  <delete id="deleteScrap">
+    delete from BOARD_SCRAPS
+    where board_no = #{no}
+        and user_no = #{userNo}
+  </delete>
+</mapper>

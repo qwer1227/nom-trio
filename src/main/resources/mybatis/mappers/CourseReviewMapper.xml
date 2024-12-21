@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.course.mapper.ReviewMapper">
+    <resultMap id="ReviewResultMap" type="store.seub2hu2.course.vo.Review">
+        <id property="no" column="review_no"/>
+        <result property="title" column="review_title"/>
+        <result property="content" column="review_content"/>
+        <result property="likeCnt" column="review_like_cnt"/>
+        <result property="createdDate" column="review_created_date"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <association property="course" javaType="store.seub2hu2.course.vo.Course">
+            <id property="no" column="course_no"/>
+        </association>
+        <association property="user" javaType="store.seub2hu2.user.vo.User">
+            <id property="no" column="user_no"/>
+            <result property="nickname" column="user_nickname"/>
+        </association>
+    </resultMap>
+
+    <!--
+        int getTotalRows (@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getTotalRows" resultType="int">
+        select count(*)
+        from COURSE_REVIEWS
+        where course_no = #{condition.courseNo}
+        and is_deleted = 'N'
+    </select>
+
+    <!--
+        Review getReviewByNo(@Param("no") int no);
+    -->
+    <select id="getReviewByNo" resultMap="ReviewResultMap">
+        select r.review_no
+             , r.review_title
+             , r.review_content
+             , r.review_like_cnt
+             , r.review_created_date
+             , r.course_no
+             , u.user_no
+             , u.user_nickname
+        from COURSE_REVIEWS r inner join USERS u
+        on r.user_no = u.user_no
+        where review_no = #{no}
+    </select>
+
+    <!--
+        List<Review> getReviewsByNo(@Param("no") int no);
+    -->
+    <select id="getReviewsByNo" resultMap="ReviewResultMap">
+        select *
+        from (
+              select row_number() over (order by review_no desc) rn
+                    , r.review_no
+                    , r.review_title
+                    , r.review_content
+                    , r.review_like_cnt
+                    , r.review_created_date
+                    , r.is_deleted
+                    , r.course_no
+                    , u.user_no
+                    , u.user_nickname
+              from COURSE_REVIEWS r inner join USERS u
+              on r.user_no = u.user_no
+              where r.course_no = #{condition.courseNo}
+              and r.is_deleted = 'N'
+             ) cr
+        where rn between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        List<ReviewImage> getReviewImagesByNo(@Param("no") int no);
+    -->
+    <select id="getReviewImagesByNo" resultType="store.seub2hu2.course.vo.ReviewImage">
+        select i.img_no as no
+             , i.img_name as name
+             , r.review_no as reviewNo
+        from COURSE_REVIEWS r left join COURSE_REVIEW_IMGS i
+        on r.review_no = i.review_no
+        where r.review_no = #{no}
+    </select>
+
+    <!--
+    void insertReview(@Param("review") Review review);
+    -->
+    <insert id="insertReview">
+        insert into COURSE_REVIEWS
+        (review_title
+        , review_content
+        , user_no
+        , course_no)
+        values
+            (#{review.title}
+            , #{review.content}
+            , #{review.user.no}
+            , #{review.course.no})
+
+        <selectKey keyProperty="review.no" resultType="int" keyColumn="review_no" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <!--
+        void insertReviewImage(@Param("reviewImage") ReviewImage reviewImage);
+    -->
+    <insert id="insertReviewImage">
+        insert into COURSE_REVIEW_IMGS
+            (img_name
+            , review_no)
+        values
+            (#{reviewImage.name}
+            , #{reviewImage.reviewNo})
+
+        <selectKey keyProperty="reviewImage.no" resultType="int" keyColumn="img_no" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <!--
+        void deleteReview(@Param("no") int no);
+    -->
+    <update id="deleteReview">
+        update COURSE_REVIEWS
+        set is_deleted = 'Y'
+        where review_no = #{no}
+    </update>
+</mapper>

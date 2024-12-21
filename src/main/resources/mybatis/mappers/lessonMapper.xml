@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.lesson.mapper.LessonMapper">
+
+    <!--
+
+    // 전체 레슨 조회하기
+    public List<Lesson> getAllLessons(@Param("param") Map<String, Object> param, @Param("subject") String subject);
+
+    // 레슨 번호로 조회
+    public Lesson getLessonByNo(@Param("no") int no);
+
+    // 레슨 추가
+    public void insertLesson(@Param("lesson") Lesson lesson);
+
+    // 레슨 삭제
+    public void deleteLessonByNo(@Param("lesson") Lesson lesson);
+
+    // 레슨 수정
+    public void updateLesson(@Param("form") LessonUpdateform form);
+
+    // 레슨 수강생 수 수정
+    public void updateLessonParticipant(@Param("form") LessonUpdateform form);
+
+    -->
+
+    <!-- 모든 레슨 번호 조회하기-->
+    <!-- start 레슨 시작 시간, end 레슨 종료 시간-->
+    <select id="getAllLessons" resultType="store.seub2hu2.lesson.vo.Lesson">
+        SELECT
+        LESSON_NO AS lessonNo,
+        USER_ID AS "user.id",
+        LESSON_TITLE AS title,
+        LESSON_PRICE AS price,
+        LESSON_STATUS AS status,
+        LESSON_CREATED_DATE AS createdDate,
+        LESSON_PLAN AS plan,
+        LESSON_START_DATE AS start,
+        LESSON_END_DATE AS 'end',
+        LESSON_SUBJECT AS subject
+        FROM LESSONS
+        WHERE
+        (LESSON_START_DATE between DATE_FORMAT(#{param.start}, '%Y-%m-%d') and DATE_FORMAT(#{param.end}, '%Y-%m-%d')
+        or LESSON_END_DATE between DATE_FORMAT(#{param.start}, '%Y-%m-%d') and DATE_FORMAT(#{param.end}, '%Y-%m-%d'))
+        <if test="subject != null and subject != '전체'">
+            AND LESSON_SUBJECT = #{subject}
+        </if>
+        <if test="param.includeCompleted">
+            AND (LESSON_STATUS = '모집중' OR LESSON_STATUS ='마감')
+        </if>
+        <if test="!param.includeCompleted">
+            AND LESSON_STATUS = '모집중'
+        </if>
+    </select>
+
+
+    <!-- 레슨 번호로 레슨 조회하기-->
+    <!-- 레슨에서 조회되는 user.no는 강사 번호-->
+    <select id="getLessonByNo" resultType="store.seub2hu2.lesson.vo.Lesson">
+        select L.LESSON_NO           as lessonNo
+             , L.USER_ID as 'lecturer.id'
+             , L.LESSON_TITLE as title
+             , L.LESSON_PRICE        as price
+             , L.lesson_status       as status
+             , L.lesson_created_date as createdDate
+             , L.LESSON_START_DATE   as start
+             , L.LESSON_END_DATE as end
+             , L.PARTICIPANT         as participant
+             , L.lesson_plan         as plan
+             , L.LESSON_SUBJECT      as subject
+             , L.LESSON_PLACE        as place
+             , U.USER_NAME as 'lecturer.name'
+        from LESSONS L
+            INNER JOIN USERS U
+        ON
+            L.USER_ID = U.USER_ID
+        WHERE LESSON_NO = #{no}
+            FOR
+        UPDATE
+    </select>
+
+    <!-- 레슨 추가하기 -->
+    <insert id="insertLesson" useGeneratedKeys="true" keyProperty="lessonNo"
+            parameterType="store.seub2hu2.lesson.vo.Lesson">
+        insert into LESSONS
+        ( USER_ID
+        , LESSON_TITLE
+        , LESSON_PRICE
+        , LESSON_SUBJECT
+        , PARTICIPANT
+        , LESSON_PLAN
+        , LESSON_PLACE
+        , LESSON_START_DATE
+        , LESSON_END_DATE)
+        values ( #{lesson.lecturer.id}
+               , #{lesson.title}
+               , #{lesson.price}
+               , #{lesson.subject}
+               , #{lesson.participant}
+               , #{lesson.plan}
+               , #{lesson.place}
+               , #{lesson.start}
+               , #{lesson.end})
+    </insert>
+
+    <!-- 레슨 수정 -->
+    <update id="updateLesson">
+        UPDATE LESSONS
+        SET PARTICIPANT    = #{form.participant}
+          , LESSON_STATUS  = #{form.status}
+          , USER_ID        = #{form.lecturerId}
+          , LESSON_TITLE   = #{form.title}
+          , LESSON_PLAN    = #{form.plan}
+          , LESSON_SUBJECT = #{form.subject}
+          , LESSON_PRICE   = #{form.price}
+        WHERE LESSON_NO = #{form.lessonNo}
+    </update>
+
+    <!-- 레슨 수강생 수 수정 -->
+    <update id="updateLessonParticipant">
+        UPDATE LESSONS
+        SET PARTICIPANT = #{form.participant}
+        WHERE LESSON_NO = #{form.lessonNo}
+    </update>
+
+    <!-- 레슨 상태 변경 -->
+    <update id="updateLessonStatus">
+        UPDATE LESSONS
+        SET LESSON_STATUS = #{form.status}
+        WHERE LESSON_NO = #{form.lessonNo}
+    </update>
+
+    <update id="updatePastLessonStatus">
+        UPDATE LESSONS
+        SET LESSON_STATUS = #{form.status}
+        WHERE LESSON_END_DATE &lt; NOW()
+          AND LESSON_STATUS != #{form.status}
+    </update>
+
+    <!-- 레슨 삭제 -->
+    <update id="deleteLessonByNo">
+        UPDATE LESSONS
+        SET LESSON_DELETED = 'Y'
+        WHERE LESSON_NO = #{lesson.no}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.user.mapper.UserMapper">
+
+    <!-- resultMap 정의: USER 객체와 데이터베이스 칼럼 간의 매핑 규칙 -->
+    <resultMap type="store.seub2hu2.user.vo.User" id="UserResultMap">
+        <id property="no" column="USER_NO"/> <!-- 사용자 번호 (기본키) -->
+        <result property="id" column="USER_ID"/> <!-- 사용자 ID -->
+        <result property="name" column="USER_NAME"/> <!-- 사용자 이름 -->
+        <result property="email" column="USER_EMAIL"/> <!-- 사용자 이메일 -->
+        <result property="password" column="PASSWORD"/> <!-- 비밀번호 -->
+        <result property="nickname" column="USER_NICKNAME"/> <!-- 사용자 닉네임 -->
+        <result property="tel" column="USER_TEL"/> <!-- 사용자 전화번호 -->
+        <result property="createdDate" column="USER_CREATED_DATE"/> <!-- 사용자 생성일 -->
+        <result property="updatedDate" column="USER_UPDATED_DATE"/> <!-- 사용자 수정일 -->
+        <result property="type" column="USER_TYPE"/> <!-- 사용자 타입 -->
+        <result property="provider" column="PROVIDER"/> <!-- 사용자 제공자 (ex. Google, Kakao) -->
+        <result property="terms" column="USER_TERMS"/> <!-- 동의한 약관 -->
+        <result property="privacy" column="USER_PRIVACY"/> <!-- 개인정보 처리방침 동의 여부 -->
+    </resultMap>
+
+    <!-- 신규 사용자 정보 추가: 사용자를 USERS 테이블에 삽입 -->
+    <insert id="insertUser">
+        insert into USERS
+        (USER_ID, ADDR_NO, USER_NAME, PASSWORD, USER_NICKNAME, USER_TEL, USER_EMAIL, USER_TYPE, PROVIDER, USER_TERMS, USER_PRIVACY)
+        values
+        (#{user.id}, #{user.addr.no}, #{user.name}, #{user.password}, #{user.nickname}, #{user.tel}, #{user.email}, #{user.type}, #{user.provider}, #{user.terms}, #{user.privacy})
+
+        <!-- 삽입 후 자동 생성된 USER_NO 값을 반환하여 user 객체에 매핑 -->
+        <selectKey resultType="int" keyProperty="user.no" keyColumn="USER_NO" order="AFTER">
+            SELECT LAST_INSERT_ID() <!-- 마지막으로 삽입된 USER_NO 값을 가져옴 -->
+        </selectKey>
+    </insert>
+
+    <insert id="insertAddr">
+        INSERT INTO ADDRESSES
+        (ZIP_CODE, ADDR_1, ADDR_2, ISADDR_HOME, USER_NO, ADDR_NAME)
+        VALUES
+        (#{addr.postcode}, #{addr.address}, #{addr.addressDetail}, #{addr.isAddrHome}, #{addr.userNo}, #{addr.name})
+
+        <!-- 자동 생성된 ADDR_NO 반환 -->
+        <selectKey resultType="int" keyProperty="addr.no" keyColumn="ADDR_NO" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 사용자 역할 부여: 사용자와 역할을 USER_GRANTED_ROLES 테이블에 연결 -->
+    <insert id="insertUserRole">
+        INSERT INTO USER_GRANTED_ROLES (USER_NO, ROLE_NO)
+        VALUES (#{userRole.userNo}, #{userRole.role.no});
+    </insert>
+
+    <insert id="insertUserLevel" parameterType="store.seub2hu2.course.vo.UserLevel">
+        INSERT INTO COURSE_USER_LEVELS (USER_NO, CHALLENGE_LEVEL)
+        VALUES (#{userNo}, #{level})
+    </insert>
+
+
+    <!--
+        사용자 주소 추가
+        void insertAddress(@Param("addr") Addr addr);
+    -->
+    <insert id="insertAddress">
+        INSERT INTO ADDRESSES (ZIP_CODE, ADDR_1, ADDR_2, ADDR_NAME, USER_NO)
+        VALUES
+        (#{addr.postcode}, #{addr.address}, #{addr.addressDetail}, #{addr.name}, #{addr.userNo})
+        <selectKey resultType="int" keyProperty="addr.no" keyColumn="ADDR_NO" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 사용자 번호로 역할 정보 조회: 특정 사용자가 가진 역할을 조회 -->
+    <select id="getRolesByUserNo" resultType="store.seub2hu2.user.vo.Role">
+        select r.ROLE_NO as no,
+        r.ROLE_NAME as name,
+        r.ROLE_DESC as description
+        from
+        ROLE r
+        join
+        USER_GRANTED_ROLES ugr
+        on r.ROLE_NO = ugr.ROLE_NO
+        where
+        ugr.USER_NO = #{userNo} <!-- 특정 사용자 번호에 대한 역할 정보 조회 -->
+    </select>
+
+    <!-- 사용자 역할 이름으로 역할 정보 조회 -->
+    <select id="getRoleByName" resultType="store.seub2hu2.user.vo.Role">
+        SELECT ROLE_NO as no, ROLE_NAME as name, ROLE_DESC as description
+        FROM ROLE
+        WHERE ROLE_NAME = #{roleName} <!-- 역할 이름으로 역할 조회 -->
+    </select>
+
+    <select id="countById" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE USER_ID = #{id}
+    </select>
+    <select id="countByEmail" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE USER_EMAIL = #{email}
+    </select>
+    <select id="countByNickname" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM USERS
+        WHERE USER_NICKNAME = #{nickname}
+    </select>
+
+    <!-- 사용자 번호로 사용자 정보 조회 -->
+    <select id="getUserByNo" resultMap="UserResultMap">
+        SELECT
+        USER_NO,
+        USER_ID,
+        USER_NAME,
+        PASSWORD,
+        USER_EMAIL,
+        USER_NICKNAME,
+        USER_TEL,
+        USER_TYPE,
+        PROVIDER,
+        USER_CREATED_DATE,
+        USER_UPDATED_DATE,
+        USER_TERMS,
+        USER_PRIVACY
+        from
+        USERS
+        where
+        USER_NO = #{no} <!-- 사용자 번호로 사용자 정보 조회 -->
+    </select>
+
+    <!-- 사용자 ID로 사용자 정보 조회 -->
+    <select id="getUserById" resultMap="UserResultMap">
+        SELECT DISTINCT
+        u.USER_NO,
+        u.USER_ID,
+        u.USER_NAME,
+        u.PASSWORD,
+        u.USER_EMAIL,
+        u.USER_NICKNAME,
+        u.USER_TEL,
+        u.USER_TYPE,
+        u.PROVIDER,
+        u.USER_CREATED_DATE,
+        u.USER_UPDATED_DATE,
+        u.USER_TERMS,
+        u.USER_PRIVACY
+        from
+        USERS u
+        where
+        USER_ID = #{id} <!-- 사용자 ID로 사용자 정보 조회 -->
+    </select>
+
+    <!-- 사용자 이메일로 사용자 정보 조회 -->
+    <select id="getUserByEmail" resultMap="UserResultMap">
+        SELECT
+        USER_NO,
+        USER_ID,
+        USER_NAME,
+        PASSWORD,
+        USER_EMAIL,
+        USER_NICKNAME,
+        USER_TEL,
+        USER_TYPE,
+        PROVIDER,
+        USER_CREATED_DATE,
+        USER_UPDATED_DATE,
+        USER_TERMS,
+        USER_PRIVACY
+        from
+        USERS
+        where
+        USER_EMAIL = #{email} <!-- 이메일로 사용자 정보 조회 -->
+    </select>
+
+    <!-- 사용자 닉네임으로 사용자 정보 조회 -->
+    <select id="getUserByNickname" resultMap="UserResultMap">
+        SELECT
+        USER_NO,
+        USER_ID,
+        USER_NAME,
+        PASSWORD,
+        USER_EMAIL,
+        USER_NICKNAME,
+        USER_TEL,
+        USER_TYPE,
+        PROVIDER,
+        USER_CREATED_DATE,
+        USER_UPDATED_DATE,
+        USER_TERMS,
+        USER_PRIVACY
+        from
+        USERS
+        where
+        USER_NICKNAME = #{nickname} <!-- 닉네임으로 사용자 정보 조회 -->
+    </select>
+
+    <!-- 비밀번호 수정: 사용자의 비밀번호를 갱신 -->
+    <update id="updatePassword">
+        UPDATE USERS
+        SET PASSWORD = #{password}
+        WHERE USER_ID = #{id} <!-- 사용자 ID로 비밀번호 수정 -->
+    </update>
+
+
+    <update id="updateAddrUserNo" >
+        UPDATE USERS
+        SET ADDR_NO = #{addrNo}
+        WHERE USER_NO = #{userNo}
+    </update>
+
+    <!-- ID와 이메일로 사용자 조회: 사용자 ID와 이메일로 사용자 확인 -->
+    <select id="findUserByIdAndEmail" resultType="store.seub2hu2.user.vo.User">
+        SELECT *
+        FROM USERS
+        WHERE USER_ID = #{id}
+          AND USER_EMAIL = #{email}
+    </select>
+
+    <!-- 이메일로 사용자 아이디 조회: 이메일에 해당하는 사용자 아이디 반환 -->
+    <select id="findIdByEmail" resultType="store.seub2hu2.user.vo.User">
+        SELECT USER_ID
+        FROM USERS
+        WHERE USER_EMAIL = #{email}
+    </select>
+
+    <!-- 사용자 정보 수정 void updateUser(@Param("user") User user); -->
+    <update id="updateUser" parameterType="store.seub2hu2.user.vo.User">
+        UPDATE
+            USERS
+        SET USER_NAME     = #{user.name},
+            PASSWORD      = #{user.password},
+            USER_NICKNAME = #{user.nickname},
+            USER_TEL      = #{user.tel},
+            USER_EMAIL    = #{user.email}
+        WHERE USER_NO = #{user.no}
+    </update>
+
+    <!-- void updateAddr(UserInfoReq userInfoReq); -->
+    <update id="updateAddr" parameterType="store.seub2hu2.mypage.dto.UserInfoReq">
+        update
+        ADDRESSES
+        set
+        zip_code = #{postcode},
+        addr_1 = #{address},
+        addr_2 = #{addressDetail},
+        isaddr_home =
+        <if test="isAddrHome != null and isAddrHome == 'on'">
+            'Y'
+        </if>
+        <if test="isAddrHome == null or isAddrHome != 'on'">
+            'N'
+        </if>
+        where
+        addr_no = #{addrNo}
+    </update>
+
+    <!-- 기존 isAddrHome 값을 N으로 업데이트 -->
+    <update id="updateIsAddrHomeToN">
+        UPDATE ADDRESSES
+        SET ISADDR_HOME = 'N'
+        WHERE USER_NO = #{userNo}
+    </update>
+
+
+    <!-- 권한번호로 사용자 조회하기 -->
+    <select id="getUsersByRoleNo" resultType="store.seub2hu2.user.vo.User">
+        SELECT R.USER_NO   as no
+             , U.USER_NAME as name
+             , U.USER_ID   as id
+        FROM USER_GRANTED_ROLES R
+            INNER JOIN USERS U
+        ON R.USER_NO = U.USER_NO
+        WHERE R.ROLE_NO = #{roleNo}
+    </select>
+
+    <!-- User findByUserNo(@Param("userNo") int userNo); -->
+    <select id="findByUserNo" parameterType="store.seub2hu2.user.vo.User">
+        select
+            user_no as no
+        , password as password
+        , user_nickname as nickname
+        from
+            USERS
+        where
+            user_no = #{userNo}
+    </select>
+
+    <!-- void insertUserImage(@Param("user")UserImage userImage); -->
+    <insert id="insertUserImage">
+        insert into USER_IMGS
+        (
+        img_created_date
+        , img_isprimary
+        , user_no
+        <if test="user.imgName != null">
+            , user_img_url
+        </if>
+        )
+        values
+        (
+        NOW()
+        , 'Y'
+        , #{user.userNo}
+        <if test="user.imgName != null">
+            , #{user.imgName}
+        </if>
+        )
+    </insert>
+
+    <!-- void updatePrimaryToN(@Param("userNo") int userNo); -->
+
+    <!-- 기존 ISPRIMARY 값을 N으로 업데이트 -->
+    <update id="updatePrimaryToN">
+        UPDATE USER_IMGS
+        SET IMG_ISPRIMARY = 'N'
+        WHERE USER_NO = #{userNo}
+    </update>
+
+    <!-- List<Addr> findAddrByUserNo(@Param("userNo") int userNo); -->
+    <select id="findAddrByUserNo" resultType="store.seub2hu2.user.vo.Addr">
+        select
+            addr_no as no,
+            zip_code as postcode,
+            addr_1 as address,
+            addr_2 as addressDetail
+        from
+            ADDRESSES
+        where
+            user_no = #{userNo}
+    </select>
+
+    <!-- UserImage findImageByUserNo(@Param("userNo") int userNo); -->
+    <select id="findImageByUserNo" resultType="store.seub2hu2.user.vo.UserImage">
+        select
+            user_img_no as no
+        ,   user_img_url as imgName
+        ,   img_created_date as createdDate
+        ,   img_isprimary as isPrimary
+        ,   user_no     as userNo
+        from
+            USER_IMGS
+        where
+            user_no = #{userNo}
+          and
+            img_isprimary = 'Y'
+    </select>
+
+    <!-- List<User> findUsersByNickname(@Param("nickname") String nickname); -->
+    <select id="findUsersByNickname" resultType="store.seub2hu2.user.vo.User">
+        select
+            user_nickname as nickname
+        from
+            USERS
+        where
+            user_nickname = #{nickname}
+    </select>
+
+</mapper>

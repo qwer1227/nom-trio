@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.payment.mapper.PayMapper">
+
+    <!-- public void insertPay(@Param("pay") Payment payment); -->
+    <!-- 결제 정보 등록 -->
+    <insert id="insertPay">
+        INSERT INTO PAYMENTS
+        ( PAY_ID
+        , USER_ID
+        , PAY_METHOD
+        , PAY_AMOUNT
+        , PAY_PRICE
+        , PAY_TYPE)
+        VALUES ( #{pay.id}
+               , #{pay.userId}
+               , #{pay.method}
+               , #{pay.amount}
+               , #{pay.price}
+               , #{pay.type})
+        <selectKey resultType="int" keyProperty="pay.no" keyColumn="pay_no" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- public Payment getPaymentById(String id); -->
+    <select id="getPaymentById">
+        SELECT PAY_NO as no
+         , PAY_ID as payID
+         , USER_ID as userId
+         , PAY_METHOD as method
+         , PAY_AMOUNT as amount
+         , PAY_DATE as payCreatedDate
+         , PAY_CANCEL_DATE   as payUpdatedDate
+         , PAY_TYPE  as type
+         , PAY_PRICE as price
+         , REFUND as refund
+        FROM PAYMENTS;
+        WHERE PAY_ID =
+        #{payId}
+    </select>
+
+    <!-- public String getPaymentTypeById(@Param("id") String id); -->
+    <select id="getPaymentTypeById">
+        SELECT PAY_TYPE as type
+        FROM PAYMENTS
+        WHERE PAY_ID = #{payId}
+    </select>
+
+    <update id="updateLessonPayStatus">
+        UPDATE PAYMENTS P
+            INNER JOIN LESSON_RESERVATIONS R
+        ON P.PAY_ID = R.LESSON_RESERVATION_PAY_ID
+            INNER JOIN LESSONS L
+            ON R.LESSON_NO = L.LESSON_NO
+            SET P.PAY_STATUS = '결제확정'
+        WHERE P.PAY_STATUS = '결제완료'
+          AND R.LESSON_RESERVATION_STATUS = '예약'
+          AND L.LESSON_START_DATE &lt;= NOW();
+    </update>
+
+    <!--
+
+    -->
+    <update id="updateProductPayStatus">
+        UPDATE PAYMENTS
+        SET PAY_STATUS = #{pay.status}
+        WHERE PAY_ID = #{pay.id}
+    </update>
+</mapper>

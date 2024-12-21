@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.course.mapper.CourseMapper">
+    <resultMap id="CourseResultMap" type="store.seub2hu2.course.vo.Course">
+        <id property="no" column="course_no"/>
+        <result property="name" column="course_name"/>
+        <result property="time" column="course_time"/>
+        <result property="distance" column="course_distance"/>
+        <result property="level" column="course_level"/>
+        <result property="likeCnt" column="course_like_cnt"/>
+        <result property="filename" column="course_filename"/>
+        <association property="region" javaType="store.seub2hu2.course.vo.Region">
+            <id property="no" column="region_no"/>
+            <result property="si" column="region_si"/>
+            <result property="gu" column="region_gu"/>
+            <result property="dong" column="region_dong"/>
+        </association>
+        <association property="successWhether" javaType="store.seub2hu2.course.vo.SuccessWhether">
+            <result property="courseNo" column="success"/>
+        </association>
+        <association property="challengeWhether" javaType="store.seub2hu2.course.vo.ChallengeWhether">
+            <result property="courseNo" column="challenge"/>
+        </association>
+    </resultMap>
+
+    <!--
+        int getTotalRows(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getTotalRows" resultType="int">
+        select count(*)
+        from COURSES c, COURSE_REGION r
+        where c.region_no = r.region_no
+        and
+            is_deleted = 'N'
+        <include refid="CoursesFilterCondition" />
+    </select>
+
+    <!--
+        List<Course> getAllCourses();
+    -->
+    <select id="getAllCourses" resultMap="CourseResultMap">
+        select c.course_no
+             , c.course_name
+             , c.course_time
+             , c.course_distance
+             , c.course_level
+             , c.course_like_cnt
+             , c.course_filename
+             , r.region_no
+             , r.region_si
+             , r.region_gu
+             , r.region_dong
+        from COURSES c
+        inner join COURSE_REGION r
+        on c.region_no = r.region_no
+        where
+            is_deleted = 'N'
+    </select>
+
+    <!--
+        List<Course> getCourses(@Param("condition") Map<String, Object> condition);
+    -->
+    <select id="getCourses" resultMap="CourseResultMap">
+        select *
+        from (
+              select
+                  <choose>
+                      <when test="condition.sort == 'like'">
+                          row_number() over (order by c.course_like_cnt desc) rn
+                      </when>
+                      <otherwise>
+                          row_number() over (order by c.course_no) rn
+                      </otherwise>
+                  </choose>
+                    , c.course_no
+                    , c.course_name
+                    , c.course_distance
+                    , c.course_level
+                    , c.course_like_cnt
+                    , c.course_filename
+                    , r.region_no
+                    , r.region_si
+                    , r.region_gu
+                    , r.region_dong
+                   <if test="condition.userNo != null">
+                    , (select '1'
+                        from SUCCESS_WHETHER a
+                        WHERE a.USER_NO = #{condition.userNo}
+                        AND a.COURSE_NO = c.COURSE_NO) success
+                    ,(select '1'
+                        from CHALLENGE_WHETHER a
+                        WHERE a.USER_NO = #{condition.userNo}
+                        AND a.COURSE_NO = c.COURSE_NO) challenge
+                   </if>
+              from COURSES c, COURSE_REGION r
+              where c.region_no = r.region_no
+              and
+                  is_deleted = 'N'
+              <include refid="CoursesFilterCondition" />
+              ) cr
+        where rn between #{condition.begin} and #{condition.end}
+    </select>
+
+    <!--
+        Course getCourseByNo(@Param("no") int no);
+    -->
+    <select id="getCourseByNo" resultMap="CourseResultMap">
+        select c.course_no
+              , c.course_name
+              , c.course_time
+              , c.course_distance
+              , c.course_level
+              , c.course_like_cnt
+              , c.course_filename
+              , r.region_no
+              , r.region_si
+              , r.region_gu
+              , r.region_dong
+        from COURSES c
+        inner join COURSE_REGION r
+        on c.region_no = r.region_no
+        where c.course_no = #{no}
+    </select>
+
+    <sql id="CoursesFilterCondition">
+        <if test="condition.distance != null">
+            and c.course_distance <![CDATA[<=]]> #{condition.distance}
+        </if>
+        <if test="condition.level != null">
+            and c.course_level = #{condition.level}
+        </if>
+        <if test="condition.region != null">
+            <choose>
+                <when test="condition.region == 'si'">
+                    and r.region_si like concat('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.region == 'gu'">
+                    and r.region_gu like concat('%', #{condition.keyword}, '%')
+                </when>
+                <when test="condition.region == 'dong'">
+                    and r.region_dong like concat('%', #{condition.keyword}, '%')
+                </when>
+            </choose>
+        </if>
+    </sql>
+</mapper>

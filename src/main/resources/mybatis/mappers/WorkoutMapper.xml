@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.mypage.mapper.WorkoutMapper">
+
+    <!-- List<WorkoutDTO> getWorkoutByUserNo(@Param("userNo") int userNo); -->
+
+    <select id="getWorkoutByUserNo" resultType="store.seub2hu2.mypage.dto.WorkoutDTO">
+        select
+            workout_no AS workNo ,
+            workout_title AS title,
+            workout_content AS description,
+            workout_date AS startDate,
+            user_no as userNo,
+            category_no as categoryNo
+        from
+            WORKOUT
+        where
+            user_no = #{userNo}
+        and
+            workout_isdeleted = 'N'
+    </select>
+
+    <!-- WorkoutDTO getWorkoutDetailByWorkoutNo(@Param("No") int workoutNo); -->
+
+    <select id="getWorkoutDetailByWorkoutNo" resultType="store.seub2hu2.mypage.dto.WorkoutDTO">
+        select
+            w.workout_no AS workNo ,
+            w.workout_title AS title,
+            w.workout_content AS description,
+            w.workout_date AS startDate,
+            w.user_no as userNo,
+            w.category_no as categoryNo,
+            wc.category_name as categoryName
+        from
+            WORKOUT w
+        LEFT JOIN
+            WORKOUT_CATEGORY wc
+        ON
+            wc.category_no = w.category_no
+        where
+            workout_no = #{No}
+        and
+            workout_isdeleted = 'N'
+    </select>
+
+    <!-- void insertWorkout(@Param("workout") WorkoutDTO workoutDTO); -->
+
+    <insert id="insertWorkout">
+        INSERT INTO WORKOUT
+        (workout_title, workout_content, workout_date, user_no, category_no)
+        VALUES
+        (#{workout.title}, #{workout.description}, #{workout.startDate}, #{workout.userNo}, #{workout.categoryNo})
+    </insert>
+
+    <!-- void updateWorkout(@Param("No") int workoutNo, @Param("workout") WorkoutDTO workoutDTO); -->
+
+    <update id="updateWorkout">
+        update WORKOUT
+        set workout_content = #{workout.description}, workout_title = #{workout.title}
+        where workout_no = #{No}
+    </update>
+
+    <!-- void deleteWorkout(@Param("No") int workoutNo); -->
+
+    <update id="deleteWorkout">
+        update WORKOUT
+        set workout_isdeleted = 'Y'
+        where workout_no = #{No}
+    </update>
+
+</mapper>

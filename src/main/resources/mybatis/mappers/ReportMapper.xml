@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.ReportMapper">
+
+  <!-- void insertReportToBoard(@Param("report") Report report); -->
+  <insert id="insertReport">
+    insert into REPORTS
+    (
+    report_type
+    , report_no
+    , user_no
+    , report_reason
+    )
+    values
+    (
+    #{report.type}
+    , #{report.no}
+    , #{report.user.no}
+    , #{report.reason}
+    )
+  </insert>
+
+  <!-- void updateDisableBoard(@Param("report") Report report); -->
+  <!-- 자세한 구현코드는 수정 필요 -->
+  <update id="updateDisableBoard">
+    update REPORTS
+    set
+    (
+    admin_no = #{report.adminNo}
+    , report_resolved_date = sysdate()
+    )
+    where report_type = #{report.type}
+    <if test="report.type == 'board">
+      and board_no = #{report.boardNo}
+    </if>
+    <if test="report.type == 'boardReply">
+      and reply_no = #{report.replyNo}
+    </if>
+  </update>
+
+  <!-- boolean isAlreadyReported(@Param("type") String type, @Param("no") int no, @Param("userNo") int userNo); -->
+  <select id="isAlreadyReported">
+    select count(*)
+    from REPORTS
+    where
+      report_type = #{type}
+      and report_no = #{no}
+      and user_no = #{userNo}
+  </select>
+</mapper>

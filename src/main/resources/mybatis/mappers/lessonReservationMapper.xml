@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.lesson.mapper.LessonReservationMapper">
+
+    <!--
+    // 레슨 예약 등록
+    public void insertLessonReservation(@Param("lessonReservation") LessonReservation lessonReservation);
+
+    // 회원 번호로 회원이 예약한 레슨 조회
+    public List<LessonReservation> getLessonReservationByUserId (@Param("userId") String userId);
+
+    // 예약한 레슨 조건 검색
+    List<LessonReservation> getReservationByCondition(@Param("condition") ReservationSearchCondition condition, @Param("userId") String userId);
+
+    // 결제번호로 결제한 예약 조회
+    public LessonReservation getLessonReservationByPayId(@Param("payId") String payId);
+
+    // 예약 번호로 예약 조회
+    public LessonReservation getLessonReservationByNo (@Param("reservationNo") int reservationNo);
+
+    // 예약 상태 변경
+    public void updateReservationStatus (@Param("paymentId") String paymentId,  @Param("status") String status);
+    -->
+
+
+    <!-- 유저 번호로 유저가 예약 레슨 조회-->
+    <select id="getLessonReservationByUserId" resultType="store.seub2hu2.lesson.vo.LessonReservation">
+        select R.LESSON_RESERVATION_NO           as "no"
+             , R.USER_ID                         as "user.id"
+             , R.LESSON_RESERVATION_STATUS       as reservationStatus
+             , R.LESSON_RESERVATION_CREATED_DATE as reservationCreatedDate
+             , R.LESSON_RESERVATION_UPDATED_DATE as reservationUpdatedDate
+             , L.LESSON_NO                       as "lesson.lessonNo"
+             , L.LESSON_TITLE                    as "lesson.title"
+             , L.LESSON_PRICE                    as "lesson.price"
+             , L.LESSON_SUBJECT                  as "lesson.subject"
+             , L.USER_ID                         as "lesson.lecturer.no"
+             , L.lesson_status                   as "lesson.status"
+             , L.lesson_start_date               as "lesson.start"
+             , U.USER_NAME                       as "lesson.lecturer.name"
+        from LESSON_RESERVATIONS R
+                 INNER JOIN LESSONS L
+                            ON
+                                R.LESSON_NO = L.LESSON_NO
+                 INNER JOIN USERS U
+                            ON
+                                L.USER_ID = U.USER_ID
+        where R.USER_ID = #{userId}
+        ORDER BY LESSON_RESERVATION_CREATED_DATE ASC;
+    </select>
+
+    <!--    -->
+    <select id="getLessonReservationByPayId" resultType="store.seub2hu2.lesson.vo.LessonReservation">
+        select R.LESSON_RESERVATION_NO as no
+              , R.LESSON_RESERVATION_STATUS as status
+             , P.USER_ID as 'user.id'
+             , L.LESSON_NO as 'lesson.lessonNo'
+             , L.LESSON_TITLE as 'lesson.title'
+             , L.LESSON_PRICE as 'lesson.price'
+             , L.LESSON_SUBJECT as 'lesson.subject'
+             , L.LESSON_START_DATE as 'lesson.start'
+             , L.LESSON_END_DATE as 'lesson.end'
+             , U.USER_NAME as 'lesson.lecturer.name'
+             , P.PAY_PRICE as 'payment.price'
+        from LESSON_RESERVATIONS R
+            INNER JOIN LESSONS L
+        ON R.LESSON_NO = L.LESSON_NO
+            INNER JOIN USERS U
+            ON L.USER_ID = U.USER_ID
+            INNER JOIN PAYMENTS P
+            ON P.PAY_ID = R.LESSON_RESERVATION_PAY_ID
+        where R.LESSON_RESERVATION_PAY_ID = #{payId}
+    </select>
+
+    <!-- 예약 번호로 예약 조회 -->
+    <select id="getLessonReservationByNo" resultType="store.seub2hu2.lesson.vo.LessonReservation">
+        select R.LESSON_RESERVATION_NO           as "no"
+             , R.USER_ID                         as "user.id"
+             , R.LESSON_RESERVATION_STATUS       as status
+             , R.LESSON_RESERVATION_CREATED_DATE as reservationCreatedDate
+             , R.LESSON_RESERVATION_UPDATED_DATE as reservationUpdatedDate
+             , L.LESSON_NO                       as "lesson.lessonNo"
+             , L.LESSON_TITLE                    as "lesson.title"
+             , L.LESSON_PRICE                    as "lesson.price"
+             , L.LESSON_SUBJECT                  as "lesson.subject"
+             , L.USER_ID                         as "lesson.user.id"
+             , L.lesson_status                   as "lesson.status"
+             , L.lesson_start_date               as "lesson.start"
+             , U.USER_NAME                       as "lesson.lecturer.name"
+        from LESSON_RESERVATIONS R
+                 INNER JOIN LESSONS L
+                            ON
+                                R.LESSON_NO = L.LESSON_NO
+                 INNER JOIN USERS U
+                            ON
+                                L.USER_ID = U.USER_ID
+        where R.LESSON_RESERVATION_NO = #{reservationNo}
+    </select>
+
+    <select id="getReservationByCondition" resultType="store.seub2hu2.lesson.vo.LessonReservation">
+        select R.LESSON_RESERVATION_NO as 'no'
+        , R.LESSON_RESERVATION_STATUS as status
+        , R.USER_ID as "user.id"
+        , R.LESSON_RESERVATION_CREATED_DATE as reservationCreatedDate
+        , R.LESSON_RESERVATION_UPDATED_DATE as reservationUpdatedDate
+        , L.LESSON_NO as "lesson.lessonNo"
+        , L.LESSON_TITLE as "lesson.title"
+        , L.LESSON_PRICE as "lesson.price"
+        , L.LESSON_SUBJECT as "lesson.subject"
+        , L.LESSON_START_DATE as "lesson.start"
+        , L.USER_ID as "user.id"
+        , L.lesson_status as "lesson.status"
+        , date_format(L.lesson_created_date, '%Y-%m-%d')
+        , U.USER_NAME as "lesson.lecturer.name"
+        , P.PAY_ID as "payment.id"
+        from
+        LESSON_RESERVATIONS R
+        INNER JOIN LESSONS L
+        ON
+        R.LESSON_NO = L.LESSON_NO
+        INNER JOIN USERS U
+        ON
+        L.USER_ID = U.USER_ID
+        INNER JOIN PAYMENTS P
+        ON
+        R.LESSON_RESERVATION_PAY_ID = P.PAY_ID
+        where R.USER_ID = #{userId}
+        <choose>
+            <when test="condition.searchCondition == '강사명' and condition.searchKeyword != null and condition.searchKeyword != ''">
+                AND U.USER_NAME LIKE CONCAT('%', #{condition.searchKeyword}, '%')
+            </when>
+            <when test="condition.searchCondition == '레슨명' and condition.searchKeyword != null and condition.searchKeyword != ''">
+                AND L.LESSON_TITLE LIKE CONCAT('%', #{condition.searchKeyword}, '%')
+            </when>
+            <when test="condition.searchCondition == '과목' and condition.searchKeyword != null and condition.searchKeyword != ''">
+                AND L.LESSON_SUBJECT LIKE CONCAT('%', #{condition.searchKeyword}, '%')
+            </when>
+        </choose>
+        <if test="condition.reservationStatus != null and condition.reservationStatus != '' and condition.reservationStatus != '모두'">
+            AND R.LESSON_RESERVATION_STATUS = #{condition.reservationStatus}
+        </if>
+        <if test="condition.lessonSubject != null and condition.lessonSubject != '' and condition.lessonSubject != '모두'">
+            AND L.LESSON_SUBJECT = #{condition.lessonSubject}
+        </if>
+        AND R.LESSON_RESERVATION_CREATED_DATE BETWEEN #{condition.start} AND CONCAT(#{condition.end}, ' 23:59:59')
+        ORDER BY LESSON_RESERVATION_CREATED_DATE DESC;
+    </select>
+
+    <insert id="insertLessonReservation">
+        INSERT INTO LESSON_RESERVATIONS
+        ( USER_ID
+        , LESSON_NO
+        , LESSON_RESERVATION_PAY_ID)
+        VALUES ( #{lessonReservation.user.id}
+               , #{lessonReservation.lesson.lessonNo}
+               , #{lessonReservation.payment.id})
+    </insert>
+
+    <update id="updateReservationStatus">
+        UPDATE LESSON_RESERVATIONS
+        SET LESSON_RESERVATION_STATUS = #{status}
+        WHERE LESSON_RESERVATION_PAY_ID = #{paymentId}
+    </update>
+
+    <update id="updatePastReservationStatus">
+        UPDATE LESSON_RESERVATIONS R
+            INNER JOIN PAYMENTS P
+        ON P.PAY_ID = R.LESSON_RESERVATION_PAY_ID
+            INNER JOIN LESSONS L
+            ON R.LESSON_NO = L.LESSON_NO
+            SET R.LESSON_RESERVATION_STATUS = '수강종료'
+        WHERE R.LESSON_RESERVATION_STATUS = '예약'
+          AND L.LESSON_START_DATE &lt;= NOW();
+    </update>
+</mapper>
