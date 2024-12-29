@@ -83,7 +83,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
-                        <form id="form-search" method="get" action="/admin/order-delivery">
+                        <form id="form-search" method="get" action="/admin/settlement/order-delivery">
                             <input type="hidden" name="page" value="1" />
                             <input type="hidden" name="rows" value="10" />
                             <div class="row g-3">

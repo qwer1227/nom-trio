@@ -52,7 +52,7 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col-12">
-                        <form id="form-search" method="get" action="/admin/product-stock">
+                        <form id="form-search" method="get" action="/admin/settlement/product-stock">
                             <input type="hidden" name="page" />
                             <input type="hidden" name="topNo" value="${topNo}">
                             <input type="hidden" name="catNo" value="${catNo}">
@@ -151,7 +151,7 @@
                                             <td>${p.brand.name}</td>
                                             <td>${p.category.name}</td>
                                             <td>
-                                                <a href="product-detail?no=${p.no}&colorNo=${p.colorNum}">
+                                                <a href="/admin/product/detail?no=${p.no}&colorNo=${p.colorNum}">
                                                     ${p.name}
                                                 </a>
                                             </td>
@@ -160,12 +160,12 @@
                                             <td>${p.color.name}</td>
                                             <td>${p.status}</td>
                                             <td>
-                                                <a href="/admin/product-stock-detail?no=${p.no}&colorNo=${p.color.no}">
+                                                <a href="/admin/settlement/product-stock-detail?no=${p.no}&colorNo=${p.color.no}">
                                                     <button type="button" class="btn btn-success">재고추가</button>
                                                 </a>
                                             </td>
                                             <td>
-                                                <form method="post" action="/admin/product-stock">
+                                                <form method="post" action="/admin/settlement/product-stock">
                                                     <input type="hidden" name="no" value="${p.no}">
                                                     <input type="hidden" name="topNo" value="${param.topNo}">
                                                     <input type="hidden" name="Y" value="${p.isDeleted}">
@@ -173,7 +173,7 @@
                                                 </form>
                                             </td>
                                             <td>
-                                                <form method="post" action="/admin/product-show">
+                                                <form method="post" action="/admin/settlement/product-show">
                                                     <input type="hidden" name="no" value="${p.no}">
                                                     <input type="hidden" name="topNo" value="${param.topNo}">
                                                     <input type="hidden" name="show" value="${p.isShow}">
@@ -195,19 +195,19 @@
                                     <li class="page-item ${paging.first? 'disabled' : ''}">
                                         <a class="page-link"
                                         onclick="changePage(${paging.prevPage}, event)"
-                                        href="product?page=${paging.prevPage}">이전</a>
+                                        href="/admin/settlement/product-stock?page=${paging.prevPage}">이전</a>
                                     </li>
                                     <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
                                         <li class="page-item ${paging.page eq num ? 'active' : ''}">
                                             <a class="page-link"
                                             onclick="changePage(${num}, event)"
-                                            href="product?page=${num}">${num}</a>
+                                            href="/admin/settlement/product-stock?page=${num}">${num}</a>
                                         </li>
                                     </c:forEach>
                                     <li class="page-item ${paging.last ? 'disabled' : ''}" >
                                         <a class="page-link"
                                         onclick="changePage(${paging.nextPage}, event)"
-                                        href="product?page=${paging.nextPage}">다음</a>
+                                        href="/admin/settlement/product-stock?page=${paging.nextPage}">다음</a>
                                     </li>
                                 </ul>
                             </nav>

@@ -54,7 +54,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-12">
-            <form id="form-search" method="get" action="/admin/p-settlement">
+            <form id="form-search" method="get" action="/admin/settlement/p-settlement">
               <input type="hidden" name="page" />
               <input type="hidden" name="rows" />
               <div class="row g-3">
