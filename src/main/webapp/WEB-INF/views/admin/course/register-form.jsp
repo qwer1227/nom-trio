@@ -75,7 +75,7 @@
             <div class="col-12">
               <form id="courseEditForm"
                     class="border bg-light p-3"
-                    method="post" action="/admin/course-register-form"
+                    method="post" action="/admin/course/register-form"
                     enctype="multipart/form-data">
                 <div class="form-group mb-3 col-4">
                   <label class="form-label">코스명</label>

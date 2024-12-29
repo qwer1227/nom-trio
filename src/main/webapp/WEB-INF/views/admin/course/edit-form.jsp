@@ -67,7 +67,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <form class="border bg-light p-3"
-                                  method="post" action="/admin/course-edit-form"
+                                  method="post" action="/admin/course/edit-form"
                                   enctype="multipart/form-data">
                                 <input type="hidden" name="no" value="${param.no}">
                                 <div class="form-group mb-3 col-4">
@@ -147,7 +147,7 @@
                                     <input type="file" class="form-control" name="image" value="${course.filename}"/>
                                 </div>
                                 <div class="col-4 text-end">
-                                    <a type="button" class="btn btn-warning justify-content-end" href="course-detail?no=${param.no}">뒤로가기</a>
+                                    <a type="button" class="btn btn-warning justify-content-end" href="admin/course/detail?no=${param.no}">뒤로가기</a>
                                     <button type="submit" class="btn btn-primary">수정</button>
                                 </div>
                             </form>
