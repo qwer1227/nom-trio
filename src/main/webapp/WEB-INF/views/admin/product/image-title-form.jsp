@@ -58,7 +58,7 @@
         <div class="row mb-3">
             <div class="col-6">
                 <!-- GET Form -->
-                <form id="getForm" class="border bg-light p-3" method="get" action="/admin/image-changeThumb" enctype="multipart/form-data">
+                <form id="getForm" class="border bg-light p-3" method="get" action="/admin/product/image-title" enctype="multipart/form-data">
                     <input type="hidden" name="colorNo" value="${param.colorNo}">
                     <div class="form-group mb-3 col-4">
                         <label class="form-label">상품번호: ${product.no}</label>
@@ -71,11 +71,11 @@
                     </div>
                     <div class="row">
                         <div class="col-6 text-left ml-1" style="text-align: right">
-                            <a type="button" class="btn btn-success mr-2" href="/admin/product-detail?no=${param.no}&colorNo=${param.colorNo}">해당상품 보기</a>
+                            <a type="button" class="btn btn-success mr-2" href="/admin/product/detail?no=${param.no}&colorNo=${param.colorNo}">해당상품 보기</a>
                         </div>
                         <div class="col-6 row justify-content-end">
                             <div class="text-end" style="text-align: right">
-                                <a type="button" class="btn btn-dark mr-2" href="/admin/register-image?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
+                                <a type="button" class="btn btn-dark mr-2" href="/admin/product/image-register?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
                             </div>
                             <div class="text-end" style="text-align: right">
                                 <button type="button" id="getSubmitButton" class="btn btn-primary ">조회</button>
@@ -85,14 +85,14 @@
                 </form>
 
                 <!-- POST Form (hidden initially) -->
-                <form id="postForm" class="border bg-light p-3" method="post" action="/admin/image-changeThumb" enctype="multipart/form-data" style="display: none;">
+                <form id="postForm" class="border bg-light p-3" method="post" action="/admin/product/image-title" enctype="multipart/form-data" style="display: none;">
                     <input type="hidden" name="no" value="${param.no}">
                     <input type="hidden" name="colorNo" value="${param.colorNo}"/>
                     <div id="imageContainer">
                     <c:if test="${not empty noImages}">
                         <script>
                             alert("해당 상품의 이미지가 없습니다.");
-                            window.location.href = '/admin/register-image?no=${param.no}&colorNo=${param.colorNo}';
+                            window.location.href = '/admin/image-register?no=${param.no}&colorNo=${param.colorNo}';
                         </script>
                     </c:if>
                         <c:forEach var="img" items="${images}">
