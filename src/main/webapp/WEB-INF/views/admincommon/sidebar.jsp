@@ -73,7 +73,7 @@
         <a class="collapse-item" href="/admin/product/list?topNo=10">남성 상품 전체</a>
         <a class="collapse-item" href="/admin/product/list?topNo=20">여성 상품 전체</a>
         <a class="collapse-item" href="/admin/product/list?topNo=30">러닝용품 전체</a>
-        <a class="collapse-item" href="/admin/product/register-form">상품 등록하기</a>
+        <a class="collapse-item" href="/admin/product/register">상품 등록하기</a>
       </div>
     </div>
   </li>

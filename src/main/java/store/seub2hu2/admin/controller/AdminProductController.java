@@ -62,6 +62,30 @@ public class AdminProductController {
         return "admin/product/list";
     }
 
+    @GetMapping("/detail")
+    public String productAdminDetail(@RequestParam("no") int no,
+                                     @RequestParam("colorNo") int colorNo,
+                                     Model model) {
+
+        ProdDetailDto prodDetailDto = productService.getProductByNo(no);
+        model.addAttribute("prodDetailDto", prodDetailDto);
+
+        List<ColorProdImgDto> colorProdImgDto = productService.getProdImgByColorNo(no);
+        model.addAttribute("colorProdImgDto", colorProdImgDto);
+
+        SizeAmountDto sizeAmountDto = productService.getSizeAmountByColorNo(colorNo);
+        model.addAttribute("sizeAmountDto", sizeAmountDto);
+
+        ProdImagesDto prodImagesDto = productService.getProdImagesByColorNo(colorNo);
+        model.addAttribute("prodImagesDto", prodImagesDto);
+
+        Color color = adminService.getColorNo(colorNo);
+
+        model.addAttribute("color", color);
+
+        return "admin/product/detail";
+    }
+
     @GetMapping("/edit")
     public String registerEditForm(@RequestParam("no") int no,
                                    @RequestParam(value = "colorNo", required = false) Integer colorNo,
@@ -88,7 +112,7 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("errorMessage", "수정 중 오류가 발생했습니다.");
         }
 
-        return "redirect:/admin/product/register-form?no=" + product.getNo() + "&colorNo=" + product.getColorNum();
+        return "redirect:/admin/product/edit?no=" + product.getNo() + "&colorNo=" + product.getColorNum();
     }
 
     @GetMapping("/size-delete")
@@ -115,7 +139,7 @@ public class AdminProductController {
         return "admin/product/size-delete-form";
     }
 
-    @PostMapping("/delete-size")
+    @PostMapping("/size-delete")
     public String deleteSize(@RequestParam("no") int no,
                              @RequestParam("colorNo") Integer colorNo,
                              @RequestParam("sizeNo") int sizeNo,
@@ -123,7 +147,7 @@ public class AdminProductController {
 
         adminService.getDeletedSize(sizeNo);
 
-        return "redirect:/admin/product/delete-size?no=" + no + "&colorNo=" + colorNo;
+        return "redirect:/admin/product/size-delete?no=" + no + "&colorNo=" + colorNo;
     }
 
     @GetMapping("/size-register")
@@ -279,7 +303,7 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("errorMessage", "이미지 등록 중 오류가 발생했습니다.");
         }
 
-        return "redirect:/admin/image-register?no=" + form.getProdNo() + "&colorNo=" + form.getColorNo();
+        return "redirect:/admin/product/image-register?no=" + form.getProdNo() + "&colorNo=" + form.getColorNo();
     }
 
     @GetMapping("/color-register")
@@ -299,7 +323,7 @@ public class AdminProductController {
                                 Model model) {
         if (no == null || name == null || name.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "상품 번호와 색상은 필수 입력 값입니다.");
-            return "redirect:/admin/register-color?no=" + no;
+            return "redirect:/admin/product/color-reigster?no=" + no;
         }
 
         Map<String, Object> condition = new HashMap<>();
@@ -316,38 +340,14 @@ public class AdminProductController {
         return "redirect:/admin/product/color-register?no=" + condition.get("no") + "&colorNo=" + colorNo;
     }
 
-    @GetMapping("/detail")
-    public String productAdminDetail(@RequestParam("no") int no,
-                                     @RequestParam("colorNo") int colorNo,
-                                     Model model) {
 
-        ProdDetailDto prodDetailDto = productService.getProductByNo(no);
-        model.addAttribute("prodDetailDto", prodDetailDto);
-
-        List<ColorProdImgDto> colorProdImgDto = productService.getProdImgByColorNo(no);
-        model.addAttribute("colorProdImgDto", colorProdImgDto);
-
-        SizeAmountDto sizeAmountDto = productService.getSizeAmountByColorNo(colorNo);
-        model.addAttribute("sizeAmountDto", sizeAmountDto);
-
-        ProdImagesDto prodImagesDto = productService.getProdImagesByColorNo(colorNo);
-        model.addAttribute("prodImagesDto", prodImagesDto);
-
-        Color color = adminService.getColorNo(colorNo);
-
-        model.addAttribute("color", color);
-
-        return "admin/product/detail";
-    }
-
-
-    @GetMapping("/register-form")
+    @GetMapping("/register")
     public String productRegisterForm() {
 
         return "admin/product/register-form";
     }
 
-    @PostMapping("/register-form")
+    @PostMapping("/register")
     public String productRegisterForm(ProductRegisterForm form, Model model) {
 
         adminService.addProduct(form);

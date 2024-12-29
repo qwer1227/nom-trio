@@ -59,7 +59,7 @@
             <div class="col-6">
               <form id="getForm"
                     class="border bg-light p-3"
-                    method="get" action="/admin/product-stock-detail"
+                    method="get" action="/admin/settlement/product-stock-detail"
                     enctype="multipart/form-data">
                 <div class="form-group mb-3 col-4">
                   <input type="hidden" name="no" value="${param.no}">
@@ -80,12 +80,12 @@
                   </div>
                 </div>
                 <div class="text-end" style="text-align: right">
-                  <a type="button" class="btn btn-dark" href="/admin/product-stock?topNo=0">뒤로가기</a>
+                  <a type="button" class="btn btn-dark" href="/admin/settlement/product-stock?topNo=0">뒤로가기</a>
                   <button type="submit" id="getSubmitButton" class="btn btn-primary">재고 조회</button>
                 </div>
               </form>
                 <c:if test="${not empty colorSize}">
-                  <form id="postForm" class="border bg-light p-3" method="post" action="/admin/product-stock-detail">
+                  <form id="postForm" class="border bg-light p-3" method="post" action="/admin/settlement/product-stock-detail">
                     <div class="text-end">
                       <div id="Container" class="mb-2">
                           <input type="hidden" name="colorName" value="${param.colorName}">
@@ -108,7 +108,7 @@
                   <c:if test="${empty colorSize}">
                       <div class="alert alert-danger">
                         <p class="mr-3">${sizeMessage}</p>
-                        <a href="register-size?no=${param.no}&colorNo=${param.colorNo}">
+                        <a href="/admin/product/size-register?no=${param.no}&colorNo=${param.colorNo}">
                             <button type="button" class="btn btn-primary">
                                 사이즈 등록하러 가기
                             </button>
