@@ -54,7 +54,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-12">
-            <form id="form-search" method="get" action="/admin/settlement">
+            <form id="form-search" method="get" action="/admin/settlement/l-settlement">
               <input type="hidden" name="page" />
               <input type="hidden" name="rows" />
               <div class="row g-3">
@@ -137,7 +137,7 @@
                 </div>
             </form>
                 <div class="col">
-                  <a class="btn btn-success" href="chart">
+                  <a class="btn btn-success" href="/admin/settlement/chart">
                     차트보기
                   </a>
                 </div>
@@ -212,19 +212,19 @@
                   <li class="page-item ${paging.first? 'disabled' : ''}">
                       <a class="page-link"
                       onclick="changePage(${paging.prevPage}, event)"
-                      href="settlement?page=${paging.prevPage}">이전</a>
+                      href="/admin/settlement/l-settlement?page=${paging.prevPage}">이전</a>
                   </li>
                   <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
                       <li class="page-item ${paging.page eq num ? 'active' : ''}">
                           <a class="page-link"
                           onclick="changePage(${num}, event)"
-                          href="settlement?page=${num}">${num}</a>
+                          href="/admin/settlement/l-settlement?page=${num}">${num}</a>
                       </li>
                   </c:forEach>
                   <li class="page-item ${paging.last ? 'disabled' : ''}" >
                       <a class="page-link"
                       onclick="changePage(${paging.nextPage}, event)"
-                      href="settlement?page=${paging.nextPage}">다음</a>
+                      href="/admin/settlement/l-settlement?page=${paging.nextPage}">다음</a>
                   </li>
                 </ul>
               </nav>

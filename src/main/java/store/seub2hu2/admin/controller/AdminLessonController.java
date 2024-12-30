@@ -37,7 +37,7 @@ public class AdminLessonController {
     private final LessonService lessonService;
     private final LessonFileService lessonFileService;
 
-    @GetMapping("/lesson-edit-form")
+    @GetMapping("/edit-form")
     public String lessonEditForm(@RequestParam("lessonNo") Integer lessonNo, Model model) {
         try {
             // 강사 정보 가져오기
@@ -67,13 +67,13 @@ public class AdminLessonController {
 
             log.info("lesson start = {}", lesson);
 
-            return "admin/lesson-edit-form";
+            return "admin/lesson/edit-form";
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid lessonNo: " + lessonNo);
         }
     }
 
-    @PostMapping("/lesson-edit-form")
+    @PostMapping("/edit-form")
     public String lessonEditForm(@Validated @ModelAttribute("form") LessonUpdateForm form, BindingResult result, Model model) {
         if (!StringUtils.hasText(form.getPlan()) && form.getMainImage().isEmpty()) {
             result.rejectValue("plan", null, "계획을 작성하거나 메인 이미지를 첨부 해주세요.");
@@ -104,16 +104,16 @@ public class AdminLessonController {
 
             log.info("lesson start = {}", lesson);
 
-            return "admin/lesson-edit-form";
+            return "admin/lesson/edit-form";
         }
 
         log.info("레슨 수정 정보 {} ", form);
         lessonService.updateLesson(form);
 
-        return "redirect:/admin/lesson";
+        return "redirect:/admin/lesson/list";
     }
 
-    @GetMapping("/lesson-register-form")
+    @GetMapping("/register")
     public String lessonRegisterForm(Model model) {
 
         // 사용자 권한이 강사인 사용자 목록을 조회한다.
@@ -121,10 +121,10 @@ public class AdminLessonController {
         model.addAttribute("lecturers", lecturers);
         model.addAttribute("form", new LessonRegisterForm());
 
-        return "admin/lesson-register-form";
+        return "admin/lesson/register-form";
     }
 
-    @PostMapping("/lesson-register-form")
+    @PostMapping("/register")
     public String form(@Validated @ModelAttribute("form") LessonRegisterForm form, BindingResult result, Model model) throws IOException {
 
         if (!StringUtils.hasText(form.getPlan()) && form.getMainImage().isEmpty()) {
@@ -141,15 +141,15 @@ public class AdminLessonController {
             List<User> lecturers = userService.findUsersByUserRoleNo(3);
             model.addAttribute("lecturers", lecturers);
 
-            return "admin/lesson-register-form"; // 오류가 있는 경우 다시 폼 페이지로 리턴
+            return "admin/lesson/register-form"; // 오류가 있는 경우 다시 폼 페이지로 리턴
         }
 
         lessonService.registerLesson(form);
 
-        return "redirect:/admin/lesson";
+        return "redirect:/admin/lesson/list";
     }
 
-    @GetMapping("/lesson/preview")
+    @GetMapping("/preview")
     @ResponseBody
     public List<LessonUsersDto> lessonPreview(@RequestParam("no") Integer lessonNo,
                                               Model model) {
@@ -160,7 +160,7 @@ public class AdminLessonController {
         return reservations;
     }
 
-    @GetMapping("/lesson")
+    @GetMapping("/list")
     public String lesson(@RequestParam(name = "opt", required = false) String opt,
                          @RequestParam(name = "day", required = false)
                          @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate day,
@@ -184,7 +184,7 @@ public class AdminLessonController {
         model.addAttribute("lessons", lessons);
         model.addAttribute("day", day); // 선택한 날짜를 다시 전달
 
-        return "admin/lessonlist";
+        return "admin/lesson/list";
     }
 
 }
