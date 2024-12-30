@@ -54,7 +54,7 @@
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
           <h1 class="h3 mb-0 text-gray-800">레슨</h1>
         </div>
-        <form id="form-search" method="get" action="/admin/lesson">
+        <form id="form-search" method="get" action="/admin/lesson/list">
           <input type="hidden" name="page"/>
           <div class="row g-3 d-flex">
 

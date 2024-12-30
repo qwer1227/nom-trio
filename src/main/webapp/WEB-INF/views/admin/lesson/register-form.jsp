@@ -157,7 +157,7 @@
                         </div>
                         <div class="row p-3">
                             <div class="col d-flex justify-content-end">
-                                <a href="/lesson" class="btn btn-secondary m-1">취소</a>
+                                <a href="/admin/lesson/list" class="btn btn-secondary m-1">취소</a>
                                 <button type="submit" class="btn btn-primary m-1">등록</button>
                             </div>
                         </div>

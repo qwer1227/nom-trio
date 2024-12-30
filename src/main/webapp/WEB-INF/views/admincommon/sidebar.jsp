@@ -110,7 +110,7 @@
         <h6 class="collapse-header">배송&재고&정산</h6>
         <a class="collapse-item" href="/admin/settlement/order-delivery">배송</a>
         <a class="collapse-item" href="/admin/settlement/product-stock?topNo=0">상품 재고 등록하기</a>
-        <a class="collapse-item" href="/admin/settlement/settlement">레슨정산관리</a>
+        <a class="collapse-item" href="/admin/settlement/l-settlement">레슨정산관리</a>
         <a class="collapse-item" href="/admin/settlement/p-settlement">상품정산관리</a>
       </div>
     </div>
@@ -127,7 +127,7 @@
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">레슨</h6>
         <a class="collapse-item" href="/admin/lesson/list">레슨 전체&수정</a>
-        <a class="collapse-item" href="/admin/lesson/register-form">레슨 등록하기</a>
+        <a class="collapse-item" href="/admin/lesson/register">레슨 등록하기</a>
       </div>
     </div>
   </li>
