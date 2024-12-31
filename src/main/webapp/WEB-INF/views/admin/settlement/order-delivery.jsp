@@ -221,7 +221,7 @@
                               ${d.payStatus}
                               </td>
                               <td>
-                                <form action="/admin/updateDeliveryStatus" method="post">
+                                <form action="/admin/settlement/updateDeliveryStatus" method="post">
                                     <input type="hidden" name="page" value="${param.page}">
                                     <input type="hidden" name="rows" value="${param.rows}">
                                     <input type="hidden" name="day" value="${param.day}">
@@ -248,19 +248,19 @@
                   <li class="page-item ${paging.first? 'disabled' : ''}">
                       <a class="page-link"
                       onclick="changePage(${paging.prevPage}, event)"
-                      href="order-delivery?page=${paging.prevPage}">이전</a>
+                      href="/admin/settlement/order-delivery?page=${paging.prevPage}">이전</a>
                   </li>
                   <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
                       <li class="page-item ${paging.page eq num ? 'active' : ''}">
                           <a class="page-link"
                           onclick="changePage(${num}, event)"
-                          href="order-delivery?page=${num}">${num}</a>
+                          href="/admin/settlement/order-delivery?page=${num}">${num}</a>
                       </li>
                   </c:forEach>
                   <li class="page-item ${paging.last ? 'disabled' : ''}" >
                       <a class="page-link"
                       onclick="changePage(${paging.nextPage}, event)"
-                      href="order-delivery?page=${paging.nextPage}">다음</a>
+                      href="/admin/settlement/order-delivery?page=${paging.nextPage}">다음</a>
                   </li>
                 </ul>
               </nav>

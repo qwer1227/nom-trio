@@ -54,7 +54,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-12">
-            <form id="form-search" method="get" action="/admin/report">
+            <form id="form-search" method="get" action="/admin/community/report">
               <input type="hidden" name="page" value="1"/>
               <input type="hidden" name="rows" value="10"/>
               <div class="row g-3">
@@ -163,7 +163,7 @@
                       <td>${d.reportTime}</td>
                       <td>${d.isComplete}</td>
                       <td>
-                        <form action="/admin/updateReport" method="post">
+                        <form action="/admin/community/updateReport" method="post">
                             <input type="hidden" name="reportNo" value="${d.reportNo}">
                             <input type="hidden" name="reportType" value="${d.reportType}">
                             <input type="hidden" name="action" value=""> <!-- action 값 추가 -->
@@ -189,19 +189,19 @@
                             <li class="page-item ${paging.first? 'disabled' : ''}">
                                 <a class="page-link"
                                 onclick="changePage(${paging.prevPage}, event)"
-                                href="report?page=${paging.prevPage}">이전</a>
+                                href="/admin/community/report?page=${paging.prevPage}">이전</a>
                             </li>
                             <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
                                 <li class="page-item ${paging.page eq num ? 'active' : ''}">
                                     <a class="page-link"
                                     onclick="changePage(${num}, event)"
-                                    href="report?page=${num}">${num}</a>
+                                    href="/admin/community/report?page=${num}">${num}</a>
                                 </li>
                             </c:forEach>
                             <li class="page-item ${paging.last ? 'disabled' : ''}" >
                                 <a class="page-link"
                                 onclick="changePage(${paging.nextPage}, event)"
-                                href="report?page=${paging.nextPage}">다음</a>
+                                href="/admin/community/report?page=${paging.nextPage}">다음</a>
                             </li>
                         </ul>
                     </nav>
