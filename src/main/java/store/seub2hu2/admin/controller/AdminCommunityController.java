@@ -48,7 +48,7 @@ public class AdminCommunityController {
         model.addAttribute("qnaList", qnaDto.getData());
         model.addAttribute("pagination", qnaDto.getPaging());
 
-        return "admin/qnalist";
+        return "admin/community/qnalist";
     }
 
     @GetMapping("/qna/{qnaNo}")
@@ -58,7 +58,7 @@ public class AdminCommunityController {
 
         model.addAttribute("qna",qnaResponse);
 
-        return "admin/answer-form";
+        return "admin/community/answer-form";
     }
 
     @PostMapping("/qna/answer")
@@ -66,7 +66,7 @@ public class AdminCommunityController {
 
         qnaService.updateAnswer(answerDTO, loginUser.getNo());
 
-        return "redirect:/admin/qna";
+        return "redirect:/admin/community/qna";
     }
 
     @PostMapping("/updateReport")
@@ -82,7 +82,7 @@ public class AdminCommunityController {
 
 
 
-        return "redirect:/admin/report";
+        return "redirect:/admin/community/report";
     }
 
     @GetMapping("/report")
@@ -111,7 +111,7 @@ public class AdminCommunityController {
         model.addAttribute("dto", dto.getData());
         model.addAttribute("paging", dto.getPaging());
 
-        return "admin/reportlist";
+        return "admin/community/reportlist";
     }
 
     @GetMapping("/community")
@@ -144,7 +144,7 @@ public class AdminCommunityController {
         model.addAttribute("paging", dto.getPaging());
 
 
-        return "admin/notice";
+        return "admin/community/notice";
     }
 
     @GetMapping("/marathon")
@@ -176,6 +176,6 @@ public class AdminCommunityController {
         model.addAttribute("paging", dto.getPaging());
         model.addAttribute("now", new Date());
 
-        return "admin/marathon";
+        return "admin/community/marathon";
     }
 }

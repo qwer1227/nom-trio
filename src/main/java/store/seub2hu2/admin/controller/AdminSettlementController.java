@@ -174,7 +174,7 @@ public class AdminSettlementController {
         adminService.getUpdateDelivery(condition);
 
 
-        return "redirect:/admin/order-delivery?page=" + page + "&rows" + rows + "&day=" + day;
+        return "redirect:/admin/settlement/order-delivery?page=" + page + "&rows" + rows + "&day=" + day;
     }
 
     @GetMapping("/order-delivery")
