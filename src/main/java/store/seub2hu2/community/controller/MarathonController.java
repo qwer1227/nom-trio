@@ -124,6 +124,7 @@ public class MarathonController {
     }
 
     @PostMapping("/modify")
+    @ResponseBody
     @PreAuthorize("isAuthenticated()")
     public Marathon update(MarathonForm form) {
         Marathon marathon = marathonService.updateMarathon(form);

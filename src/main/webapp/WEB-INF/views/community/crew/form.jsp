@@ -120,10 +120,10 @@
     
     // 입력값 검증
     const fields = [
-      {id: "title", message: "제목을 입력하세요"},
-      {id: "name", message: "크루명을 입력하세요"},
-      {id: "location", message: "상세 모임장소를 입력하세요"},
-      {id: "detail", message: "상세 모임시간을 입력하세요"},
+      {id: "title", message: "제목을 입력하세요."},
+      {id: "name", message: "크루명을 입력하세요."},
+      {id: "location", message: "상세 모임장소를 입력하세요."},
+      {id: "detail", message: "상세 모임시간을 입력하세요."},
     ];
     
     for (const field of fields) {
