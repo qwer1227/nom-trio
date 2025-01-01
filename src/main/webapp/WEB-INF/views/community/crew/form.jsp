@@ -43,10 +43,10 @@
         <tbody>
         <tr>
           <th>모집글 제목</th>
-          <td><input class="rounded" type="text" name="title" value="" style="width: 83%"></td>
+          <td><input class="rounded" type="text" name="title" id="title" style="width: 83%"></td>
           <th>장소</th>
           <td>
-            <input class="rounded" type="text" id="location" value="" name="location"
+            <input class="rounded" type="text" name="location" id="location"
                    style="width: 90%; vertical-align: middle;">
             <a type="button" class="btn btn-outline-dark btn-sm"
                onclick="searchPlaces(event)" style="vertical-align: middle; width: 50px">검색</a>
@@ -54,7 +54,7 @@
         </tr>
         <tr>
           <th>크루 이름</th>
-          <td><input class="rounded" type="text" name="name" value="" style="width: 83%"></td>
+          <td><input class="rounded" type="text" name="name" id="name" style="width: 83%"></td>
           <th></th>
           <td rowspan="3">
             <div id="map" style="width: 100%; height: 200px" class="mb-2"></div>
@@ -63,13 +63,13 @@
         <tr>
           <th>일시</th>
           <td>
-            <select class="rounded" id="schedule-type" name="type">
-              <option value="매월">매월</option>
-              <option value="매주">매주</option>
-              <option value="매일">매일</option>
-              <option value="번개">입력</option>
+            <select class="rounded" id="type" name="type">
+              <option value="매월" id="매월">매월</option>
+              <option value="매주" id="매주">매주</option>
+              <option value="매일" id="매일">매일</option>
+              <option value="입력" id="입력">입력</option>
             </select>
-            <input type="text" class="rounded" id="schedule-detail" name="detail" value="" style="width: 70%"
+            <input type="text" class="rounded" id="detail" name="detail" style="width: 70%"
                    placeholder="상세 모임 일시를 작성해주세요.">
           </td>
         </tr>
@@ -113,48 +113,40 @@
 <%@include file="/WEB-INF/views/common/footer.jsp" %>
 <script type="text/javascript">
   // 등록 버튼 클릭 시, 폼에 있는 값을 전달(이미지는 슬라이싱할 때 전달했기 때문에 따로 추가 설정 안해도 됨)
-  document.querySelector("#submit").addEventListener("click", function () {
+  document.querySelector("#submit").addEventListener("click", function (event) {
+    event.preventDefault();
+    
     oEditors.getById["ir1"].exec("UPDATE_CONTENTS_FIELD", []);
     
-    let title = document.querySelector("input[name=title]").value.trim();
+    // 입력값 검증
+    const fields = [
+      {id: "title", message: "제목을 입력하세요"},
+      {id: "name", message: "크루명을 입력하세요"},
+      {id: "location", message: "상세 모임장소를 입력하세요"},
+      {id: "detail", message: "상세 모임시간을 입력하세요"},
+    ];
+    
+    for (const field of fields) {
+      const input = document.getElementById(field.id);
+      if (!input.value) {
+        alert(field.message);
+        input.focus();
+        return;
+      }
+      formData.append(field.id, input.value);
+    }
+    
     let description = document.querySelector("textarea[name=ir1]").value.trim();
-    let name = document.querySelector("input[name=name]").value.trim();
-    let type = document.querySelector("select[name=type]").value;
-    let detail = document.querySelector("input[name=detail]").value.trim();
-    let location = document.querySelector("input[name=location]").value;
+    let cleanedContent = description.replace(/<p><br><\/p>/g, "").trim();
     let upfile = document.querySelector("input[name=upfile]")
     
-    let cleanedContent = description.replace(/<p><br><\/p>/g, "").trim();
-    
-    // 입력값 검증
-    if (!title) {
-      alert("크루 모집글 제목을 입력해주세요.");
-      return;
-    }
     if (!cleanedContent) {
       alert("내용을 입력해주세요.");
       return;
     }
-    if (!name) {
-      alert("크루명을 입력해주세요.");
-      return;
-    }
-    if (!detail) {
-      alert("상세 일시를 입력해주세요.");
-      return;
-    }
-    if (!location) {
-      alert("모임 장소를 입력해주세요.");
-      return;
-    }
     
-    
-    formData.append("title", title);
+    formData.append("type", $("#type").val());
     formData.append("description", description);
-    formData.append("name", name);
-    formData.append("type", type);
-    formData.append("detail", detail);
-    formData.append("location", location);
     if (upfile.files.length > 0) {
       formData.append("upfile", upfile.files[0]);
     }

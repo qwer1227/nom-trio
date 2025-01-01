@@ -39,7 +39,7 @@
 	
 	<div class="row p-3">
 		<form method="post" action="modify" enctype="multipart/form-data" onkeydown="return event.key !== 'Enter';">
-			<input type="hidden" value="${crew.no}" name="no">
+			<input type="hidden" value="${crew.no}" id="no">
 			<table id="inviting-table" style="width: 98%">
 				<colgroup>
 					<col width="10%">
@@ -50,7 +50,7 @@
 				<tbody>
 				<tr>
 					<th>모집글 제목</th>
-					<td><input class="rounded" type="text" name="title" value="${crew.title}" style="width: 448px"></td>
+					<td><input class="rounded" type="text" name="title" id="title" value="${crew.title}" style="width: 448px"></td>
 					<th>장소</th>
 					<td>
 						<input class="rounded" type="text" id="location" value="${crew.location}" name="location"
@@ -60,7 +60,7 @@
 				</tr>
 				<tr>
 					<th>크루 이름</th>
-					<td><input class="rounded" type="text" name="name" value="${crew.name}" style="width: 448px"></td>
+					<td><input class="rounded" type="text" name="name" id="name" value="${crew.name}" style="width: 448px"></td>
 					<th></th>
 					<c:if test="${not empty crew.thumbnail.saveName}">
 					<td rowspan="4">
@@ -74,13 +74,13 @@
 				<tr>
 					<th>일시</th>
 					<td>
-						<select class="rounded" id="schedule-type" name="type">
-							<option value="매월" ${crew.type eq '매월' ? 'selected' : ''}>매월</option>
-							<option value="매주" ${crew.type eq '매주' ? 'selected' : ''}>매주</option>
-							<option value="매일" ${crew.type eq '매일' ? 'selected' : ''}>매일</option>
-							<option value="입력" ${crew.type eq '입력' ? 'selected' : ''}>입력</option>
+						<select class="rounded" id="type" name="type">
+							<option value="매월" id="매월" ${crew.type eq '매월' ? 'selected' : ''}>매월</option>
+							<option value="매주" id="매주" ${crew.type eq '매주' ? 'selected' : ''}>매주</option>
+							<option value="매일" id="매일" ${crew.type eq '매일' ? 'selected' : ''}>매일</option>
+							<option value="입력" id="입력" ${crew.type eq '입력' ? 'selected' : ''}>입력</option>
 						</select>
-						<input type="text" class="rounded" id="schedule-detail" name="detail" value="${crew.detail}"
+						<input type="text" class="rounded" id="detail" name="detail" value="${crew.detail}"
 									 style="width: 390px"
 									 placeholder="상세 모임 일시를 작성해주세요.">
 					</td>
@@ -163,50 +163,41 @@
     });
 
     // 등록 버튼 클릭 시, 폼에 있는 값을 전달(이미지는 슬라이싱할 때 전달했기 때문에 따로 추가 설정 안해도 됨)
-    document.querySelector("#submit").addEventListener("click", function () {
+    document.querySelector("#submit").addEventListener("click", function (event) {
+        event.preventDefault();
 
         oEditors.getById["ir1"].exec("UPDATE_CONTENTS_FIELD", []);
 
-        let no = document.querySelector("input[name=no]").value;
-        let title = document.querySelector("input[name=title]").value.trim();
-        let description = document.querySelector("textarea[name=ir1]").value.trim();
-        let name = document.querySelector("input[name=name]").value.trim();
-        let type = document.querySelector("select[name=type]").value;
-        let detail = document.querySelector("input[name=detail]").value.trim();
-        let location = document.querySelector("input[name=location]").value;
-        let upfile = document.querySelector("input[name=upfile]")
-
-        let cleanedContent = description.replace(/<p><br><\/p>/g, "").trim();
-
         // 입력값 검증
-        if (!title) {
-            alert("크루 모집글 제목을 입력해주세요.");
-            return;
+        const fields = [
+            {id: "title", message: "제목을 입력하세요"},
+            {id: "name", message: "크루명을 입력하세요"},
+            {id: "location", message: "상세 모임장소를 입력하세요"},
+            {id: "detail", message: "상세 모임시간을 입력하세요"},
+        ];
+
+        for (const field of fields) {
+            const input = document.getElementById(field.id);
+            if (!input.value) {
+                alert(field.message);
+                input.focus();
+                return;
+            }
+            formData.append(field.id, input.value);
         }
+
+        let description = document.querySelector("textarea[name=ir1]").value.trim();
+        let cleanedContent = description.replace(/<p><br><\/p>/g, "").trim();
+        let upfile = document.querySelector("input[name=upfile]")
+        
         if (!cleanedContent) {
             alert("내용을 입력해주세요.");
             return;
         }
-        if (!name) {
-            alert("크루명을 입력해주세요.");
-            return;
-        }
-        if (!detail) {
-            alert("상세 일시를 입력해주세요.");
-            return;
-        }
-        if (!location) {
-            alert("모임 장소를 입력해주세요.");
-            return;
-        }
-
-        formData.append(("no"), no);
-        formData.append("title", title);
+				
+        formData.append("no", $("#no").val());
+        formData.append("type", $("#type").val());
         formData.append("description", description);
-        formData.append("name", name);
-        formData.append("type", type);
-        formData.append("detail", detail);
-        formData.append("location", location);
         if (upfile.files.length > 0) {
             formData.append("upfile", upfile.files[0]);
         }

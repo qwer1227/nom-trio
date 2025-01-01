@@ -3,12 +3,11 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Insert title here</title>
   <script type="text/javascript" src="/resources/se2/js/service/HuskyEZCreator.js" charset="utf-8"></script>
 </head>
 <body>
-<form method="get" action="register">
-  <textarea name="ir1" id="ir1" style="display:none;"></textarea>
+<form method="get">
+  <textarea name="ir1" id="ir1" style="display:none;">${board.content}</textarea>
 </form>
 <script type="text/javascript">
     var oEditors = [];
