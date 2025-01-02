@@ -225,10 +225,10 @@ public class MyPageController {
             condition.put("keyword", keyword);
         }
 
-        ListDto<Board> dto = boardService.getHistoryBoards(condition);
-
-        model.addAttribute("boards", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+//        ListDto<Board> dto = boardService.getHistoryBoards(condition);
+//
+//        model.addAttribute("boards", dto.getData());
+//        model.addAttribute("paging", dto.getPaging());
         return "mypage/history";
     }
 
