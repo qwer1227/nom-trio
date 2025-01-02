@@ -14,6 +14,7 @@ import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.util.FileUtils;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.List;
 import java.util.Map;
@@ -72,20 +73,20 @@ public class MarathonService {
         return marathon;
     }
 
-    public ListDto<Marathon> getMarathons(Map<String, Object> condition) {
-        int totalRows = marathonMapper.getTotalMarathons(condition);
+    public ListDto<Marathon> getMarathons(RequestParamsDto dto) {
+        int totalRows = marathonMapper.getTotalMarathons(dto);
 
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+        int page = dto.getPage();
+        int rows = dto.getRows();
         Pagination pagination = new Pagination(page, totalRows, rows);
 
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
+        dto.setBegin(pagination.getBegin());
+        dto.setEnd(pagination.getEnd());
 
-        List<Marathon> marathons = marathonMapper.getMarathons(condition);
-        ListDto<Marathon> dto = new ListDto<>(marathons, pagination);
+        List<Marathon> marathons = marathonMapper.getMarathons(dto);
+        ListDto<Marathon> mDto = new ListDto<>(marathons, pagination);
 
-        return dto;
+        return mDto;
     }
 
     public Marathon getMarathonDetail(int marathonNo) {

@@ -12,6 +12,7 @@ import store.seub2hu2.community.vo.Crew;
 import store.seub2hu2.community.vo.Marathon;
 import store.seub2hu2.community.vo.MarathonOrgan;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.*;
 
@@ -23,32 +24,12 @@ public class MarathonController {
     public MarathonService marathonService;
 
     @GetMapping("/main")
-    public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "6") int rows
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "category", required = false) String category
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String list(RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
+        ListDto<Marathon> mDto = marathonService.getMarathons(dto);
 
-        // 카테고리 필터링 처리
-        if (StringUtils.hasText(category)) {
-            condition.put("category", category);
-        }
-
-        // 검색
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Marathon> dto = marathonService.getMarathons(condition);
-
-        model.addAttribute("marathons", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("marathons", mDto.getData());
+        model.addAttribute("paging", mDto.getPaging());
         model.addAttribute("now", new Date());
 
         return "community/marathon/main";
