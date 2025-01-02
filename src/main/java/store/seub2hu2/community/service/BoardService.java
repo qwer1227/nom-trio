@@ -18,6 +18,7 @@ import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 import java.util.List;
@@ -96,47 +97,47 @@ public class BoardService {
         return board;
     }
 
-    public ListDto<Board> getBoards(Map<String, Object> condition) {
+    public ListDto<Board> getBoards(RequestParamsDto dto) {
         // 검색 조건에 맞는 데이터 전체 갯수 조회
-        int totalRows = boardMapper.getTotalRowsForBoard(condition);
+        int totalRows = boardMapper.getTotalRowsForBoard(dto);
 
         // pagination 객체 생성
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+        int page = dto.getPage();
+        int rows = dto.getRows();
         Pagination pagination = new Pagination(page, totalRows, rows);
 
         //데이터 검색범위를 조회해서 Map에 저장
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
+        dto.setBegin(pagination.getBegin());
+        dto.setEnd(pagination.getEnd());
 
         // 조회범위에 맞는 데이터 조회하기
-        List<Board> boards = boardMapper.getBoards(condition);
-        ListDto<Board> dto = new ListDto<>(boards, pagination);
+        List<Board> boards = boardMapper.getBoards(dto);
+        ListDto<Board> bDto = new ListDto<>(boards, pagination);
 
-        return dto;
+        return bDto;
     }
 
-    public ListDto<Board> getHistoryBoards(Map<String, Object> condition) {
-        // 검색 조건에 맞는 데이터 전체 갯수 조회
-        int totalRows = boardMapper.getTotalRowsForHistory(condition);
-
-        System.out.println(totalRows);
-
-        // pagination 객체 생성
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
-        Pagination pagination = new Pagination(page, totalRows, rows);
-
-        //데이터 검색범위를 조회해서 Map에 저장
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
-
-        // 조회범위에 맞는 데이터 조회하기
-        List<Board> boards = boardMapper.getBoards(condition);
-        ListDto<Board> dto = new ListDto<>(boards, pagination);
-
-        return dto;
-    }
+//    public ListDto<Board> getHistoryBoards(Map<String, Object> condition) {
+//        // 검색 조건에 맞는 데이터 전체 갯수 조회
+//        int totalRows = boardMapper.getTotalRowsForHistory(condition);
+//
+//        System.out.println(totalRows);
+//
+//        // pagination 객체 생성
+//        int page = (Integer) condition.get("page");
+//        int rows = (Integer) condition.get("rows");
+//        Pagination pagination = new Pagination(page, totalRows, rows);
+//
+//        //데이터 검색범위를 조회해서 Map에 저장
+//        condition.put("begin", pagination.getBegin());
+//        condition.put("end", pagination.getEnd());
+//
+//        // 조회범위에 맞는 데이터 조회하기
+//        List<Board> boards = boardMapper.getBoards(condition);
+//        ListDto<Board> dto = new ListDto<>(boards, pagination);
+//
+//        return dto;
+//    }
 
     public ListDto<Board> getBoardsTop(Map<String, Object> condition) {
         List<Board> boards = boardMapper.getBoardsTopFive(condition);

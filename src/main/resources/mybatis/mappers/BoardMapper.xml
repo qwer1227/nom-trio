@@ -77,17 +77,17 @@
     <if test="condition.category != null">
       and b.board_cat_name = #{condition.category}
     </if>
-    <if test="condition.type == 'value1'">
-      and b.user_no = #{condition.userNo}
-    </if>
-    <if test="condition.type == 'value2'">
-      and b.board_no in (
-      select distinct reply_type_no
-      from REPLIES
-      where user_no = #{condition.userNo}
-      and is_deleted = 'N'
-      )
-    </if>
+<!--    <if test="condition.type == 'value1'">-->
+<!--      and b.user_no = #{condition.userNo}-->
+<!--    </if>-->
+<!--    <if test="condition.type == 'value2'">-->
+<!--      and b.board_no in (-->
+<!--      select distinct reply_type_no-->
+<!--      from REPLIES-->
+<!--      where user_no = #{condition.userNo}-->
+<!--      and is_deleted = 'N'-->
+<!--      )-->
+<!--    </if>-->
     <if test="condition.opt != null">
       <choose>
         <when test="condition.opt == 'all'">

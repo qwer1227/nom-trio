@@ -25,6 +25,7 @@ import store.seub2hu2.mypage.service.PostService;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 import java.io.File;
@@ -65,31 +66,11 @@ public class BoardController {
     private MarathonService marathonService;
 
     @GetMapping("/main")
-    public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", defaultValue = "10") int rows
-            , @RequestParam(name = "sort", required = false, defaultValue = "date") String sort
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , @RequestParam(name = "category", required = false) String category
-            , Model model) {
-
+    public String list(RequestParamsDto dto, Model model) {
 
         Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
 
-        // 카테고리 필터링 처리
-        if (StringUtils.hasText(category)) {
-            condition.put("category", category);
-        }
-
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Board> bDto = boardService.getBoards(condition);
+        ListDto<Board> bDto = boardService.getBoards(dto);
         ListDto<Notice> nDto = boardService.getNoticesTop(condition);
         ListDto<Crew> cDto = crewService.getCrewsTop(condition);
         ListDto<Marathon> mDto = marathonService.getMarathonTop(condition);
