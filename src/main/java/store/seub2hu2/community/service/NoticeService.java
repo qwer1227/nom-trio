@@ -12,10 +12,7 @@ import store.seub2hu2.community.mapper.UploadMapper;
 import store.seub2hu2.community.vo.Notice;
 import store.seub2hu2.community.vo.UploadFile;
 import store.seub2hu2.security.user.LoginUser;
-import store.seub2hu2.util.FileUtils;
-import store.seub2hu2.util.ListDto;
-import store.seub2hu2.util.Pagination;
-import store.seub2hu2.util.S3Service;
+import store.seub2hu2.util.*;
 
 import java.util.List;
 import java.util.Map;
@@ -79,20 +76,20 @@ public class NoticeService {
         return notice;
     }
 
-    public ListDto<Notice> getNotices(Map<String, Object> condition) {
-        int totalRows = noticeMapper.getTotalRowsForNotice(condition);
+    public ListDto<Notice> getNotices(RequestParamsDto dto) {
+        int totalRows = noticeMapper.getTotalRowsForNotice(dto);
 
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+        int page = dto.getPage();
+        int rows = dto.getRows();
         Pagination pagination = new Pagination(page, totalRows, rows);
 
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
+        dto.setBegin(pagination.getBegin());
+        dto.setEnd(pagination.getEnd());
 
-        List<Notice> notices = noticeMapper.getNotices(condition);
-        ListDto<Notice> dto = new ListDto<>(notices, pagination);
+        List<Notice> notices = noticeMapper.getNotices(dto);
+        ListDto<Notice> nDto = new ListDto<>(notices, pagination);
 
-        return dto;
+        return nDto;
     }
 
     public Notice getNoticeDetail(int noticeNo) {

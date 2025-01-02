@@ -1105,28 +1105,13 @@ public class AdminController {
     }
 
     @GetMapping("/notice")
-    public String notice(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "10") int rows
-            , @RequestParam(name = "sort", required = false, defaultValue = "import") String sort
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
+    public String notice(store.seub2hu2.util.RequestParamsDto dto
             , Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
+        ListDto<Notice> nDto = noticeService.getNotices(dto);
 
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Notice> dto = noticeService.getNotices(condition);
-
-        model.addAttribute("notices", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
-
+        model.addAttribute("notices", nDto.getData());
+        model.addAttribute("paging", nDto.getPaging());
 
         return "admin/notice";
     }
