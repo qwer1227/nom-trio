@@ -38,7 +38,6 @@ public class BoardService {
     @Autowired
     private S3Service s3Service;
 
-
     @Autowired
     private BoardMapper boardMapper;
 

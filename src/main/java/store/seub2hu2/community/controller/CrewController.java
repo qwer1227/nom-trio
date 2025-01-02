@@ -26,6 +26,7 @@ import store.seub2hu2.community.vo.CrewMember;
 import store.seub2hu2.community.vo.Reply;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 import java.io.File;
@@ -60,32 +61,12 @@ public class CrewController {
     private ReplyService replyService;
 
     @GetMapping("/main")
-    public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "6") int rows
-            , @RequestParam(name = "category", required = false) String category
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String list(RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
+        ListDto<Crew> cDto = crewService.getCrews(dto);
 
-        // 카테고리 필터링 처리
-        if (StringUtils.hasText(category)) {
-            condition.put("category", category);
-        }
-
-        // 검색
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Crew> dto = crewService.getCrews(condition);
-
-        model.addAttribute("crews", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("crews", cDto.getData());
+        model.addAttribute("paging", cDto.getPaging());
 
         return "community/crew/main";
     }

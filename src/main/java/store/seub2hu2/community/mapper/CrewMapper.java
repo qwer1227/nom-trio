@@ -6,6 +6,7 @@ import org.springframework.security.core.parameters.P;
 import store.seub2hu2.community.vo.Crew;
 import store.seub2hu2.community.vo.CrewMember;
 import store.seub2hu2.community.vo.Notice;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,12 @@ public interface CrewMapper {
 
     void insertCrew(@Param("crew") Crew crew);
     void insertCrewMember(@Param("member") CrewMember member);
-    List<Crew> getCrews(@Param("condition") Map<String, Object> condition);
+    List<Crew> getCrews(@Param("condition") RequestParamsDto dto);
     List<Crew> getCrewsTopFive(@Param("condition") Map<String, Object> condition);
     List<Integer> getCrewMembers(@Param("no") int crewNo);
     List<CrewMember> getByCrewNo(@Param("no") int crewNo);
     List<Crew> getCrewByUserNo(@Param("userNo") int userNo);
-    int getTotalRowsForCrew(@Param("condition") Map<String, Object> condition);
+    int getTotalRowsForCrew(@Param("condition")RequestParamsDto dto);
     Crew getCrewDetailByNo(@Param("no") int crewNo);
     void updateCrewCnt(@Param("crew") Crew crew);
     void updateCrew(@Param("crew") Crew crew);

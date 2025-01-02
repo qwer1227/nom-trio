@@ -19,6 +19,7 @@ import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 
@@ -131,20 +132,20 @@ public class CrewService {
         return crew;
     }
 
-    public ListDto<Crew> getCrews(Map<String, Object> condition) {
-        int totalRows = crewMapper.getTotalRowsForCrew(condition);
+    public ListDto<Crew> getCrews(RequestParamsDto dto) {
+        int totalRows = crewMapper.getTotalRowsForCrew(dto);
 
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+        int page = dto.getPage();
+        int rows = dto.getRows();
         Pagination pagination = new Pagination(page, totalRows, rows);
 
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
+        dto.setBegin(pagination.getBegin());
+        dto.setEnd(pagination.getEnd());
 
-        List<Crew> crews = crewMapper.getCrews(condition);
-        ListDto<Crew> dto = new ListDto<>(crews, pagination);
+        List<Crew> crews = crewMapper.getCrews(dto);
+        ListDto<Crew> cDto = new ListDto<>(crews, pagination);
 
-        return dto;
+        return cDto;
     }
 
     // 가입 가능한 조회수 높은 크루 목록 반환
