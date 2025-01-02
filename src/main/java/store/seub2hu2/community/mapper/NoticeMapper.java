@@ -12,9 +12,9 @@ import java.util.Map;
 public interface NoticeMapper {
 
     void insertNotice(@Param("notice") Notice notice);
-    List<Notice> getNotices(@Param("condition") RequestParamsDto dti);
+    List<Notice> getNotices(@Param("dto") RequestParamsDto dto);
     List<Notice> getNoticesTopFive(@Param("condition") Map<String, Object> condition);
-    int getTotalRowsForNotice(@Param("condition")RequestParamsDto dto);
+    int getTotalRowsForNotice(@Param("dto")RequestParamsDto dto);
     Notice getNoticeByNo(@Param("no") int noticeNo);
     void updateNotice(@Param("notice") Notice notice);  // 공지사항 수정 및 삭제
 

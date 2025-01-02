@@ -24,7 +24,7 @@ public class MarathonController {
     public MarathonService marathonService;
 
     @GetMapping("/main")
-    public String list(RequestParamsDto dto, Model model) {
+    public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
         ListDto<Marathon> mDto = marathonService.getMarathons(dto);
 
