@@ -592,6 +592,12 @@
     </select>
 
     <!--
+        int getDailySales(@Param("condition")Map<String, Object> condition);
+
+        int getMonthlySale(@Param("condition")Map<String, Object> condition);
+    -->
+
+    <!--
         List<OrderProductDto> getSettleProdList(Map<String, Object> condition);
     -->
     <select id="getSettleProdList" resultType="store.seub2hu2.admin.dto.OrderProductDto">

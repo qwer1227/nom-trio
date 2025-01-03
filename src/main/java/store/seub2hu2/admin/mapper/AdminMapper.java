@@ -152,6 +152,10 @@ public interface AdminMapper {
 
     void updateReportStatus(@Param("condition") Map<String, Object> condition);
 
+    int getDailySales(@Param("condition")Map<String, Object> condition);
+
+    int getMonthlySale(@Param("condition")Map<String, Object> condition);
+
 
 
 
