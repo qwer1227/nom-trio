@@ -602,4 +602,13 @@ public class AdminService {
             adminMapper.updateReportStatus(condition);
         }
     }
+
+
+    public int getDailySale(Map<String, Object> condition) {
+        return adminMapper.getDailySales(condition);
+    }
+
+    public int getMonthlySale(Map<String, Object> condition) {
+        return adminMapper.getMonthlySale(condition);
+    }
 }

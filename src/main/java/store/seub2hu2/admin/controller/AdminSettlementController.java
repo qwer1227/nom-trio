@@ -276,6 +276,11 @@ public class AdminSettlementController {
             condition.put("value", value);
         }
 
+        int dailySales = adminService.getDailySale(condition);
+
+
+        int monthlySales = adminService.getMonthlySale(condition);
+
         ListDto<OrderProductDto> dto = adminService.getOrderProduct(condition);
 
         int totalPriceSum = dto.getData().stream()

@@ -189,7 +189,6 @@
 
             </div>
         </div>
-
     </div>
     <!-- /.container-fluid -->
 
@@ -203,6 +202,7 @@
 <%@include file="/WEB-INF/views/admincommon/common.jsp" %>
 </body>
 <script>
+
     $(document).ready(function () {
         // 차트 초기화
         const ctx = document.getElementById("myPieChart3");
