@@ -4,7 +4,7 @@
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
   
   <!-- Sidebar - Brand -->
-  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="home">
+  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/admin/home">
     <div class="sidebar-brand-icon rotate-n-15">
       <i class="fas fa-running"></i>
     </div>
@@ -39,8 +39,8 @@
     <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">코스</h6>
-        <a class="collapse-item" href="/admin/course">코스 전체&상세&수정</a>
-        <a class="collapse-item" href="/admin/course-register-form">코스 등록하기</a>
+        <a class="collapse-item" href="/admin/course/list">코스 전체&상세&수정</a>
+        <a class="collapse-item" href="/admin/course/register-form">코스 등록하기</a>
       </div>
     </div>
   </li>
@@ -55,7 +55,7 @@
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">회원</h6>
-        <a class="collapse-item" href="/admin/user">회원 전체</a>
+        <a class="collapse-item" href="/admin/user/list">회원 전체</a>
       </div>
     </div>
   </li>
@@ -70,10 +70,10 @@
     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">상품</h6>
-        <a class="collapse-item" href="/admin/product?topNo=10">남성 상품 전체</a>
-        <a class="collapse-item" href="/admin/product?topNo=20">여성 상품 전체</a>
-        <a class="collapse-item" href="/admin/product?topNo=30">러닝용품 전체</a>
-        <a class="collapse-item" href="/admin/product-register-form">상품 등록하기</a>
+        <a class="collapse-item" href="/admin/product/list?topNo=10">남성 상품 전체</a>
+        <a class="collapse-item" href="/admin/product/list?topNo=20">여성 상품 전체</a>
+        <a class="collapse-item" href="/admin/product/list?topNo=30">러닝용품 전체</a>
+        <a class="collapse-item" href="/admin/product/register">상품 등록하기</a>
       </div>
     </div>
   </li>
@@ -88,12 +88,12 @@
     <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">커뮤니티</h6>
-        <a class="collapse-item" href="../community/board/main">커뮤니티 바로가기</a>
-        <a class="collapse-item" href="../community/crew/main">크루 바로가기</a>
-        <a class="collapse-item" href="../admin/notice">공지사항</a>
-        <a class="collapse-item" href="../admin/marathon">마라톤</a>
-        <a class="collapse-item" href="/admin/report">신고글 보기</a>
-        <a class="collapse-item" href="/admin/qna">1:1 문의사항</a>
+        <a class="collapse-item" href="/community/board/main">커뮤니티 바로가기</a>
+        <a class="collapse-item" href="/community/crew/main">크루 바로가기</a>
+        <a class="collapse-item" href="/admin/community/notice">공지사항</a>
+        <a class="collapse-item" href="/admin/community/marathon">마라톤</a>
+        <a class="collapse-item" href="/admin/community/report">신고글 보기</a>
+        <a class="collapse-item" href="/admin/community/qna">1:1 문의사항</a>
       </div>
     </div>
   </li>
@@ -108,10 +108,10 @@
     <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">배송&재고&정산</h6>
-        <a class="collapse-item" href="/admin/order-delivery">배송</a>
-        <a class="collapse-item" href="/admin/product-stock?topNo=0">상품 재고 등록하기</a>
-        <a class="collapse-item" href="/admin/settlement">레슨정산관리</a>
-        <a class="collapse-item" href="/admin/p-settlement">상품정산관리</a>
+        <a class="collapse-item" href="/admin/settlement/order-delivery">배송</a>
+        <a class="collapse-item" href="/admin/settlement/product-stock?topNo=0">상품 재고 등록하기</a>
+        <a class="collapse-item" href="/admin/settlement/l-settlement">레슨정산관리</a>
+        <a class="collapse-item" href="/admin/settlement/p-settlement">상품정산관리</a>
       </div>
     </div>
   </li>
@@ -126,8 +126,8 @@
     <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionSidebar">
       <div class="bg-white py-2 collapse-inner rounded">
         <h6 class="collapse-header">레슨</h6>
-        <a class="collapse-item" href="/admin/lesson">레슨 전체&수정</a>
-        <a class="collapse-item" href="/admin/lesson-register-form">레슨 등록하기</a>
+        <a class="collapse-item" href="/admin/lesson/list">레슨 전체&수정</a>
+        <a class="collapse-item" href="/admin/lesson/register">레슨 등록하기</a>
       </div>
     </div>
   </li>

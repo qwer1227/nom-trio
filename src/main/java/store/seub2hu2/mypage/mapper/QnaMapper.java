@@ -2,14 +2,11 @@ package store.seub2hu2.mypage.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
-import store.seub2hu2.admin.dto.RequestParamsDto;
 import store.seub2hu2.mypage.dto.AnswerDTO;
 import store.seub2hu2.mypage.dto.QnaCreateRequest;
 import store.seub2hu2.mypage.dto.QnaResponse;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface QnaMapper {

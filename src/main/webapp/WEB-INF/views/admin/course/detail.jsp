@@ -80,9 +80,9 @@
                   <span>좋아요 수 : ${course.likeCnt}개</span>
               </div>
               <div class="row justify-content-end">
-                <a type="button" class="btn btn-primary justify-content-end mr-2" href="course">뒤로가기</a>
-                <a type="button" class="btn btn-warning justify-content-end mr-2" href="course-edit-form?no=${param.no}">수정</a>
-                <form method="post" action="/admin/course-delete">
+                <a type="button" class="btn btn-primary justify-content-end mr-2" href="/admin/course/list">뒤로가기</a>
+                <a type="button" class="btn btn-warning justify-content-end mr-2" href="/admin/course/edit-form?no=${param.no}">수정</a>
+                <form method="post" action="/admin/course/delete">
                     <input type="hidden" name="no" value="${param.no}">
                     <button type="button" class="btn btn-danger" onclick="confirmDelete(this)">삭제</button>
                 </form>

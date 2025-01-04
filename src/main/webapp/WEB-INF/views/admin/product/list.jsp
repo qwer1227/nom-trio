@@ -55,23 +55,23 @@
                 <div class="row row-cols-2 row-cols-lg-6 g-3">
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=10">전체보기</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=10">전체보기</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=10&catNo=11">남성 러닝화</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=10&catNo=11">남성 러닝화</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=10&catNo=12">남성 상의</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=10&catNo=12">남성 상의</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=10&catNo=13">남성 하의</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=10&catNo=13">남성 하의</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=10&catNo=14">남성 아우터</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=10&catNo=14">남성 아우터</a>
                     </div>
                 </div>
             </c:when>
@@ -79,23 +79,23 @@
                 <div class="row row-cols-2 row-cols-lg-6 g-3">
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=20">전체보기</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=20">전체보기</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=20&catNo=21">여성 러닝화</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=20&catNo=21">여성 러닝화</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=20&catNo=22">여성 상의</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=20&catNo=22">여성 상의</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=20&catNo=23">여성 하의</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=20&catNo=23">여성 하의</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=20&catNo=24">여성 아우터</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=20&catNo=24">여성 아우터</a>
                     </div>
                 </div>
             </c:when>
@@ -103,22 +103,22 @@
                 <div class="row row-cols-2 row-cols-lg-5 g-3">
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=30">전체보기</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=30">전체보기</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=30&catNo=31">양말</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=30&catNo=31">양말</a>
                     </div>
                     <div class="col">
                         <a class="nav-link text-center text-white bg-primary fw-bold py-2 px-3 rounded"
-                           style="background-color: #0064FF; font-size: 0.9rem;" href="product?topNo=30&catNo=32">모자</a>
+                           style="background-color: #0064FF; font-size: 0.9rem;" href="/admin/product/list?topNo=30&catNo=32">모자</a>
                     </div>
                 </div>
             </c:when>
         </c:choose>
             <div class="row mt-3">
                 <div class="col-12">
-                    <form id="form-search" method="get" action="/admin/product">
+                    <form id="form-search" method="get" action="/admin/product/list">
                         <input type="hidden" name="page" />
                         <input type="hidden" name="topNo" value="${topNo}">
                         <input type="hidden" name="catNo" value="${catNo}">
@@ -182,7 +182,7 @@
                         <c:forEach var="prod"  items="${products }">
                             <div class="col mb-3">
                                 <div class="card h-100">
-                                    <a class="text-decoration-none" href="product-detail?no=${prod.no}&colorNo=${prod.colorNum}">
+                                    <a class="text-decoration-none" href="/admin/product/detail?no=${prod.no}&colorNo=${prod.colorNum}">
                                         <img src="${prod.imgThum}" class="card-img-top" alt="..." style="object-fit: cover;">
                                     </a>
                                     <div class="card-body">
@@ -209,19 +209,19 @@
                             <li class="page-item ${paging.first? 'disabled' : ''}">
                                 <a class="page-link"
                                 onclick="changePage(${paging.prevPage}, event)"
-                                href="product?page=${paging.prevPage}">이전</a>
+                                href="/admin/product/list?page=${paging.prevPage}">이전</a>
                             </li>
                             <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
                                 <li class="page-item ${paging.page eq num ? 'active' : ''}">
                                     <a class="page-link"
                                     onclick="changePage(${num}, event)"
-                                    href="product?page=${num}">${num}</a>
+                                    href="/admin/product/list?page=${num}">${num}</a>
                                 </li>
                             </c:forEach>
                             <li class="page-item ${paging.last ? 'disabled' : ''}" >
                                 <a class="page-link"
                                 onclick="changePage(${paging.nextPage}, event)"
-                                href="product?page=${paging.nextPage}">다음</a>
+                                href="/admin/product/list?page=${paging.nextPage}">다음</a>
                             </li>
                         </ul>
                     </nav>

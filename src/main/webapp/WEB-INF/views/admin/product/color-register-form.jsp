@@ -59,7 +59,7 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <form class="border bg-light p-3"
-                                  method="post" action="/admin/register-color"
+                                  method="post" action="/admin/product/color-register"
                                   enctype="multipart/form-data">
                                 <c:if test="${not empty errorMessage}">
                                     <script>
@@ -84,7 +84,7 @@
                                 </div>
                                 <div class="row justify-content-end">
                                     <div class="text-end" style="text-align: right">
-                                        <a type="button" class="btn btn-dark mr-2" href="/admin/product-detail?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
+                                        <a type="button" class="btn btn-dark mr-2" href="/admin/product/detail?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
                                     </div>
                                     <div class="text-end" style="text-align: right">
                                         <button type="submit" class="btn btn-primary mr-2">등록</button>
@@ -92,7 +92,7 @@
                                 </div>
                             </form>
                                     <div class="text-end pt-2" style="text-align: right">
-                                        <a href="register-editform?no=${param.no}&colorNo=${param.colorNo}">
+                                        <a href="/admin/product/edit?no=${param.no}&colorNo=${param.colorNo}">
                                             <button class="btn btn-outline btn-success mr-2">상품 수정&대표 색상 설정</button>
                                         </a>
                                     </div>

@@ -50,15 +50,15 @@
       <div class="container-fluid">
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-          <h1 class="h3 mb-0 text-gray-800">레슨 정산</h1>
+          <h1 class="h3 mb-0 text-gray-800">신고글</h1>
         </div>
         <div class="row mt-3">
           <div class="col-12">
-            <form id="form-search" method="get" action="/admin/settlement">
-              <input type="hidden" name="page" />
-              <input type="hidden" name="rows" />
+            <form id="form-search" method="get" action="/admin/community/report">
+              <input type="hidden" name="page" value="1"/>
+              <input type="hidden" name="rows" value="10"/>
               <div class="row g-3">
-                <div class="row col-2 align-items-center pr-2 pb-1">
+                <div class="row col-2 align-items-center pr-2 ">
                   <label for="dateInput" class="col-auto col-form-label">날짜</label>
                   <div class="col">
                     <%
@@ -76,13 +76,7 @@
                     />
                   </div>
                 </div>
-<%--                <div class="col-1">--%>
-<%--                  <select class="form-control" name="dayType" onchange="changeRows()">--%>
-<%--                    <option value="day" >일별</option>--%>
-<%--                    <option value="month" >월별</option>--%>
-<%--                  </select>--%>
-<%--                </div>--%>
-                <div class="col-3 pt-2">
+                <div class="col-2 pt-2">
                   <div class="form-check form-check-inline">
                     <input class="form-check-input"
                            type="radio"
@@ -97,37 +91,27 @@
                     <input class="form-check-input"
                            type="radio"
                            name="sort"
-                           value="oldestDate"
+                           value="oldest"
                            onchange="changeSort()"
                     ${param.sort eq 'oldestDate' ? 'checked' : ''}
                     >
                     <label class="form-check-label" >오래된 순</label>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input"
-                           type="radio"
-                           name="sort"
-                           value="price"
-                           onchange="changeSort()"
-                    ${param.sort eq 'price' ? 'checked' : ''}
-                    >
-                    <label class="form-check-label" >높은가격 순</label>
-                  </div>
                 </div>
                 <div class="col-1">
                   <select class="form-control" name="opt">
                     <option value="all" ${param.opt eq 'all' ? 'selected' : ''}>전체</option>
-                    <option value="ready" ${param.opt eq 'ready' ? 'selected' : ''}>결제확정</option>
-                    <option value="notReady" ${param.opt eq 'notReady' ? 'selected' : '' }>결제완료</option>
-                    <option value="cancel" ${param.opt eq 'cancel' ? 'selected' : '' }>취소</option>
+                    <option value="board" ${param.opt eq 'board' ? 'selected' : '' }>게시글</option>
+                    <option value="boardRe" ${param.opt eq 'boardRe' ? 'selected' : '' }>게시글댓글</option>
+                    <option value="crew" ${param.opt eq 'crew' ? 'selected' : '' }>크루</option>
+                    <option value="crewRe" ${param.opt eq 'crewRe' ? 'selected' : '' }>크루댓글</option>
                   </select>
                 </div>
                 <div class="col-1">
                   <select class="form-control" name="keyword">
-                    <option value="all">선택안함</option>
-                    <option value="payName">결제자</option>
-                    <option value="payId">결제자 ID</option>
-                    <option value="lessonName">레슨명</option>
+                    <option value="all" ${param.opt eq 'all' ? 'selected' : ''}>전체</option>
+                    <option value="name" ${param.opt eq 'name' ? 'selected' : '' }>이름</option>
+                    <option value="nickname" ${param.opt eq 'nickname' ? 'selected' : '' }>닉네임</option>
                   </select>
                 </div>
                 <div class="col-3">
@@ -135,104 +119,117 @@
                   <%@include file="/WEB-INF/views/admincommon/searchbar.jsp" %>
                   <!-- Search -->
                 </div>
+              </div>
             </form>
-                <div class="col">
-                  <a class="btn btn-success" href="chart">
-                    차트보기
-                  </a>
-                </div>
               </div>
           </div>
         </div>
         <div class="row mb-3">
           <div class="col-12">
             <div class="border-bottom pt-4 pr-4 pl-4 bg-light">
-              <table class="table">
+              <table class="table border-bottom">
                 <colgroup>
                   <col width="7%">
-                  <col width="8%">
-                  <col width="10%">
-                  <col width="*%">
-                  <col width="10%">
                   <col width="7%">
+                  <col width="7%">
+                  <col width="13%">
+                  <col width="*%">
                   <col width="8%">
-                  <col width="10%">
-                  <col width="10%">
+                  <col width="8%">
+                  <col width="8%">
                 </colgroup>
                 <thead class="text-center">
                   <tr>
-                    <th>결제타입</th>
-                    <th>결제자</th>
-                    <th>결제자ID</th>
-                    <th>레슨명</th>
-                    <th>총금액</th>
-                    <th>결제방법</th>
-                    <th>결제상태</th>
+                    <th>신고유형</th>
+                    <th>신고번호</th>
+                    <th>신고자</th>
+                    <th>닉네임</th>
+                    <th>신고 사유</th>
                     <th>날짜</th>
-                    <th>시간</th>
+                    <th>접수시간</th>
+                    <th>처리상태</th>
+                    <th>신고</th>
                   </tr>
                 </thead>
                 <tbody class="text-center">
                   <c:forEach var="d" items="${dto}">
                     <tr>
-                      <td>${d.settleType}</td>
-                      <td>${d.name}</td>
-                      <td>${d.id}</td>
+                      <td>${d.reportType}</td>
+                      <td>${d.reportNo}</td>
+                      <td>${d.userName}</td>
+                      <td>${d.userNickname}</td>
+                      <td>${d.reportReason}</td>
+                      <td>${d.reportDate}</td>
+                      <td>${d.reportTime}</td>
+                      <td>${d.isComplete}</td>
                       <td>
-                        <a href="/lesson/detail?lessonNo=${d.lessonNo}">
-                          ${d.title}
-                        </a>
-                      </td>
-                      <td><fmt:formatNumber value="${d.price }"/> 원</td>
-                      <td>${d.payMethod}</td>
-                      <td>${d.status}</td>
-                      <td>
-                      ${d.payDate}
-                      </td>
-                      <td>
-                      ${d.payTime}
+                        <form action="/admin/community/updateReport" method="post">
+                            <input type="hidden" name="reportNo" value="${d.reportNo}">
+                            <input type="hidden" name="reportType" value="${d.reportType}">
+                            <input type="hidden" name="action" value=""> <!-- action 값 추가 -->
+                            <button type="button" class="btn btn-google btn-sm" onclick="openReportModal(this)"
+                            <c:if test="${d.isComplete == '처리완료'}">disabled </c:if>>
+                                신고하기
+                            </button>
+                        </form>
                       </td>
                     </tr>
                   </c:forEach>
                 </tbody>
               </table>
-              <div class="row mb-3">
-                <div class="col">
-                  <div class="border p-2 bg-dark text-white fw-bold">${param.day} | 매출액: <fmt:formatNumber value="${totalPriceSum}"/> 원</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
         <!-- 페이징 처리 -->
-          <div class="row mb-3">
-            <div class="col-12">
-              <nav>
-                <ul class="pagination justify-content-center">
-                  <li class="page-item ${paging.first? 'disabled' : ''}">
-                      <a class="page-link"
-                      onclick="changePage(${paging.prevPage}, event)"
-                      href="settlement?page=${paging.prevPage}">이전</a>
-                  </li>
-                  <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
-                      <li class="page-item ${paging.page eq num ? 'active' : ''}">
-                          <a class="page-link"
-                          onclick="changePage(${num}, event)"
-                          href="settlement?page=${num}">${num}</a>
-                      </li>
-                  </c:forEach>
-                  <li class="page-item ${paging.last ? 'disabled' : ''}" >
-                      <a class="page-link"
-                      onclick="changePage(${paging.nextPage}, event)"
-                      href="settlement?page=${paging.nextPage}">다음</a>
-                  </li>
-                </ul>
-              </nav>
+
+            <div class="row mb-3">
+				<div class="col-12">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item ${paging.first? 'disabled' : ''}">
+                                <a class="page-link"
+                                onclick="changePage(${paging.prevPage}, event)"
+                                href="/admin/community/report?page=${paging.prevPage}">이전</a>
+                            </li>
+                            <c:forEach var="num" begin="${paging.beginPage}" end="${paging.endPage}">
+                                <li class="page-item ${paging.page eq num ? 'active' : ''}">
+                                    <a class="page-link"
+                                    onclick="changePage(${num}, event)"
+                                    href="/admin/community/report?page=${num}">${num}</a>
+                                </li>
+                            </c:forEach>
+                            <li class="page-item ${paging.last ? 'disabled' : ''}" >
+                                <a class="page-link"
+                                onclick="changePage(${paging.nextPage}, event)"
+                                href="/admin/community/report?page=${paging.nextPage}">다음</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
-          </div>
-        <!-- 페이징 처리 끝 -->
+
       </div>
       <!-- end Page Content -->
+    </div>
+  </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reportModalLabel">신고 상태 변경</h5>
+      </div>
+      <div class="modal-body">
+        해당 신고를 승인하시겠습니까?
+      </div>
+      <div class="modal-body2 mb-2">
+        <button type="button" class="btn btn-success ml-2" id="approveReport">승인 (Approve)</button>
+        <button type="button" class="btn btn-danger ml-2" id="rejectReport">거부 (Reject)</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -270,7 +267,32 @@
 
     form.submit();
   }
+  let currentForm; // 현재 폼을 저장할 변수
+
+  // 신고 모달 열기
+  function openReportModal(button) {
+    currentForm = button.closest('form'); // 클릭된 버튼의 부모 폼 찾기
+    $('#reportModal').modal('show'); // 신고 설정 모달 열기
+  }
+
+  // 신고 승인 (Approve)
+  document.getElementById('approveReport').addEventListener('click', function() {
+    if (currentForm) {
+      currentForm.querySelector('input[name="action"]').value = "approve"; // action을 'approve'로 설정
+      currentForm.submit(); // 폼 제출
+      alert("신고가 승인되었습니다."); // 알림 메시지
+    }
+    $('#reportModal').modal('hide'); // 모달 닫기
+  });
+
+  // 신고 거부 (Reject)
+  document.getElementById('rejectReport').addEventListener('click', function () {
+    // 신고 거부 버튼 클릭 시 단순히 모달을 닫기만 수행
+    alert("신고가 거부되었습니다."); // 알림 메시지
+    $('#reportModal').modal('hide'); // 모달 닫기
+  });
 </script>
 
 </html>
+
 

@@ -123,7 +123,7 @@
                                         <div class="mb-4">
                                             <c:forEach var="p" items="${colorProdImgDto}">
                                                     <c:forEach var="im" items="${p.images}">
-                                                        <a href="product-detail?no=${p.product.no}&colorNo=${p.no}"><img src="${im.url}" width=15%/></a>
+                                                        <a href="/admin/product/detail?no=${p.product.no}&colorNo=${p.no}"><img src="${im.url}" width=15%/></a>
                                                     </c:forEach>
                                             </c:forEach>
                                         </div>
@@ -165,28 +165,28 @@
                         </div>
                         <div class="row m-2">
                             <div class="mr-2">
-                              <a href="register-color?no=${param.no}&colorNo=${param.colorNo}">
+                              <a href="/admin/product/color-register?no=${param.no}&colorNo=${param.colorNo}">
                                 <button class="btn btn-outline btn-success btn-sm">상품 색상&사이즈&이미지 추가</button>
                               </a>
                             </div>
                         </div>
                         <div class="row m-2">
                             <div class="mr-2">
-                                <a href="delete-size?no=${param.no}&colorNo=${param.colorNo}">
+                                <a href="/admin/product/size-delete?no=${param.no}&colorNo=${param.colorNo}">
                                     <button class="btn btn-outline btn-success btn-sm">상품 사이즈 편집</button>
                                 </a>
                             </div>
                         </div>
                         <div class="row m-2">
                             <div class="mr-2">
-                                <a href="image-editform?no=${param.no}&colorNo=${param.colorNo}">
+                                <a href="/admin/product/image-edit?no=${param.no}&colorNo=${param.colorNo}">
                                     <button class="btn btn-outline btn-success btn-sm">상품 이미지 편집</button>
                                 </a>
                             </div>
                         </div>
                         <div class="row m-2">
                             <div class="mr-2">
-                                <a href="/admin/product-stock?topNo=0">
+                                <a href="/admin/settlement/product-stock?topNo=0">
                                     <button class="btn btn-outline btn-success btn-sm">재고현황보기</button>
                                 </a>
                             </div>

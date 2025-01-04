@@ -86,7 +86,7 @@
                 </div>
                 <div class="row justify-content-end">
                   <div class="text-end" style="text-align: right">
-                    <a type="button" class="btn btn-dark mr-2" href="/admin/register-size?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
+                    <a type="button" class="btn btn-dark mr-2" href="/admin/product/size-register?no=${param.no}&colorNo=${param.colorNo}">뒤로가기</a>
                   </div>
                   <div class="text-end" style="text-align: right">
                     <button type="submit" class="btn btn-primary mr-1">등록</button>
@@ -94,7 +94,7 @@
                 </div>
               </form>
               <div class="text-end mt-2" style="text-align: right">
-                <a href="image-changeThumb?no=${param.no}&colorNo=${param.colorNo}">
+                <a href="/admin/product/image-title?no=${param.no}&colorNo=${param.colorNo}">
                   <button class="btn btn-outline btn-success mr-2">대표 이미지 설정</button>
                 </a>
               </div>

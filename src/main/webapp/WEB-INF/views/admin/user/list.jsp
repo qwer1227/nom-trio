@@ -54,7 +54,7 @@
                     <h1 class="h3 mb-0 text-gray-800">회원</h1>
                 </div>
                 <!-- 5-10-20개씩 보기 최신순 이름순 -->
-                <form id="form-search" method="get" action="/admin/user">
+                <form id="form-search" method="get" action="/admin/user/list">
                     <input type="hidden" name="page" />
                     <div class="row g-3 d-flex">
                         <div class="col-2 mb-4 pt-2">
@@ -131,19 +131,19 @@
 						    <li class="page-item ${paging.first ? 'disabled' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${paging.prevPage}, event)"
-						    		href="user?page=${paging.prevPage}">이전</a>
+						    		href="/admin/user/list?page=${paging.prevPage}">이전</a>
 						    </li>
 						<c:forEach var="num" begin="${paging.beginPage }" end="${paging.endPage }">
 						    <li class="page-item ${paging.page eq num ? 'active' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${num }, event)"
-						    		href="user?page=${num }">${num }</a>
+						    		href="/admin/user/list?page=${num }">${num }</a>
 						    </li>
 						</c:forEach>
 						    <li class="page-item ${paging.last ? 'disabled' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${paging.nextPage}, event)"
-						    		href="user?page=${paging.nextPage}">다음</a>
+						    		href="/admin/user/list?page=${paging.nextPage}">다음</a>
 						    </li>
 					  	</ul>
 					</nav>

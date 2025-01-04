@@ -57,7 +57,7 @@
           </div>
           <div class="row mb-3">
             <div class="col-12">
-              <form name="form" action="/admin/product-register-form" enctype="multipart/form-data" method="post">
+              <form name="form" action="/admin/product/register" enctype="multipart/form-data" method="post">
                 <div class="row p-3">
                   <div class="col-6">
                     <label for="name">상품명</label>
@@ -116,7 +116,7 @@
                 </div>
                 <div class="row p-3">
                   <div class="col d-flex justify-content-end">
-                    <a href="/admin/product?topNo=10" class="btn btn-secondary m-1">취소</a>
+                    <a href="/admin/product/list?topNo=10" class="btn btn-secondary m-1">취소</a>
                     <button type="submit" class="btn btn-primary m-1">등록</button>
                   </div>
                 </div>

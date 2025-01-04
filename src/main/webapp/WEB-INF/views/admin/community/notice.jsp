@@ -58,7 +58,7 @@
         </div>
         <!-- Search -->
         
-        <form id="form-search" method="get" action="notice">
+        <form id="form-search" method="get" action="/admin/community/notice">
           <div class="p-1 col d-flex justify-content-end">
             <input type="hidden" name="page" value="${param.page != null ? param.page : 1}">
             <div class="form-check-inline">
@@ -116,7 +116,7 @@
                     <tr>
                       <td>${startIndex + status.index}</td>
                       <td id="content-title" style="text-align: start">
-                        <a href="/community/notice/hit?no=${notice.no}"
+                        <a href="/admin/community/notice/hit?no=${notice.no}"
                            style="text-decoration-line: none; color: ${notice.first eq 'true' ? 'red' : 'black'}">
                             ${notice.title}
                         </a>

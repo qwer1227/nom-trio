@@ -91,7 +91,7 @@
         <!-- 5-10-20개씩 보기 최신순 이름순 -->
         <div class="row row-cols-1 row-cols-md-1 g-4 mt-3 mb-3">
         <div class="col">
-            <form id="form-search" method="get" action="/admin/course">
+            <form id="form-search" method="get" action="/admin/course/list">
                 <input type="hidden" name="page"/>
                 <div class="row g-3 d-flex justify-content-center">
                     <!-- 추천순 -->
@@ -155,7 +155,7 @@
         <c:forEach var="course" items="${courses }">
             <div class="col-3 mb-3">
                 <div class="card h-100">
-                    <a class="text-decoration-none" href="course-detail?no=${course.no }">
+                    <a class="text-decoration-none" href="/admin/course/detail?no=${course.no }">
                         <div class="main_image" style="position: relative;">
                             <img src="${s3}/resources/images/course/${course.filename }" class="card-img-top" alt="..."
                                  width="200" height="200">
@@ -163,7 +163,7 @@
                     </a>
                     <div class="card-body">
                         <h5 class="card-title">${course.name }</h5>
-                        <a class="text-decoration-none" href="course-detail?no=${course.no }">
+                        <a class="text-decoration-none" href="/admin/course/detail?no=${course.no }">
                             <p class="card-text">${course.region.si } ${course.region.gu } ${course.region.dong }</p>
                         </a>
                     </div>
@@ -187,19 +187,19 @@
 						    <li class="page-item ${paging.first ? 'disabled' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${paging.prevPage}, event)"
-						    		href="course?page=${paging.prevPage}">이전</a>
+						    		href="/admin/course/list?page=${paging.prevPage}">이전</a>
 						    </li>
 						<c:forEach var="num" begin="${paging.beginPage }" end="${paging.endPage }">
 						    <li class="page-item ${paging.page eq num ? 'active' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${num }, event)"
-						    		href="course?page=${num }">${num }</a>
+						    		href="/admin/course/list?page=${num }">${num }</a>
 						    </li>
 						</c:forEach>
 						    <li class="page-item ${paging.last ? 'disabled' : '' }">
 						    	<a class="page-link"
 						    		onclick="changePage(${paging.nextPage}, event)"
-						    		href="course?page=${paging.nextPage}">다음</a>
+						    		href="/admin/course/list?page=${paging.nextPage}">다음</a>
 						    </li>
 					  	</ul>
 					</nav>
