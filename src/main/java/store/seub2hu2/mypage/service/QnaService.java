@@ -1,22 +1,18 @@
 package store.seub2hu2.mypage.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import store.seub2hu2.admin.dto.RequestParamsDto;
 import store.seub2hu2.mypage.dto.AnswerDTO;
 import store.seub2hu2.mypage.dto.QnaCreateRequest;
 import store.seub2hu2.mypage.dto.QnaResponse;
 import store.seub2hu2.mypage.mapper.QnaMapper;
-import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.mapper.UserMapper;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class QnaService {
