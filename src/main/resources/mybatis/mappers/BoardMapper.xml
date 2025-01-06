@@ -74,7 +74,7 @@
                 on b.board_no = r.reply_type_no
               </if>
           where b.is_deleted = 'N'
-            <if test="dto.category != null">
+            <if test="dto.category != null and dto.category != ''">
               and b.board_cat_name = #{dto.category}
             </if>
       <!--    <if test="condition.type == 'value1'">-->
@@ -88,11 +88,11 @@
       <!--      and is_deleted = 'N'-->
       <!--      )-->
       <!--    </if>-->
-            <if test="dto.opt != null">
+            <if test="dto.keyword != null and dto.keyword != ''">
               <choose>
                 <when test="dto.opt == 'all'">
-                  and b.board_title like concat ('%', #{dto.keyword}, '%')
-                  || b.board_content like concat('%', #{dto.keyword}, '%')
+                  and (b.board_title like concat ('%', #{dto.keyword}, '%')
+                        || b.board_content like concat('%', #{dto.keyword}, '%'))
                 </when>
                 <when test="dto.opt == 'title'">
                   and b.board_title like concat ('%', #{dto.keyword}, '%')
@@ -110,7 +110,6 @@
             </if>
           ) as board
     where rn between #{dto.begin} and #{dto.end}
-    group by board.no
     order by rn
 
   </select>
@@ -142,14 +141,14 @@
     join USERS u on b.user_no = u.user_no
     </if>
     where b.is_deleted = 'N'
-    <if test="dto.category != null">
+    <if test="dto.category != null and dto.category != ''">
       and b.board_cat_name = #{dto.category}
     </if>
-    <if test="dto.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
         <when test="dto.opt == 'all'">
-          and b.board_title like concat ('%', #{dto.keyword}, '%')
-          || b.board_content like concat('%', #{dto.keyword}, '%')
+          and (b.board_title like concat ('%', #{dto.keyword}, '%')
+                || b.board_content like concat('%', #{dto.keyword}, '%'))
         </when>
         <when test="dto.opt == 'title'">
           and b.board_title like concat ('%', #{dto.keyword}, '%')

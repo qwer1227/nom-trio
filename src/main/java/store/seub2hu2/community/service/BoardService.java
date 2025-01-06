@@ -100,6 +100,7 @@ public class BoardService {
         // 검색 조건에 맞는 데이터 전체 갯수 조회
         int totalRows = boardMapper.getTotalRowsForBoard(dto);
 
+        System.out.println("========================" + dto.getCategory());
         // pagination 객체 생성
         int page = dto.getPage();
         int rows = dto.getRows();
