@@ -18,6 +18,7 @@ import store.seub2hu2.mypage.dto.QnaResponse;
 import store.seub2hu2.mypage.service.QnaService;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -115,59 +116,24 @@ public class AdminCommunityController {
     }
 
     @GetMapping("/notice")
-    public String notice(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "10") int rows
-            , @RequestParam(name = "sort", required = false, defaultValue = "import") String sort
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String notice(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
+        ListDto<Notice> nDto = noticeService.getNotices(dto);
 
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Notice> dto = noticeService.getNotices(condition);
-
-        model.addAttribute("notices", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("notices", nDto.getData());
+        model.addAttribute("paging", nDto.getPaging());
 
 
         return "admin/community/notice";
     }
 
     @GetMapping("/marathon")
-    public String marathon(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "6") int rows
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "category", required = false) String category
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String marathon(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
+        ListDto<Marathon> mDto = marathonService.getMarathons(dto);
 
-        // 카테고리 필터링 처리
-        if (StringUtils.hasText(category)) {
-            condition.put("category", category);
-        }
-
-        // 검색
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Marathon> dto = marathonService.getMarathons(condition);
-
-        model.addAttribute("marathons", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("marathons", mDto.getData());
+        model.addAttribute("paging", mDto.getPaging());
         model.addAttribute("now", new Date());
 
         return "admin/community/marathon";

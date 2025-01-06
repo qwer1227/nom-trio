@@ -39,6 +39,7 @@ import store.seub2hu2.user.vo.Addr;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.user.vo.UserImage;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.wish.dto.WishItemDto;
 import store.seub2hu2.wish.vo.WishList;
 

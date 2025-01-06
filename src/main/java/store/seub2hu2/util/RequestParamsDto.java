@@ -12,7 +12,7 @@ public class RequestParamsDto {
     private int rows = 10; // 기본값
     private String sort = "date"; // 기본값
     private String opt;
-    private String keyword;
+    private String keyword = null;
     private String category;
     private int begin;
     private int end;
