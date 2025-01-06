@@ -18,6 +18,7 @@ import store.seub2hu2.mypage.dto.QnaResponse;
 import store.seub2hu2.mypage.service.QnaService;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.Date;
 import java.util.HashMap;

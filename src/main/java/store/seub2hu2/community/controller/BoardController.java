@@ -66,7 +66,7 @@ public class BoardController {
     private MarathonService marathonService;
 
     @GetMapping("/main")
-    public String list(RequestParamsDto dto, Model model) {
+    public String list(@ModelAttribute RequestParamsDto dto, Model model) {
 
         Map<String, Object> condition = new HashMap<>();
 

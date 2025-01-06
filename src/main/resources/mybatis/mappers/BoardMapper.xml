@@ -40,15 +40,15 @@
     select *
     from (
     select
-    <if test="condition.sort != null">
+    <if test="dto.sort != null">
       <choose>
-        <when test="condition.sort == 'date'">
+        <when test="dto.sort == 'date'">
           row_number() over(order by b.board_created_date desc) rn
         </when>
-        <when test="condition.sort == 'like'">
+        <when test="dto.sort == 'like'">
           row_number() over(order by b.board_like_cnt desc) rn
         </when>
-        <when test="condition.sort == 'viewCnt'">
+        <when test="dto.sort == 'viewCnt'">
           row_number() over(order by b.board_view_cnt desc) rn
         </when>
         <otherwise>
@@ -69,13 +69,13 @@
     , (select count(*) from REPLIES r where r.reply_type_no = b.board_no) as replyCnt
     from BOARDS b join USERS u
     on b.user_no = u.user_no
-    <if test="condition.opt == 'reply'">
+    <if test="dto.opt == 'reply'">
       join REPLIES r
       on b.board_no = r.reply_type_no
     </if>
     where b.is_deleted = 'N'
-    <if test="condition.category != null">
-      and b.board_cat_name = #{condition.category}
+    <if test="dto.category != null">
+      and b.board_cat_name = #{dto.category}
     </if>
 <!--    <if test="condition.type == 'value1'">-->
 <!--      and b.user_no = #{condition.userNo}-->
@@ -88,28 +88,28 @@
 <!--      and is_deleted = 'N'-->
 <!--      )-->
 <!--    </if>-->
-    <if test="condition.opt != null">
+    <if test="dto.opt != null">
       <choose>
-        <when test="condition.opt == 'all'">
-          and b.board_title like concat ('%', #{condition.keyword}, '%')
-          || b.board_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and b.board_title like concat ('%', #{dto.keyword}, '%')
+          || b.board_content like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'title'">
-          and b.board_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and b.board_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and b.board_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and b.board_content like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'reply'">
-          and r.reply_content like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'reply'">
+          and r.reply_content like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'nickname'">
+        <when test="dto.opt == 'nickname'">
           and u.user_nickname like concat('%', #{condition.keyword}, '%')
         </when>
       </choose>
     </if>
     ) as board
-    where rn between #{condition.begin} and #{condition.end}
+    where rn between #{dto.begin} and #{dto.end}
     group by board.no
     order by rn
 

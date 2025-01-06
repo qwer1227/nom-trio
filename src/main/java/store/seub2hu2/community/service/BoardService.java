@@ -112,6 +112,7 @@ public class BoardService {
 
         // 조회범위에 맞는 데이터 조회하기
         List<Board> boards = boardMapper.getBoards(dto);
+
         ListDto<Board> bDto = new ListDto<>(boards, pagination);
 
         return bDto;

@@ -13,7 +13,7 @@ import java.util.Map;
 public interface BoardMapper {
 
     void insertBoard(@Param("board") Board board);
-    List<Board> getBoards(@Param("condition") RequestParamsDto dto);
+    List<Board> getBoards(@Param("dto") RequestParamsDto dto);
     List<Board> getBoardsTopFive(@Param("condition") Map<String, Object> condition);
     int getTotalRowsForBoard(@Param("condition") RequestParamsDto dto);
     Board getBoardDetailByNo(@Param("no") int boardNo);
