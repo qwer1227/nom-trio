@@ -13,13 +13,13 @@ import java.util.Map;
 public interface BoardMapper {
 
     void insertBoard(@Param("board") Board board);
-    List<Board> getBoards(@Param("dto") RequestParamsDto dto);
+    List<Board> getBoards(@Param("dto") RequestParamsDto dto, @Param("userNo") int userNo);
     List<Board> getBoardsTopFive(@Param("condition") Map<String, Object> condition);
     int getTotalRowsForBoard(@Param("dto") RequestParamsDto dto);
     Board getBoardDetailByNo(@Param("no") int boardNo);
     void updateBoard(@Param("board") Board board); // 게시글 수정 및 삭제
     void updateBoardCnt(@Param("board") Board board); // 게시글 조회수 증가
-    int getTotalRowsForHistory(@Param("condition") Map<String, Object> condition);
+    int getTotalRowsForHistory(@Param("dto") RequestParamsDto dto, @Param("userNo") int userNo);
     int hasUserLikedBoard(@Param("no") int boardNo, @Param("type") String type, @Param("userNo") int userNo);
     void insertLike(@Param("no") int boardNo, @Param("type") String type, @Param("userNo") int userNo);
     void deleteLike(@Param("no") int boardNo, @Param("type") String type, @Param("userNo") int userNo);
