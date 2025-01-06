@@ -74,41 +74,41 @@
     on c.crew_no = cm.crew_no
     join USERS u
     on cm.user_no = u.user_no
-    <if test="condition.opt == 'reply'">
+    <if test="dto.opt == 'reply'">
       join REPLIES r
       on r.reply_type_no = c.crew_no
     </if>
     where c.is_deleted = 'N'
     and cm.is_reader = 'Y'
-    <if test="condition.category != null">
-      and c.is_entered = #{condition.category}
+    <if test="dto.category != null and dto.category != ''">
+      and c.is_entered = #{dto.category}
     </if>
-    <if test="condition.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and c.crew_title like concat ('%', #{condition.keyword}, '%')
-          || c.crew_description like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (c.crew_title like concat ('%', #{dto.keyword}, '%')
+          || c.crew_description like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and c.crew_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and c.crew_description like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and c.crew_description like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'name'">
-          and c.crew_name like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'name'">
+          and c.crew_name like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'reply'">
-          and r.reply_content like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'reply'">
+          and r.reply_content like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'nickname'">
-          and u.user_nickname like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'nickname'">
+          and u.user_nickname like concat('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>
     group by no
     ) as crew
-    where rn between #{condition.begin} and #{condition.end}
+    where rn between #{dto.begin} and #{dto.end}
     order by rn
   </select>
 
@@ -143,33 +143,33 @@
     from CREWS c
     join CREW_MEMBERS cm on cm.crew_no = c.crew_no
     join USERS u on cm.user_no = u.user_no
-    <if test="condition.opt == 'reply'">
+    <if test="dto.opt == 'reply'">
       join REPLIES r on c.crew_no = r.reply_type_no
     </if>
     where c.is_deleted = 'N'
-    <if test="condition.category != null">
-      and c.is_entered = #{condition.category}
+    <if test="dto.category != null and dto.category != ''">
+      and c.is_entered = #{dto.category}
     </if>
-    <if test="condition.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and c.crew_title like concat ('%', #{condition.keyword}, '%')
-          || c.crew_description like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (c.crew_title like concat ('%', #{dto.keyword}, '%')
+          || c.crew_description like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and c.crew_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and c.crew_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'description'">
-          and c.crew_description like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and c.crew_description like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'name'">
-          and c.crew_name like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'name'">
+          and c.crew_name like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'reply'">
-          and r.reply_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'reply'">
+          and r.reply_content like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'nickname'">
-          and u.user_nickname like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'nickname'">
+          and u.user_nickname like concat ('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>

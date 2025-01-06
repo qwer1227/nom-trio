@@ -61,7 +61,8 @@ public class CrewController {
     private ReplyService replyService;
 
     @GetMapping("/main")
-    public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
+    public String list(@ModelAttribute("dto") RequestParamsDto dto
+            , Model model) {
 
         ListDto<Crew> cDto = crewService.getCrews(dto);
 

@@ -136,7 +136,7 @@ public class CrewService {
         int totalRows = crewMapper.getTotalRowsForCrew(dto);
 
         int page = dto.getPage();
-        int rows = dto.getRows();
+        int rows = 6;
         Pagination pagination = new Pagination(page, totalRows, rows);
 
         dto.setBegin(pagination.getBegin());
