@@ -75,7 +75,7 @@
 					<c:otherwise>
 						<c:forEach var="notice" items="${notices}" varStatus="status">
 							<tr>
-								<td>${notice.rn}</td>
+								<td>${status.count}</td>
 								<td id="content-title" style="text-align: start">
 									<a href="hit?no=${notice.no}"
 										 style="text-decoration-line: none; color: ${notice.first eq 'true' ? 'red' : 'black'}">
