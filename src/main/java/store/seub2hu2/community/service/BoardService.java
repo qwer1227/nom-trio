@@ -111,33 +111,32 @@ public class BoardService {
         dto.setEnd(pagination.getEnd());
 
         // 조회범위에 맞는 데이터 조회하기
-        List<Board> boards = boardMapper.getBoards(dto);
+        List<Board> boards = boardMapper.getBoards(dto,0);
         ListDto<Board> bDto = new ListDto<>(boards, pagination);
 
         return bDto;
     }
 
-//    public ListDto<Board> getHistoryBoards(Map<String, Object> condition) {
-//        // 검색 조건에 맞는 데이터 전체 갯수 조회
-//        int totalRows = boardMapper.getTotalRowsForHistory(condition);
-//
-//        System.out.println(totalRows);
-//
-//        // pagination 객체 생성
-//        int page = (Integer) condition.get("page");
-//        int rows = (Integer) condition.get("rows");
-//        Pagination pagination = new Pagination(page, totalRows, rows);
-//
-//        //데이터 검색범위를 조회해서 Map에 저장
-//        condition.put("begin", pagination.getBegin());
-//        condition.put("end", pagination.getEnd());
-//
-//        // 조회범위에 맞는 데이터 조회하기
-//        List<Board> boards = boardMapper.getBoards(condition);
-//        ListDto<Board> dto = new ListDto<>(boards, pagination);
-//
-//        return dto;
-//    }
+    public ListDto<Board> getHistoryBoards(RequestParamsDto requestParamsDto, int userNo) {
+        // 검색 조건에 맞는 데이터 전체 갯수 조회
+        int totalRows = boardMapper.getTotalRowsForHistory(requestParamsDto, userNo);
+
+
+        // pagination 객체 생성
+        int page = requestParamsDto.getPage();
+        int rows = requestParamsDto.getRows();
+        Pagination pagination = new Pagination(page, totalRows, rows);
+
+        //데이터 검색범위를 조회해서 Map에 저장
+        requestParamsDto.setBegin(pagination.getBegin());
+        requestParamsDto.setEnd(pagination.getEnd());
+
+        // 조회범위에 맞는 데이터 조회하기
+        List<Board> boards = boardMapper.getBoards(requestParamsDto, userNo);
+        ListDto<Board> dto = new ListDto<>(boards, pagination);
+
+        return dto;
+    }
 
     public ListDto<Board> getBoardsTop(Map<String, Object> condition) {
         List<Board> boards = boardMapper.getBoardsTopFive(condition);

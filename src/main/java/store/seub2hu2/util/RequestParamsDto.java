@@ -14,6 +14,7 @@ public class RequestParamsDto {
     private String opt;
     private String keyword = null;
     private String category;
+    private String type;
     private int begin;
     private int end;
 }
