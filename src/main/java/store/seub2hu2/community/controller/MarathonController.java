@@ -1,5 +1,6 @@
 package store.seub2hu2.community.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -18,10 +19,10 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/community/marathon")
+@RequiredArgsConstructor
 public class MarathonController {
 
-    @Autowired
-    public MarathonService marathonService;
+    public final MarathonService marathonService;
 
     @GetMapping("/main")
     public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {

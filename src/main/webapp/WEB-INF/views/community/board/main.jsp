@@ -111,19 +111,19 @@
         </div>
         <div class="col">
           <a class="nav-link p-3 border-start border-primary border-4 bg-light" style="border-color: #0064FF;"
-             href="javascript:void(0)" onclick="changeCategory('일반게시판')">일반</a>
+             href="javascript:void(0)" onclick="changeCategory('100')">일반</a>
         </div>
         <div class="col ">
           <a class="nav-link p-3 border-start border-primary border-4 bg-light" style="border-color: #0064FF;"
-             href="javascript:void(0)" onclick="changeCategory('자랑게시판')">자랑</a>
+             href="javascript:void(0)" onclick="changeCategory('110')">자랑</a>
         </div>
         <div class="col ">
           <a class="nav-link p-3 border-start border-primary border-4 bg-light" style="border-color: #0064FF;"
-             href="javascript:void(0)" onclick="changeCategory('질문게시판')">질문</a>
+             href="javascript:void(0)" onclick="changeCategory('120')">질문</a>
         </div>
         <div class="col ">
           <a class="nav-link p-3 border-start border-primary border-4 bg-light" style="border-color: #0064FF;"
-             href="javascript:void(0)" onclick="changeCategory('훈련일지')">훈련일지</a>
+             href="javascript:void(0)" onclick="changeCategory('130')">훈련일지</a>
         </div>
       </div>
 
@@ -187,7 +187,7 @@
               <c:forEach var="board" items="${boards}">
                 <tr style="text-align: center">
                   <td>${board.no}</td>
-                  <td>${board.catName}</td>
+                  <td>${board.category.name()}</td>
                   <td id="content-title" style="text-align: start">
                     <a href="hit?no=${board.no}" style="text-decoration-line: none; color: black">${board.title}</a>
                     <c:if test="${board.replyCnt gt 0}">
