@@ -35,10 +35,10 @@
     from (select
     <if test="dto.sort != null">
       <choose>
-        <when test="dto.sort == 'import'">
+        <when test="dto.sort == 'date'">
           row_number() over(order by notice_first desc, notice_created_date desc) rn
         </when>
-        <when test="dto.sort == 'date'">
+        <when test="dto.sort == 'new'">
           row_number() over(order by notice_created_date desc) rn
         </when>
         <when test="dto.sort == 'viewCnt'">
@@ -55,7 +55,7 @@
     from NOTICES
     where is_deleted = 'N') n
     where rn between #{dto.begin} and #{dto.end}
-    <if test="dto.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
         <when test="dto.opt == 'all'">
           and (title like concat ('%', #{dto.keyword}, '%')
@@ -88,7 +88,7 @@
     select count(*)
     from NOTICES
     where is_deleted = "N"
-    <if test="dto.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
         <when test="dto.opt == 'all'">
           and (notice_title like concat ('%', #{dto.keyword}, '%')
