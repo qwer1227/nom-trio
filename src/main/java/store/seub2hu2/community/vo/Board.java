@@ -15,7 +15,7 @@ public class Board {
     private int no;
     private int prevNo;
     private int nextNo;
-    private String catName;
+    private BoardCategory category;
     private User user;
     private String title;
     private String prevTitle;

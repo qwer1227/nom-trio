@@ -10,10 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.BoardForm;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.*;
-import store.seub2hu2.community.vo.Board;
-import store.seub2hu2.community.vo.Notice;
-import store.seub2hu2.community.vo.Reply;
-import store.seub2hu2.community.vo.UploadFile;
+import store.seub2hu2.community.vo.*;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
@@ -55,7 +52,7 @@ public class BoardService {
         // Board 객체를 생성하여 사용자가 입력한 제목과 내용을 저장한다.
         Board board = new Board();
         board.setNo(form.getNo());
-        board.setCatName(form.getCatName());
+        board.setCategory(form.getCategory());
         board.setTitle(form.getTitle());
         board.setContent(form.getContent());
 
@@ -100,7 +97,6 @@ public class BoardService {
         // 검색 조건에 맞는 데이터 전체 갯수 조회
         int totalRows = boardMapper.getTotalRowsForBoard(dto);
 
-        System.out.println("========================" + dto.getCategory());
         // pagination 객체 생성
         int page = dto.getPage();
         int rows = dto.getRows();
@@ -184,7 +180,7 @@ public class BoardService {
         Board savedBoard = boardMapper.getBoardDetailByNo(form.getNo());
         savedBoard.setTitle(form.getTitle());
         savedBoard.setContent(form.getContent());
-        savedBoard.setCatName(form.getCatName());
+        savedBoard.setCategory(form.getCategory());
 
         User user = new User();
         user.setNo(loginUser.getNo());
