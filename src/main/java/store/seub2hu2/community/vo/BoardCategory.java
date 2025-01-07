@@ -22,14 +22,6 @@ public enum BoardCategory {
         this.catNo = catNo;
     }
 
-    private int getCatNo(int catNo) {
-        return catNo;
-    }
-
-    private String getCatName(String name) {
-        return name;
-    }
-
 //    // 모든 카테고리 이름을 반환하는 메소드
 //    public static List<String> getCategoryNames(){
 //        return Arrays.stream(BoardCategory.values())
