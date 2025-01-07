@@ -75,12 +75,24 @@ public class AdminRestController {
         conditions.put("labels", Arrays.asList("호흡", "자세", "운동"));
         conditions.put("data", Arrays.asList(conditions.get("breath"), conditions.get("action"), conditions.get("exercise")));
 
+
         Map<String, Object> conditions2 = adminService.getTotalProdCatNo(day);
         conditions.putAll(conditions2);
 
         conditions.put("labels2", Arrays.asList("남성상품", "여성상품", "러닝용품"));
         conditions.put("data2", Arrays.asList(conditions2.get("man"), conditions2.get("woman"), conditions2.get("run")));
 
+        Map<String, Object> conditionsMonth = adminService.getTotalSubjectMonthly(day);
+        conditions.putAll(conditionsMonth);
+
+        conditions.put("labels3", Arrays.asList("호흡", "자세", "운동"));
+        conditions.put("data3", Arrays.asList(conditionsMonth.get("breathMonth"), conditionsMonth.get("actionMonth"), conditionsMonth.get("exerciseMonth")));
+
+        Map<String, Object> conditions2Month = adminService.getTotalProdCatNoMonthly(day);
+        conditions.putAll(conditions2Month);
+
+        conditions.put("labels4", Arrays.asList("남성상품", "여성상품", "러닝용품"));
+        conditions.put("data4", Arrays.asList(conditions2Month.get("man"), conditions2Month.get("woman"), conditions2Month.get("run")));
 
         return ResponseEntity.ok(conditions);
     }

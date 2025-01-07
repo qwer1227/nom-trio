@@ -609,6 +609,38 @@ public class AdminService {
     }
 
     public int getMonthlySale(Map<String, Object> condition) {
-        return adminMapper.getMonthlySale(condition);
+        return adminMapper.getMonthlySales(condition);
+    }
+
+    public Map<String, Object> getTotalSubjectMonthly(String day) {
+
+        int breathMonth = adminMapper.getTotalBreathMonthly(day);
+
+        int actionMonth = adminMapper.getTotalActionMonthly(day);
+
+        int exerciseMonth = adminMapper.getTotalExerciseMonthly(day);
+
+        Map<String, Object> condition = new HashMap<>();
+        condition.put("breathMonth", breathMonth);
+        condition.put("actionMonth", actionMonth);
+        condition.put("exerciseMonth", exerciseMonth);
+
+        return condition;
+    }
+
+    public Map<String, Object> getTotalProdCatNoMonthly(String day) {
+
+        int man = adminMapper.getTotalProdManMonthly(day);
+
+        int woman = adminMapper.getTotalProdWomanMonthly(day);
+
+        int run = adminMapper.getTotalProdRunMonthly(day);
+
+        Map<String, Object> condition = new HashMap<>();
+        condition.put("man", man);
+        condition.put("woman", woman);
+        condition.put("run", run);
+
+        return condition;
     }
 }

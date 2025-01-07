@@ -154,7 +154,20 @@ public interface AdminMapper {
 
     int getDailySales(@Param("condition")Map<String, Object> condition);
 
-    int getMonthlySale(@Param("condition")Map<String, Object> condition);
+    int getMonthlySales(@Param("condition")Map<String, Object> condition);
+
+    int getTotalBreathMonthly(@Param("day")String day);
+
+    int getTotalActionMonthly(@Param("day")String day);
+
+    int getTotalExerciseMonthly(@Param("day")String day);
+
+    int getTotalProdManMonthly(@Param("day")String day);
+
+    int getTotalProdWomanMonthly(@Param("day")String day);
+
+    int getTotalProdRunMonthly(@Param("day")String day);
+
 
 
 

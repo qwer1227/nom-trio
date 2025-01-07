@@ -2,90 +2,51 @@
 Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#858796';
 
-
 $(document).ready(function () {
-  // 차트 초기화
-  const ctx = document.getElementById("myPieChart");
-  const myPieChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: [], // 라벨은 AJAX 응답으로 업데이트됩니다.
-      datasets: [{
-        data: [], // 데이터는 AJAX 응답으로 업데이트됩니다.
-        backgroundColor: ['#FF6B6B', '#4ECDC4', '#FFD93D'],
-        hoverBackgroundColor: ['rgba(255,27,27,0.98)', 'rgba(32,232,216,0.87)', '#ffef23'],
-        hoverBorderColor: "rgba(234, 236, 244, 1)",
-      }],
-    },
-    options: {
-      maintainAspectRatio: false,
-      tooltips: {
-        backgroundColor: "rgb(255,255,255)",
-        bodyFontColor: "#858796",
-        borderColor: '#dddfeb',
-        borderWidth: 1,
-        xPadding: 15,
-        yPadding: 15,
-        displayColors: false,
-        caretPadding: 10,
-      },
-      legend: {
-        display: false
-      },
-      cutoutPercentage: 80,
-    },
-  });
+  // Initialize charts
+  const myPieChart = initializeChart("myPieChart", ['#FF6B6B', '#4ECDC4', '#FFD93D'], ['rgba(255,27,27,0.98)', 'rgba(32,232,216,0.87)', '#ffef23']);
+  const myPieChart2 = initializeChart("myPieChart2", ['#4e73df', '#1cc88a', '#36b9cc'], ['#3366ff', '#21ffb2', '#3fe6ff']);
+  const myPieChart3 = initializeChart("myPieChart3", ['#FF6B6B', '#4ECDC4', '#FFD93D'], ['rgba(255,27,27,0.98)', 'rgba(32,232,216,0.87)', '#ffef23']);
+  const myPieChart4 = initializeChart("myPieChart4", ['#4e73df', '#1cc88a', '#36b9cc'], ['#3366ff', '#21ffb2', '#3fe6ff']);
 
-  // 데이터 가져오기 버튼 클릭 이벤트
+  // Configuration for all charts
+  const chartConfigs = [
+    { chart: myPieChart, labelsKey: 'labels', dataKey: 'data', chartId: '#myPieChart', messageId: '#noDataMessage' },
+    { chart: myPieChart2, labelsKey: 'labels2', dataKey: 'data2', chartId: '#myPieChart2', messageId: '#noDataMessage2' },
+    { chart: myPieChart3, labelsKey: 'labels3', dataKey: 'data3', chartId: '#myPieChart3', messageId: '#noDataMessage3' },
+    { chart: myPieChart4, labelsKey: 'labels4', dataKey: 'data4', chartId: '#myPieChart4', messageId: '#noDataMessage4' },
+  ];
+
+  // Load data on button click
   $('#loadData').click(function () {
     const selectedDate = $('#dateInput').val();
 
-    $.ajax({
-      url: '/admin/getChart', // API 엔드포인트
-      type: 'GET',
-      data: {day: selectedDate}, // 선택한 날짜를 파라미터로 전달
-      success: function (response) {
-        // 응답 데이터를 차트에 적용
-        const labels = response.labels; // 응답에서 labels 키 추출
-        const data = response.data;     // 응답에서 data 키 추출
-
-        // 데이터가 모두 0일 경우 처리
-        if (data.every(value => value === 0)) {
-          $('#myPieChart').hide(); // 차트 숨기기
-          $('#noDataMessage').show(); // "결제내역이 없습니다" 메시지 표시
-        } else {
-          // 차트 데이터 업데이트
-          myPieChart.data.labels = labels;
-          myPieChart.data.datasets[0].data = data;
-
-          // 차트 업데이트
-          myPieChart.update();
-
-          // 차트 보여주고 메시지 숨기기
-          $('#myPieChart').show();
-          $('#noDataMessage').hide();
+    chartConfigs.forEach(config => {
+      $.ajax({
+        url: '/admin/getChart',
+        type: 'GET',
+        data: { day: selectedDate },
+        success: function (response) {
+          updateChart(config.chart, response[config.labelsKey], response[config.dataKey], config.chartId, config.messageId);
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error);
         }
-      },
-      error: function (xhr, status, error) {
-        console.error('Error:', error);
-        $('#result').text('데이터를 가져오는 중 에러가 발생했습니다.');
-      }
+      });
     });
   });
 });
 
-
-
-  var ctx = document.getElementById("myPieChart2");
-  var myPieChart2 = new Chart(ctx, {
+function initializeChart(elementId, backgroundColors, hoverColors) {
+  const ctx = document.getElementById(elementId);
+  return new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: [],
       datasets: [{
-
         data: [],
-        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
-        hoverBackgroundColor: ['#3366ff', '#21ffb2', '#3fe6ff'],
+        backgroundColor: backgroundColors,
+        hoverBackgroundColor: hoverColors,
         hoverBorderColor: "rgba(234, 236, 244, 1)",
       }],
     },
@@ -107,40 +68,17 @@ $(document).ready(function () {
       cutoutPercentage: 80,
     },
   });
+}
 
-// 데이터 가져오기 버튼 클릭 이벤트
-$('#loadData').click(function () {
-  const selectedDate = $('#dateInput').val(); // 입력된 날짜 가져오기
-
-  $.ajax({
-    url: '/admin/getChart', // API 엔드포인트
-    type: 'GET',
-    data: { day: selectedDate }, // 선택한 날짜를 파라미터로 전달
-    success: function (response) {
-      // 응답 데이터 추출
-      const labels = response.labels2; // labels2 가져오기
-      const data = response.data2;     // data2 가져오기
-
-      // 데이터가 모두 0일 경우 처리
-      if (data.every(value => value === 0)) {
-        $('#myPieChart2').hide(); // 차트 숨기기
-        $('#noDataMessage2').show(); // "데이터가 없습니다" 메시지 표시
-      } else {
-        // 차트 데이터 업데이트
-        myPieChart2.data.labels = labels;
-        myPieChart2.data.datasets[0].data = data;
-
-        // 차트 업데이트
-        myPieChart2.update();
-
-        // 차트 보여주고 메시지 숨기기
-        $('#myPieChart2').show();
-        $('#noDataMessage2').hide();
-      }
-    },
-    error: function (xhr, status, error) {
-      console.error('Error:', error);
-      $('#result').text('데이터를 가져오는 중 에러가 발생했습니다.');
-    }
-  });
-});
+function updateChart(chart, labels, data, chartId, messageId) {
+  if (data.every(value => value === 0)) {
+    $(chartId).hide();
+    $(messageId).show();
+  } else {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = data;
+    chart.update();
+    $(chartId).show();
+    $(messageId).hide();
+  }
+}

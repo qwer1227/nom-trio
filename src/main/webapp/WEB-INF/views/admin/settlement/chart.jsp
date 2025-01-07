@@ -80,7 +80,7 @@
               <!-- Card Header - Dropdown -->
               <div
                       class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
-                <h6 class="m-0 font-weight-bold text-primary">과목별 레슨 결제량</h6>
+                <h6 class="m-0 font-weight-bold text-primary">과목별 레슨 결제량(일)</h6>
               </div>
               <!-- Card Body -->
               <div class="card-body">
@@ -109,13 +109,73 @@
               <!-- Card Header - Dropdown -->
               <div
                       class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
-                <h6 class="m-0 font-weight-bold text-primary">카테고리별 상품 판매량</h6>
+                <h6 class="m-0 font-weight-bold text-primary">카테고리별 상품 판매량(일)</h6>
               </div>
               <!-- Card Body -->
               <div class="card-body">
                 <div class="chart-pie pt-4 pb-2">
                   <canvas id="myPieChart2"></canvas>
                   <div id="noDataMessage2" style="display: none; text-align: center; color: #ff0000; font-size: 18px;">
+                    결제내역이 없습니다.
+                  </div>
+                </div>
+                <div class="mt-4 text-center small">
+                  <span class="mr-2">
+                    <i class="fas fa-circle text-primary"></i> 남성상품
+                  </span>
+                  <span class="mr-2">
+                    <i class="fas fa-circle text-success"></i> 여성상품
+                  </span>
+                  <span class="mr-2">
+                    <i class="fas fa-circle text-info"></i> 런닝용품
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+              <!-- Card Header - Dropdown -->
+              <div
+                      class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
+                <h6 class="m-0 font-weight-bold text-primary">과목별 레슨 결제량(월)</h6>
+              </div>
+              <!-- Card Body -->
+              <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                  <canvas id="myPieChart3"></canvas>
+                  <div id="noDataMessage3" style="display: none; text-align: center; color: #ff0000; font-size: 18px;">
+                    결제내역이 없습니다.
+                  </div>
+                </div>
+                <div class="mt-4 text-center small">
+                  <span class="mr-2">
+                      <i class="fas fa-circle" style="color: #FF6B6B;"></i> 호흡
+                  </span>
+                  <span class="mr-2">
+                      <i class="fas fa-circle" style="color: #4ECDC4;"></i> 자세
+                  </span>
+                  <span class="mr-2">
+                      <i class="fas fa-circle" style="color: #FFD93D;"></i> 운동
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+              <!-- Card Header - Dropdown -->
+              <div
+                      class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
+                <h6 class="m-0 font-weight-bold text-primary">카테고리별 상품 판매량(월)</h6>
+              </div>
+              <!-- Card Body -->
+              <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                  <canvas id="myPieChart4"></canvas>
+                  <div id="noDataMessage4" style="display: none; text-align: center; color: #ff0000; font-size: 18px;">
                     결제내역이 없습니다.
                   </div>
                 </div>

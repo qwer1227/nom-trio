@@ -293,6 +293,8 @@ public class AdminSettlementController {
 
         model.addAttribute("dto", dto.getData());
         model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("dailySales", dailySales);
+        model.addAttribute("monthlySales", monthlySales);
 
         return "admin/settlement/p-settlement";
     }

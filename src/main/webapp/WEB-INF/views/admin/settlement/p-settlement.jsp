@@ -136,7 +136,7 @@
                 </div>
             </form>
                 <div class="col">
-                  <a class="btn btn-success" href="chart">
+                  <a class="btn btn-success" href="/admin/settlement/chart">
                     차트보기
                   </a>
                 </div>
@@ -197,7 +197,7 @@
               </table>
               <div class="row mb-3">
                 <div class="col">
-                  <div class="border p-2 bg-dark text-white fw-bold">${param.day} | 매출액: <fmt:formatNumber value="${totalPriceSum}"/> 원</div>
+                  <div class="border p-2 bg-dark text-white fw-bold">${param.day} | 하루 매출액: <fmt:formatNumber value="${totalPriceSum}"/> 원 | 한달 매출액: <fmt:formatNumber value="${monthlySales}"/> 원</div>
                 </div>
               </div>
             </div>

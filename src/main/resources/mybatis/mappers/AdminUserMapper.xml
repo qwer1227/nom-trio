@@ -431,6 +431,91 @@
     </select>
 
     <!--
+        int getTotalProdManMonthly(@Param("day")String day);
+
+        int getTotalProdWomanMonthly(@Param("day")String day);
+
+        int getTotalProdRunMonthly(@Param("day")String day);
+    -->
+    <select id="getTotalProdManMonthly" resultType="int">
+        SELECT
+            COUNT(*) AS totalCount
+        FROM
+            (
+                SELECT
+                    CAT.top_cat_no
+                FROM
+                    ORDERS O
+                        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                        JOIN USERS U ON O.user_no = U.user_no
+                        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                        JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+                WHERE
+                    PM.pay_type = '상품'
+                    AND
+                    CAT.top_cat_no = 10
+                    AND
+                    PM.pay_date >= DATE_SUB(#{day}, INTERVAL 1 MONTH)
+                    AND
+                    PM.pay_date &lt; DATE_ADD(#{day}, INTERVAL 1 DAY)
+            ) AS subquery;
+    </select>
+
+    <select id="getTotalProdWomanMonthly" resultType="int">
+        SELECT
+            COUNT(*) AS totalCount
+        FROM
+            (
+                SELECT
+                    CAT.top_cat_no
+                FROM
+                    ORDERS O
+                        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                        JOIN USERS U ON O.user_no = U.user_no
+                        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                        JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+                WHERE
+                    PM.pay_type = '상품'
+                  AND
+                    CAT.top_cat_no = 20
+                  AND
+                    PM.pay_date >= DATE_SUB(#{day}, INTERVAL 1 MONTH)
+                  AND
+                    PM.pay_date &lt; DATE_ADD(#{day}, INTERVAL 1 DAY)
+            ) AS subquery;
+    </select>
+
+    <select id="getTotalProdRunMonthly" resultType="int">
+        SELECT
+            COUNT(*) AS totalCount
+        FROM
+            (
+                SELECT
+                    CAT.top_cat_no
+                FROM
+                    ORDERS O
+                        JOIN PAYMENTS PM ON O.pay_no = PM.pay_no
+                        JOIN USERS U ON O.user_no = U.user_no
+                        JOIN ORDER_PRODUCTS OP ON O.order_no = OP.order_no
+                        JOIN PRODUCTS P ON OP.prod_no = P.prod_no
+                        JOIN PROD_SIZES PS ON OP.size_no = PS.size_no
+                        JOIN PROD_CATEGORIES CAT ON P.cat_no = CAT.cat_no
+                WHERE
+                    PM.pay_type = '상품'
+                  AND
+                    CAT.top_cat_no = 30
+                  AND
+                    PM.pay_date >= DATE_SUB(#{day}, INTERVAL 1 MONTH)
+                  AND
+                    PM.pay_date &lt; DATE_ADD(#{day}, INTERVAL 1 DAY)
+            ) AS subquery;
+    </select>
+
+    <!--
         int getTotalProdMan(@Param("day")String day);
 
         int getTotalProdWoman(@Param("day")String day);
@@ -596,6 +681,28 @@
 
         int getMonthlySale(@Param("condition")Map<String, Object> condition);
     -->
+    <select id="getDailySales" resultType="int">
+        SELECT
+            COALESCE(SUM(PM.pay_price), 0) AS dailySales
+        FROM
+            PAYMENTS PM
+        WHERE
+            PM.pay_type = '상품'
+          AND PM.pay_status = '결제완료'
+          AND DATE(PM.pay_date) = #{condition.day}
+    </select>
+
+    <select id="getMonthlySales" resultType="int">
+        SELECT
+            COALESCE(SUM(PM.pay_price), 0) AS monthlySales
+        FROM
+            PAYMENTS PM
+        WHERE
+            PM.pay_type = '상품'
+            AND PM.pay_status = '결제완료'
+            AND PM.pay_date >= DATE_SUB(#{condition.day}, INTERVAL 1 MONTH)
+            AND PM.pay_date &lt; DATE_ADD(#{condition.day}, INTERVAL 1 DAY)
+    </select>
 
     <!--
         List<OrderProductDto> getSettleProdList(Map<String, Object> condition);
@@ -797,6 +904,83 @@
                     LIMIT 1
             )as subquery;
     </select>
+
+    <!--
+        int getTotalBreathMonthly(@Param("day")String day);
+
+        int getTotalActionMonthly(@Param("day")String day);
+
+        int getTotalExerciseMonthly(@Param("day")String day);
+    -->
+    <select id="getTotalBreathMonthly" resultType="int">
+        SELECT
+        COUNT(*)
+        FROM
+        (
+        SELECT
+        L.lesson_subject
+        FROM
+        PAYMENTS P
+        JOIN USERS U ON P.user_id = U.user_id
+        JOIN LESSON_RESERVATIONS R ON P.pay_id = R.lesson_reservation_pay_id
+        JOIN LESSONS L ON R.lesson_no = L.lesson_no
+        WHERE
+        P.pay_type = '레슨'
+        AND
+        L.lesson_subject = '호흡'
+        AND
+        P.pay_date >= DATE_SUB(STR_TO_DATE(#{day}, '%Y-%m-%d'), INTERVAL 1 MONTH)
+        AND
+        P.pay_date &lt; STR_TO_DATE(#{day}, '%Y-%m-%d')
+        ) AS subquery;
+    </select>
+
+    <select id="getTotalActionMonthly" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            (
+                SELECT
+                    L.lesson_subject
+                FROM
+                    PAYMENTS P
+                        JOIN USERS U ON P.user_id = U.user_id
+                        JOIN LESSON_RESERVATIONS R ON P.pay_id = R.lesson_reservation_pay_id
+                        JOIN LESSONS L ON R.lesson_no = L.lesson_no
+                WHERE
+                    P.pay_type = '레슨'
+                  AND
+                    L.lesson_subject = '자세'
+                  AND
+                    P.pay_date >= DATE_SUB(STR_TO_DATE(#{day}, '%Y-%m-%d'), INTERVAL 1 MONTH)
+                  AND
+                    P.pay_date &lt; STR_TO_DATE(#{day}, '%Y-%m-%d')
+            ) AS subquery;
+    </select>
+
+    <select id="getTotalExerciseMonthly" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            (
+                SELECT
+                    L.lesson_subject
+                FROM
+                    PAYMENTS P
+                        JOIN USERS U ON P.user_id = U.user_id
+                        JOIN LESSON_RESERVATIONS R ON P.pay_id = R.lesson_reservation_pay_id
+                        JOIN LESSONS L ON R.lesson_no = L.lesson_no
+                WHERE
+                    P.pay_type = '레슨'
+                  AND
+                    L.lesson_subject = '운동'
+                  AND
+                    P.pay_date >= DATE_SUB(STR_TO_DATE(#{day}, '%Y-%m-%d'), INTERVAL 1 MONTH)
+                  AND
+                    P.pay_date &lt; STR_TO_DATE(#{day}, '%Y-%m-%d')
+            ) AS subquery;
+    </select>
+
     <!--
         void getTotalBreath(@Param("day")String day);
 
