@@ -1,5 +1,6 @@
 package store.seub2hu2.community.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -36,6 +37,7 @@ import java.util.Map;
 
 @Controller("communityController")
 @RequestMapping("/community/board")
+@RequiredArgsConstructor
 public class BoardController {
 
     @Value("${upload.directory.board.files}")
@@ -44,26 +46,19 @@ public class BoardController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Autowired
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
-    @Autowired
-    public BoardService boardService;
+    public final BoardService boardService;
 
-    @Autowired
-    public ReplyService replyService;
+    public final ReplyService replyService;
 
-    @Autowired
-    public ScrapService scrapService;
+    public final ScrapService scrapService;
 
-    @Autowired
-    public ReportService reportService;
+    public final ReportService reportService;
 
-    @Autowired
-    private CrewService crewService;
+    private final CrewService crewService;
 
-    @Autowired
-    private MarathonService marathonService;
+    private final MarathonService marathonService;
 
     @GetMapping("/main")
     public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {

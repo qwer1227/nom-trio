@@ -1,5 +1,6 @@
 package store.seub2hu2.community.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/community/notice")
+@RequiredArgsConstructor
 public class NoticeController {
 
     @Value("${upload.directory.notice.files}")
@@ -42,11 +44,9 @@ public class NoticeController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Autowired
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
-    @Autowired
-    public NoticeService noticeService;
+    public final NoticeService noticeService;
 
 
     @GetMapping("/main")
