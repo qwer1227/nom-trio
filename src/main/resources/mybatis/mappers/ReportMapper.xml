@@ -10,6 +10,7 @@
     , report_no
     , user_no
     , report_reason
+    , report_detail
     )
     values
     (
@@ -17,6 +18,7 @@
     , #{report.no}
     , #{report.user.no}
     , #{report.reason}
+    , #{report.detail}
     )
   </insert>
 
@@ -38,7 +40,7 @@
     </if>
   </update>
 
-  <!-- boolean isAlreadyReported(@Param("type") String type, @Param("no") int no, @Param("userNo") int userNo); -->
+  <!-- boolean isAlreadyReported(@Param("type") String type, @Param("no") int typeNo, @Param("userNo") int userNo); -->
   <select id="isAlreadyReported">
     select count(*)
     from REPORTS

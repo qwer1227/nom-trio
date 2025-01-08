@@ -52,7 +52,7 @@ public class BoardService {
         // Board 객체를 생성하여 사용자가 입력한 제목과 내용을 저장한다.
         Board board = new Board();
         board.setNo(form.getNo());
-        board.setCategory(form.getCategory());
+        board.setCatName(form.getCategory().name());
         board.setTitle(form.getTitle());
         board.setContent(form.getContent());
 
@@ -180,7 +180,7 @@ public class BoardService {
         Board savedBoard = boardMapper.getBoardDetailByNo(form.getNo());
         savedBoard.setTitle(form.getTitle());
         savedBoard.setContent(form.getContent());
-        savedBoard.setCategory(form.getCategory());
+        savedBoard.setCatName(form.getCategory().name());
 
         User user = new User();
         user.setNo(loginUser.getNo());

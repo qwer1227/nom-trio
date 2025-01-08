@@ -18,7 +18,8 @@ public class Report {
     private int id;
     private int no;
     private String type;
-    private String reason;
+    private int reason;
+    private String detail;
     private User user;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createdDate;
