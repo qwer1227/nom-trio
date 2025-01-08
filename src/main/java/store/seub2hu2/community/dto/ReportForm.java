@@ -12,7 +12,9 @@ import store.seub2hu2.user.vo.User;
 @Setter
 public class ReportForm {
     private String type;
+    private String typeNo;
     private int no;
     private int userNo;
-    private String reason;
+    private int reason;
+    private String detail;
 }

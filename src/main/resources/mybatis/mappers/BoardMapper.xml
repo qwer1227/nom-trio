@@ -73,10 +73,8 @@
                 join REPLIES r
                 on b.board_no = r.reply_type_no
               </if>
-              <if test="dto.category != null and dto.category != ''">
                 join BOARD_CATEGORIES bc
                 on b.board_cat_name = bc.board_cat_name
-              </if>
           where b.is_deleted = 'N'
             <if test="dto.category != null and dto.category != ''">
               and bc.board_cat_no = #{dto.category}

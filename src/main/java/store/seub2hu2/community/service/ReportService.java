@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import store.seub2hu2.community.dto.ReportForm;
 import store.seub2hu2.community.mapper.ReportMapper;
 import store.seub2hu2.community.vo.Report;
+import store.seub2hu2.community.vo.ReportReason;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 
@@ -23,6 +24,12 @@ public class ReportService {
         report.setReason(form.getReason());
         report.setType(form.getType());
         report.setNo(form.getNo());
+
+        if (form.getReason() != 6) {
+            report.setDetail(ReportReason.getDescriptionByReasonNo(form.getReason()));
+        } else {
+            report.setDetail(form.getDetail());
+        }
 
         User user = new User();
         user.setNo(loginUser.getNo());

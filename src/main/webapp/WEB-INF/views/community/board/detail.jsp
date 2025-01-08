@@ -52,7 +52,7 @@
     <input type="hidden" name="typeNo" value="${board.no}">
     <div class="col d-flex justify-content-left">
       <div>
-        <a href="main?category=${board.category}" style="text-decoration-line: none">${board.category}</a>
+        <a href="main?category=${board.catName}" style="text-decoration-line: none">${board.catName}</a>
       </div>
     </div>
     <div class="title h4 d-flex justify-content-between align-items-center">
@@ -189,7 +189,7 @@
       </tr>
       <c:forEach items="${boards}" var="b">
         <tr>
-          <td>${b.category}</td>
+          <td>${b.catName}</td>
           <td style="text-align: start">
             <a id="content-title" style="text-decoration: none" href="hit?no=${b.no}">${b.title}</a>
           </td>
@@ -201,15 +201,11 @@
       </tbody>
     </table>
   </div>
-
-
-
 <!-- 신고 모달 창 -->
 <%@include file="../report-modal.jsp" %>
 
-
-<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </div>
+<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 
 <script type="text/javascript">
@@ -263,14 +259,6 @@
                 myModalRepoter.show();
             }
         }
-    }
-
-    function reportButton() {
-        const etcReason = document.querySelector("#reason-etc");
-        if (etcReason.checked) {
-            etcReason.value = document.querySelector("#etc").value;
-        }
-        $(".modal form").trigger("submit");
     }
 
     function scrapButton(boardNo) {
