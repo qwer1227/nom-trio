@@ -47,7 +47,13 @@
                 <div class="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
                 </div>
+                <div class="col-2">
+                    <select class="form-control" name="opt">
+                        <option value="yesterday" ${param.opt eq 'yesterday' ? 'selected' : ''} >일별 매출</option>
+                        <option value="month" ${param.opt eq 'month' ? 'selected' : '' }>월별 매출</option>
 
+                    </select>
+                </div>
                 <!-- Content Row -->
                 <div class="row">
 
