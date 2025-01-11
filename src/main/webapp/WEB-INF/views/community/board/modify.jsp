@@ -38,12 +38,12 @@
 						<label class="form-label" for="category">카테고리</label>
 					</th>
 					<td style="text-align: start">
-						<select id="category" name="catName" class="form-control">
+						<select id="category" name="catNo" class="form-control">
 							<option hidden="hidden">게시판을 선택해주세요.</option>
-							<option value="일반게시판" ${board.catName eq '일반게시판' ? 'selected' : ''}>일반</option>
-							<option value="자랑게시판" ${board.catName eq '자랑게시판' ? 'selected' : ''}>자랑</option>
-							<option value="질문게시판" ${board.catName eq '훈련게시판' ? 'selected' : ''}>질문</option>
-							<option value="훈련일지" ${board.catName eq '훈련일지' ? 'selected' : ''}>훈련일지</option>
+							<option value="100" ${board.catName eq '일반게시판' ? 'selected' : ''}>일반</option>
+							<option value="110" ${board.catName eq '자랑게시판' ? 'selected' : ''}>자랑</option>
+							<option value="120" ${board.catName eq '질문게시판' ? 'selected' : ''}>질문</option>
+							<option value="130" ${board.catName eq '훈련일지' ? 'selected' : ''}>훈련일지</option>
 						</select>
 					</td>
 				</tr>
@@ -124,7 +124,7 @@
         oEditors.getById["ir1"].exec("UPDATE_CONTENTS_FIELD", []);
 
         let no = document.querySelector("input[name=no]").value;
-        let catName = document.querySelector("select[name=catName]").value;
+        let catNo = document.querySelector("select[name=catNo]").value;
         let title = document.querySelector("input[name=title]").value.trim();
         let content = document.querySelector("#ir1").value.trim();
         let upfile = document.querySelector("input[name=upfile]")
@@ -132,7 +132,7 @@
         let cleanedContent = content.replace(/<p><br><\/p>/g, "").trim();
 
         // 입력값 검증
-        if (!catName || catName === "게시판을 선택해주세요.") {
+        if (!catNo || catNo === "게시판을 선택해주세요.") {
             alert("카테고리를 선택해주세요.");
             return;
         }
@@ -146,7 +146,7 @@
         }
 
         formData.append("no", no);
-        formData.append("catName", catName);
+        formData.append("catNo", catNo);
         formData.append("title", title);
         formData.append("content", content);
         if (upfile.files.length > 0) {

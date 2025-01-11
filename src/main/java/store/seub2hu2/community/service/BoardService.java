@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.BoardForm;
+import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.*;
 import store.seub2hu2.community.vo.*;
@@ -52,7 +53,7 @@ public class BoardService {
         // Board 객체를 생성하여 사용자가 입력한 제목과 내용을 저장한다.
         Board board = new Board();
         board.setNo(form.getNo());
-        board.setCatName(form.getCategory().name());
+        board.setCategory(Integer.toString(form.getCatNo()));
         board.setTitle(form.getTitle());
         board.setContent(form.getContent());
 
@@ -109,6 +110,9 @@ public class BoardService {
         // 조회범위에 맞는 데이터 조회하기
         List<Board> boards = boardMapper.getBoards(dto);
         ListDto<Board> bDto = new ListDto<>(boards, pagination);
+        for (Board board : bDto.getData()) {
+            board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
+        }
 
         return bDto;
     }
@@ -178,9 +182,9 @@ public class BoardService {
     public Board updateBoard(BoardForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
         Board savedBoard = boardMapper.getBoardDetailByNo(form.getNo());
+        savedBoard.setCategory(Integer.toString(form.getCatNo()));
         savedBoard.setTitle(form.getTitle());
         savedBoard.setContent(form.getContent());
-        savedBoard.setCatName(form.getCategory().name());
 
         User user = new User();
         user.setNo(loginUser.getNo());

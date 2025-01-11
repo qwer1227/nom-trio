@@ -1,4 +1,4 @@
-package store.seub2hu2.community.vo;
+package store.seub2hu2.community.enums;
 
 import lombok.Getter;
 
