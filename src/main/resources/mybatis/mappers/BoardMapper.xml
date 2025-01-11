@@ -6,7 +6,7 @@
   <insert id="insertBoard">
     insert into BOARDS
     (
-    board_cat_name
+    board_cat_no
     , user_no
     , board_title
     , board_content
@@ -19,7 +19,7 @@
     )
     values
     (
-    #{board.catName}
+    #{board.category}
     , #{board.user.no}
     , #{board.title}
     , #{board.content, jdbcType=VARCHAR}
@@ -57,7 +57,7 @@
                 </choose>
               </if>
               , b.board_no as no
-              , b.board_cat_name as catName
+              , b.board_cat_no as category
               , b.board_title as title
               , b.board_content as content
               , b.board_view_cnt as viewCnt
@@ -74,22 +74,22 @@
                 on b.board_no = r.reply_type_no
               </if>
                 join BOARD_CATEGORIES bc
-                on b.board_cat_name = bc.board_cat_name
+                on b.board_cat_no = bc.board_cat_no
           where b.is_deleted = 'N'
             <if test="dto.category != null and dto.category != ''">
               and bc.board_cat_no = #{dto.category}
             </if>
-          <if test="dto.type == 'value1'">
-            and b.user_no = #{userNo}
-          </if>
-          <if test="dto.type == 'value2'">
-            and b.board_no in (
-            select distinct reply_type_no
-            from REPLIES
-            where user_no = #{userNo}
-            and is_deleted = 'N'
-            )
-          </if>
+      <!--    <if test="condition.type == 'value1'">-->
+      <!--      and b.user_no = #{condition.userNo}-->
+      <!--    </if>-->
+      <!--    <if test="condition.type == 'value2'">-->
+      <!--      and b.board_no in (-->
+      <!--      select distinct reply_type_no-->
+      <!--      from REPLIES-->
+      <!--      where user_no = #{condition.userNo}-->
+      <!--      and is_deleted = 'N'-->
+      <!--      )-->
+      <!--    </if>-->
             <if test="dto.keyword != null and dto.keyword != ''">
               <choose>
                 <when test="dto.opt == 'all'">
@@ -121,13 +121,13 @@
     select *
     from (select row_number() over(order by b.board_created_date desc) rn
                 , b.board_no as no
-                , b.board_cat_name as catName
+                , b.board_cat_no as category
                 , b.board_title as title
                 , b.board_view_cnt as viewCnt
                 , b.board_like_cnt as `like`
                 , u.user_nickname as "user.nickname"
           from BOARDS b join USERS u
-          on b.user_no = u.user_no
+                on b.user_no = u.user_no
           where b.is_deleted = 'N'
           order by viewCnt desc, `like` desc, rn) board limit 5
   </select>
@@ -138,7 +138,7 @@
     from BOARDS b
     <if test="dto.category != null and dto.category != ''">
       join BOARD_CATEGORIES bc
-      on b.board_cat_name = bc.board_cat_name
+      on b.board_cat_no = bc.board_cat_no
     </if>
     <if test="dto.opt == 'reply'">
         join REPLIES r on b.board_no = r.reply_type_no
@@ -176,7 +176,7 @@
   <update id="updateBoard">
     update
     BOARDS
-    set board_cat_name = #{board.catName}
+    set board_cat_no = #{board.category}
     , board_title = #{board.title}
     , board_content = #{board.content, jdbcType=VARCHAR}
     , board_updated_date = sysdate()
@@ -199,7 +199,7 @@
   <!--  Board getBoardDetailByNo(@Param("no") int boardNo); -->
   <select id="getBoardDetailByNo" resultType="store.seub2hu2.community.vo.Board">
     select b.board_no as no
-     , b.board_cat_name          as catName
+     , b.board_cat_no            as category
      , u.user_nickname           as "user.nickname"
      , u.user_no                 as "user.no"
      , b.board_title             as title
@@ -222,9 +222,9 @@
       where bn.board_no > #{no} and bn.is_deleted = 'N' order by bn.board_no asc LIMIT 1) as nextTitle
     from
       BOARDS b join USERS u
-    on b.user_no = u.user_no
-      join BOARD_CATEGORIES c
-      on b.board_cat_name = c.board_cat_name
+        on b.user_no = u.user_no
+      join BOARD_CATEGORIES bc
+        on b.board_cat_no = bc.board_cat_no
     where
       b.is_deleted = 'N'
       and b.board_no = #{no}

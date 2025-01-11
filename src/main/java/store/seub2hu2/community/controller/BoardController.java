@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import store.seub2hu2.community.dto.BoardForm;
 import store.seub2hu2.community.dto.ReplyForm;
 import store.seub2hu2.community.dto.ReportForm;
+import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.community.service.*;
 import store.seub2hu2.community.vo.*;
 import store.seub2hu2.mypage.service.PostService;

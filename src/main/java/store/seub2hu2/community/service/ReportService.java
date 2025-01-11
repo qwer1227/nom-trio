@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import store.seub2hu2.community.dto.ReportForm;
 import store.seub2hu2.community.mapper.ReportMapper;
 import store.seub2hu2.community.vo.Report;
-import store.seub2hu2.community.vo.ReportReason;
+import store.seub2hu2.community.enums.ReportReason;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 
