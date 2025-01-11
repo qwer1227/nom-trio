@@ -155,6 +155,9 @@
       </table>
     </div>
     
+    <!-- 신고 모달 창 -->
+    <%@include file="../report-modal.jsp" %>
+    
     <!-- 댓글 작성 -->
     <%@include file="../reply-form.jsp" %>
     
@@ -201,11 +204,8 @@
       </tbody>
     </table>
   </div>
-<!-- 신고 모달 창 -->
-<%@include file="../report-modal.jsp" %>
-
 </div>
-<%@include file="/WEB-INF/views/common/footer.jsp" %>
+  <%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 
 <script type="text/javascript">

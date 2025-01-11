@@ -40,10 +40,10 @@
 					<td style="text-align: start">
 						<select id="category" name="catNo" class="form-control">
 							<option hidden="hidden">게시판을 선택해주세요.</option>
-							<option value="100" ${board.catName eq '일반게시판' ? 'selected' : ''}>일반</option>
-							<option value="110" ${board.catName eq '자랑게시판' ? 'selected' : ''}>자랑</option>
-							<option value="120" ${board.catName eq '질문게시판' ? 'selected' : ''}>질문</option>
-							<option value="130" ${board.catName eq '훈련일지' ? 'selected' : ''}>훈련일지</option>
+							<option value="100" ${board.category eq '일반게시판' ? 'selected' : ''}>일반</option>
+							<option value="110" ${board.category eq '자랑게시판' ? 'selected' : ''}>자랑</option>
+							<option value="120" ${board.category eq '질문게시판' ? 'selected' : ''}>질문</option>
+							<option value="130" ${board.category eq '훈련일지' ? 'selected' : ''}>훈련일지</option>
 						</select>
 					</td>
 				</tr>

@@ -142,6 +142,9 @@ public class BoardService {
     public ListDto<Board> getBoardsTop(Map<String, Object> condition) {
         List<Board> boards = boardMapper.getBoardsTopFive(condition);
         ListDto<Board> dto = new ListDto<>(boards);
+        for (Board board : dto.getData()) {
+            board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
+        }
 
         return dto;
     }
@@ -164,6 +167,7 @@ public class BoardService {
 
         board.setUploadFile(uploadFile);
         board.setReply(reply);
+        board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
 
         User user = new User();
         user.setNo(board.getUser().getNo());
@@ -182,7 +186,7 @@ public class BoardService {
     public Board updateBoard(BoardForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
         Board savedBoard = boardMapper.getBoardDetailByNo(form.getNo());
-        savedBoard.setCategory(Integer.toString(form.getCatNo()));
+        savedBoard.setCategory(savedBoard.getCategory());
         savedBoard.setTitle(form.getTitle());
         savedBoard.setContent(form.getContent());
 

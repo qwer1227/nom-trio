@@ -37,10 +37,10 @@
 					<td style="text-align: start">
 						<select id="category" name="catNo" class="form-control">
 							<option hidden="hidden">게시판을 선택해주세요.</option>
-							<option value="100" ${board.category.catNo eq '100' ? 'selected' : ''}>일반</option>
-							<option value="110" ${board.category.catNo eq '110' ? 'selected' : ''}>자랑</option>
-							<option value="120" ${board.category.catNo eq '120' ? 'selected' : ''}>질문</option>
-							<option value="130" ${board.category.catNo eq '130' ? 'selected' : ''}>훈련일지</option>
+							<option value="100" ${board.category eq '100' ? 'selected' : ''}>일반</option>
+							<option value="110" ${board.category eq '110' ? 'selected' : ''}>자랑</option>
+							<option value="120" ${board.category eq '120' ? 'selected' : ''}>질문</option>
+							<option value="130" ${board.category eq '130' ? 'selected' : ''}>훈련일지</option>
 						</select>
 					</td>
 				</tr>
