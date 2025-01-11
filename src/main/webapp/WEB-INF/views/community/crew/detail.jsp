@@ -164,7 +164,6 @@
 			<div class="row actions mb-4">
 				
 				<!-- 로그인 여부를 체크하기 위해 먼저 선언 -->
-				
 				<div class="col-6 d-flex justify-content-start">
 					<security:authorize access="isAuthenticated()">
 						<!-- principal 프로퍼티 안의 loginUser 정보를 가져옴 -->
@@ -184,27 +183,24 @@
 					<a type="button" href="main" class="btn btn-secondary">목록</a>
 				</div>
 			</div>
-		
 		</div>
+		
+		<!-- 신고 모달 창 -->
+		<%@include file="/WEB-INF/views/community/report-modal.jsp" %>
 		
 		<!-- 댓글 작성 -->
 		<%@include file="../reply-form.jsp" %>
 		
 		<!-- 댓글 목록 -->
 		<c:if test="${not empty crew.reply}">
-		
 			<div class="row comments rounded" style="background-color: #f2f2f2">
 				<!--댓글 내용 -->
-				<c:forEach var="reply" items="${replies}">
 					<%@include file="../reply-lists.jsp" %>
-				</c:forEach>
 			</div>
 		</c:if>
-	
-	<!-- 신고 모달 창 -->
-	<%@include file="/WEB-INF/views/community/report-modal.jsp" %>
+		
 </div>
-<%@include file="/WEB-INF/views/common/footer.jsp" %>
+	<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 <script>
     let formData = new FormData();
@@ -256,13 +252,6 @@
                 myModalRepoter.show();
             }
         }
-    }
-
-    function reportButton() {
-        if (document.querySelector("#reason-etc").checked) {
-            document.querySelector("#reason-etc").value = document.querySelector("#etc").value;
-        }
-        $(".modal form").trigger("submit");
     }
 
     function replyLikeButton(crewNo, replyNo) {

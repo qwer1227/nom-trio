@@ -22,6 +22,7 @@
 <!doctype html>
 <html lang="ko">
 
+<c:forEach var="reply" items="${replies}">
 <div class="comment pt-3 ">
 	<c:choose>
 	<c:when test="${reply.deleted eq 'Y'}">
@@ -177,6 +178,7 @@
 </div>
 </c:otherwise>
 </c:choose>
+</c:forEach>
 </html>
 <script>
     // 댓글 등록
