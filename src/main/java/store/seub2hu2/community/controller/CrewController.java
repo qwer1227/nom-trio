@@ -20,6 +20,7 @@ import store.seub2hu2.community.dto.CrewForm;
 import store.seub2hu2.community.dto.ReplyForm;
 import store.seub2hu2.community.dto.ReportForm;
 import store.seub2hu2.community.service.CrewService;
+import store.seub2hu2.community.service.LikeService;
 import store.seub2hu2.community.service.ReplyService;
 import store.seub2hu2.community.service.ReportService;
 import store.seub2hu2.community.vo.Crew;
@@ -41,6 +42,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CrewController {
 
+    private final LikeService likeService;
     @Value("${upload.directory.crew.images}")
     private String imageSaveDirectory;
 
@@ -251,13 +253,31 @@ public class CrewController {
         return "redirect:detail?no=" + crewNo;
     }
 
+    @GetMapping("/update-crew-like")
+    @PreAuthorize("isAuthenticated()")
+    public String updateCrewLike(@RequestParam("no") int crewNo
+            , @AuthenticationPrincipal LoginUser loginUser) {
+
+        likeService.insertLike("crew", crewNo, loginUser);
+        return "redirect:detail?no=" + crewNo;
+    }
+
+    @GetMapping("/delete-crew-like")
+    @PreAuthorize("isAuthenticated()")
+    public String updateCrewUnlike(@RequestParam("no") int crewNo
+            , @AuthenticationPrincipal LoginUser loginUser) {
+
+        likeService.deleteLike("crew", crewNo, loginUser);
+        return "redirect:detail?no=" + crewNo;
+    }
+
     @PostMapping("/update-reply-like")
     @PreAuthorize("isAuthenticated()")
-    public String updateReplyLke(@RequestParam("no") int crewNo
+    public String updateReplyLike(@RequestParam("no") int crewNo
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser){
 
-        replyService.updateReplyLike(replyNo, "crewReply", loginUser);
+        likeService.insertLike("crewReply", replyNo, loginUser);
         return "redirect:detail?no=" + crewNo;
     }
 
@@ -266,7 +286,7 @@ public class CrewController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser){
 
-        replyService.deleteReplyLike(replyNo, "crewReply", loginUser);
+        likeService.deleteLike("crewReply", replyNo, loginUser);
         return "redirect:detail?no=" + crewNo;
     }
 

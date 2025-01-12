@@ -57,9 +57,11 @@ public class BoardController {
 
     public final ReportService reportService;
 
-    private final CrewService crewService;
+    public final CrewService crewService;
 
-    private final MarathonService marathonService;
+    public final MarathonService marathonService;
+
+    public final LikeService likeService;
 
     @GetMapping("/main")
     public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
@@ -260,7 +262,7 @@ public class BoardController {
     public String updateBoardLike(@RequestParam("no") int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        boardService.updateBoardLike(boardNo, loginUser);
+        likeService.insertLike("board", boardNo, loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -269,7 +271,7 @@ public class BoardController {
     public String updateBoardUnlike(@RequestParam("no") int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        boardService.deleteBoardLike(boardNo, loginUser);
+        likeService.deleteLike("board", boardNo, loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -279,7 +281,7 @@ public class BoardController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        replyService.updateReplyLike(replyNo, "boardReply", loginUser);
+        likeService.insertLike("boardReply", replyNo, loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -289,7 +291,7 @@ public class BoardController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        replyService.deleteReplyLike(replyNo, "boardReply", loginUser);
+        likeService.deleteLike("boardReply", replyNo, loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 
