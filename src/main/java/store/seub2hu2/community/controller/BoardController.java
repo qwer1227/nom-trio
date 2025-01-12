@@ -89,7 +89,7 @@ public class BoardController {
         Board board = boardService.getBoardDetail(boardNo);
         List<Reply> replyList = replyService.getReplies(boardNo);
         board.setReply(replyList);
-        int replyCnt = replyService.getReplyCnt(boardNo);
+        int replyCnt = likeService.getLikeCnt("boardReply", boardNo);
 
         Map<String, Object> condition = new HashMap<>();
         ListDto<Board> dto = boardService.getBoardsTop(condition);
@@ -262,7 +262,8 @@ public class BoardController {
     public String updateBoardLike(@RequestParam("no") int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.insertLike("board", boardNo, loginUser);
+        boardService.updateBoardLike(boardNo, loginUser);
+
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -271,7 +272,8 @@ public class BoardController {
     public String updateBoardUnlike(@RequestParam("no") int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.deleteLike("board", boardNo, loginUser);
+        boardService.deleteBoardLike(boardNo, loginUser);
+
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -281,7 +283,7 @@ public class BoardController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.insertLike("boardReply", replyNo, loginUser);
+        replyService.updateReplyLike(replyNo,"boardReply", loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -291,7 +293,7 @@ public class BoardController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.deleteLike("boardReply", replyNo, loginUser);
+        replyService.deleteReplyLike(replyNo, "boardReply", loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 

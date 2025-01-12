@@ -47,6 +47,8 @@ public class BoardService {
 
     @Autowired
     private NoticeMapper noticeMapper;
+    @Autowired
+    private LikeService likeService;
 
     public Board addNewBoard(BoardForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
@@ -252,7 +254,7 @@ public class BoardService {
 
     public void updateBoardLike(int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
-        boardMapper.insertLike(boardNo, "board", loginUser.getNo());
+        likeService.insertLike("board", boardNo, loginUser);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
         board.setLike((board.getLike() + 1));
@@ -262,7 +264,7 @@ public class BoardService {
 
     public void deleteBoardLike(int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
-        boardMapper.deleteLike(boardNo, "board", loginUser.getNo());
+        likeService.deleteLike("board", boardNo, loginUser);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
         board.setLike((board.getLike() - 1));

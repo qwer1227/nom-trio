@@ -32,7 +32,7 @@
 
   <!-- int getLikeCnt(@Param("type") String type, @Param("no") int typeNo); -->
   <select id="getLikeCnt" resultType="int">
-    select count()
+    select count(*)
     from LIKES
     where like_type = #{type}
         and like_type_no = #{no}

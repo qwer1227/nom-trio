@@ -21,6 +21,8 @@ public class ReplyService {
 
     @Autowired
     private ReplyMapper replyMapper;
+    @Autowired
+    private LikeService likeService;
 
     public Reply addNewReply(ReplyForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
@@ -120,7 +122,7 @@ public class ReplyService {
     public void updateReplyLike(int replyNo
             , String type
             , @AuthenticationPrincipal LoginUser loginUser) {
-        replyMapper.insertReplyLike(replyNo, type, loginUser.getNo());
+        likeService.insertLike(type, replyNo, loginUser);
 
         Reply reply = replyMapper.getReplyByReplyNo(replyNo);
         reply.setReplyLikeCnt(reply.getReplyLikeCnt() + 1);
@@ -130,7 +132,7 @@ public class ReplyService {
     public void deleteReplyLike(int replyNo
             , String type
             , @AuthenticationPrincipal LoginUser loginUser) {
-        replyMapper.deleteReplyLike(replyNo, type, loginUser.getNo());
+        likeService.deleteLike(type, replyNo, loginUser);
 
         Reply reply = replyMapper.getReplyByReplyNo(replyNo);
         reply.setReplyLikeCnt(reply.getReplyLikeCnt() - 1);
