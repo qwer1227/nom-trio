@@ -196,7 +196,7 @@
           </td>
           <td>${b.user.nickname}</td>
           <td><i class="bi bi-eye"></i>${b.viewCnt}</td>
-          <td><i class="bi bi-hand-thumbs-up"></i>${b.like}</td>
+          <td><i class="bi bi-hand-thumbs-up"></i>${b.likeCnt}</td>
         </tr>
       </c:forEach>
       </tbody>

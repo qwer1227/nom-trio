@@ -306,7 +306,7 @@ public class CrewController {
         return "redirect:detail?no=" + form.getNo();
     }
 
-    @GetMapping("report-reply")
+    @PostMapping("report-reply")
     @PreAuthorize("isAuthenticated()")
     public String reportReply(ReportForm form
             , @AuthenticationPrincipal LoginUser loginUser){
