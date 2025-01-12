@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class FunctionCheckDto {
 
+    private int no;
     private String type;
     private int typeNo;
     private int userNo;

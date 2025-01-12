@@ -256,9 +256,10 @@ public class BoardService {
             , @AuthenticationPrincipal LoginUser loginUser) {
         likeService.insertLike("board", boardNo, loginUser);
 
+        int cnt = likeService.getLikeCnt("board", boardNo);
+
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike((board.getLike() + 1));
-        board.setScrapCnt(board.getScrapCnt());
+        board.setLike(cnt);
         boardMapper.updateCnt(board);
     }
 
@@ -266,9 +267,10 @@ public class BoardService {
             , @AuthenticationPrincipal LoginUser loginUser) {
         likeService.deleteLike("board", boardNo, loginUser);
 
+        int cnt = likeService.getLikeCnt("board", boardNo);
+
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike((board.getLike() - 1));
-        board.setScrapCnt(board.getScrapCnt());
+        board.setLike(cnt);
         boardMapper.updateCnt(board);
     }
 }

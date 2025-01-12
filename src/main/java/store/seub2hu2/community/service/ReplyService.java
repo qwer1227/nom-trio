@@ -124,8 +124,10 @@ public class ReplyService {
             , @AuthenticationPrincipal LoginUser loginUser) {
         likeService.insertLike(type, replyNo, loginUser);
 
+        int cnt = likeService.getLikeCnt(type, replyNo);
+
         Reply reply = replyMapper.getReplyByReplyNo(replyNo);
-        reply.setReplyLikeCnt(reply.getReplyLikeCnt() + 1);
+        reply.setReplyLikeCnt(cnt);
         replyMapper.updateCnt(reply);
     }
 
