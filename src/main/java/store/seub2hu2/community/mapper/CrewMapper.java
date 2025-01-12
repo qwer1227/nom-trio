@@ -30,4 +30,5 @@ public interface CrewMapper {
     int getCrewMemberCnt(@Param("no") int crewNo);
     void updateReader(@Param("userNo") int userNo, @Param("crewNo") int crewNo );
     void exitCrew(@Param("readerNo") int readerNo, @Param("crewNo") int crewNo);
+    void updateCnt(@Param("crew") Crew crew);
 }

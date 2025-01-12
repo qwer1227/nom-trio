@@ -259,7 +259,8 @@ public class CrewController {
     public String updateCrewLike(@RequestParam("no") int crewNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.insertLike("crew", crewNo, loginUser);
+        crewService.updateCrewLike(crewNo, loginUser);
+
         return "redirect:detail?no=" + crewNo;
     }
 
@@ -268,7 +269,8 @@ public class CrewController {
     public String updateCrewUnlike(@RequestParam("no") int crewNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        likeService.deleteLike("crew", crewNo, loginUser);
+        crewService.deleteCrewLike(crewNo, loginUser);
+
         return "redirect:detail?no=" + crewNo;
     }
 
@@ -278,7 +280,7 @@ public class CrewController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser){
 
-        likeService.insertLike("crewReply", replyNo, loginUser);
+        replyService.updateReplyLike(replyNo,"crewReply", loginUser);
         return "redirect:detail?no=" + crewNo;
     }
 
@@ -287,7 +289,7 @@ public class CrewController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser){
 
-        likeService.deleteLike("crewReply", replyNo, loginUser);
+        replyService.deleteReplyLike(replyNo, "crewReply", loginUser);
         return "redirect:detail?no=" + crewNo;
     }
 

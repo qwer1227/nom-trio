@@ -63,6 +63,7 @@
     , c.crew_location as location
     , c.crew_name as name
     , c.is_entered as entered
+    , c.crew_like_cnt as likeCnt
     , coalesce ((select f.file_save_name
     from CREW_FILES f
     where f.crew_no = c.crew_no
@@ -184,6 +185,7 @@
      , c.crew_name              as name
      , c.crew_description       as description
      , c.crew_created_date      as createdDate
+     , c.crew_like_cnt          as likeCnt
      , coalesce ((select cf.file_original_name
                  from CREW_FILES cf
                  where cf.crew_no = c.crew_no
@@ -314,5 +316,12 @@
     set is_reader = 'N'
     where user_no = #{readerNo}
       and crew_no = #{crewNo}
+  </update>
+
+  <!-- void updateCnt(@Param("crew") Crew crew); -->
+  <update id="updateCnt">
+    update CREWS
+    set crew_like_cnt = #{crew.likeCnt}
+    where crew_no = #{crew.no}
   </update>
 </mapper>

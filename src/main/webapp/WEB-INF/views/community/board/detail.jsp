@@ -79,7 +79,7 @@
       <span>
                 <i class="bi bi-eye"></i> ${board.viewCnt}
                 <i class="bi bi-bookmark"></i> ${board.scrapCnt}
-                <i class="bi bi-hand-thumbs-up"></i> ${board.like}
+                <i class="bi bi-hand-thumbs-up"></i> ${board.likeCnt}
                 <i class="bi bi-chat-square-text"></i> ${replyCnt}
             </span>
     </div>

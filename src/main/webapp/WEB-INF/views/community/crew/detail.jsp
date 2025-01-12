@@ -84,6 +84,7 @@
 				</div>
 				<span class="h5">
           <i class="bi bi-eye"></i> ${crew.viewCnt}
+          <i class="bi bi-hand-thumbs-up"></i> ${crew.likeCnt}
           <i class="bi bi-chat-square-text"></i> ${replyCnt}
         </span>
 			</div>

@@ -53,6 +53,8 @@ public class CrewService {
 
     @Autowired
     private ReplyMapper replyMapper;
+    @Autowired
+    private LikeService likeService;
 
 
     public Crew addNewCrew(CrewForm form
@@ -293,6 +295,26 @@ public class CrewService {
         }
 
         return isExists;
+    }
+
+    public void updateCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser) {
+        likeService.insertLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
+    }
+
+    public void deleteCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser){
+        likeService.deleteLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
     }
 
     public int getEnterMemberCnt(int crewNo) {

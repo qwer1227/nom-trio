@@ -32,6 +32,7 @@ public class Crew {
     private List<CrewMember> member;
     private int memberCnt;
     private int viewCnt;
+    private int likeCnt;
     private List<Reply> reply;
     private int replyCnt;
     private String reported;

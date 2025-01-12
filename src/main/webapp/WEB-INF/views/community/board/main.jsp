@@ -134,8 +134,8 @@
           <label class="form-check-label">최신순</label>
         </div>
         <div class="form-check-inline">
-          <input class="form-check-input" type="radio" name="sort" value="like" onchange="changeSort()"
-          ${param.sort eq 'like' ? 'checked' : ''}>
+          <input class="form-check-input" type="radio" name="sort" value="likeCnt" onchange="changeSort()"
+          ${param.sort eq 'likeCnt' ? 'checked' : ''}>
           <label class="form-check-label">추천순</label>
         </div>
         <div class="form-check-inline">
@@ -195,7 +195,7 @@
                     </c:if>
                   </td>
                   <td>${board.user.nickname}</td>
-                  <td>${board.like}</td>
+                  <td>${board.likeCnt}</td>
                   <td>${board.viewCnt}</td>
                   <td><fmt:formatDate value="${board.createdDate}" pattern="yyyy-MM-dd"/></td>
                 </tr>

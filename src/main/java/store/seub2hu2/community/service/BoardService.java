@@ -265,7 +265,9 @@ public class BoardService {
         int cnt = likeService.getLikeCnt("board", boardNo);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike(cnt);
+        board.setLikeCnt(cnt);
+        board.setScrapCnt(board.getScrapCnt());
+
         boardMapper.updateCnt(board);
     }
 
@@ -276,7 +278,9 @@ public class BoardService {
         int cnt = likeService.getLikeCnt("board", boardNo);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike(cnt);
+        board.setLikeCnt(cnt);
+        board.setScrapCnt(board.getScrapCnt());
+
         boardMapper.updateCnt(board);
     }
 }
