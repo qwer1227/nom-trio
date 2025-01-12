@@ -180,6 +180,13 @@
 					</security:authorize>
 				</div>
 				<div class="col-6 d-flex justify-content-end">
+					<c:if test="${not empty loginUser}">
+						<button class="btn btn-outline-primary" id="likeCnt" style="margin-right: 10px;"
+										onclick="crewLikeButton(${crew.no})">
+							<i id="icon-heart"
+								 class="bi ${crewLiked == '1' ? 'bi-heart-fill' : (crewLiked == '0' ? 'bi-heart' : 'bi-heart')}"></i>
+						</button>
+					</c:if>
 					<a type="button" href="main" class="btn btn-secondary">목록</a>
 				</div>
 			</div>
@@ -195,11 +202,11 @@
 		<c:if test="${not empty crew.reply}">
 			<div class="row comments rounded" style="background-color: #f2f2f2">
 				<!--댓글 내용 -->
-					<%@include file="../reply-lists.jsp" %>
+				<%@include file="../reply-lists.jsp" %>
 			</div>
 		</c:if>
-		
-</div>
+	
+	</div>
 	<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 <script>
@@ -298,6 +305,15 @@
             window.location.href = "leave-crew?no=" + crewNo;
         }
     }
+    
+    function crewLikeButton(crewNo){
+        let heart = document.querySelector("#icon-heart");
+        if (heart.classList.contains("bi-heart")) {
+            window.location.href = `update-crew-like?no=\${crewNo}`;
+        } else {
+            window.location.href = `delete-crew-like?no=\${crewNo}`;
+        }
+		}
 
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션
