@@ -83,7 +83,7 @@ public class CrewController {
             , Model model) {
         Crew crew = crewService.getCrewDetail(crewNo);
 
-        List<Reply> replyList = replyService.getReplies(crewNo);
+        List<Reply> replyList = replyService.getReplies("crew", crewNo);
         crew.setReply(replyList);
         int replyCnt = replyService.getReplyCnt(crewNo);
 

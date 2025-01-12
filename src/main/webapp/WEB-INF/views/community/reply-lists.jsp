@@ -124,8 +124,9 @@
 				<div class="col-11">
 					<div class="form-control" style="position: relative; padding-top: 1.5em; border: none; box-shadow: none;">
 						<!-- 닉네임 표시 부분 -->
+						${reply.prevNo} / ${reply.no} / ${reply.prevUser.nickname}
 						<span
-							style="position: absolute; top: 0.5em; left: 0.5em; color: #6c757d;">@ ${reply.prevUser.nickname}</span>
+							style="position: absolute; top: 0.5em; left: 0.5em; color: #6c757d;">@ ${reply.user.nickname}</span>
 						<!-- 텍스트 입력 영역 -->
 						<textarea name="content" class="form-control auto-resize" rows="1" placeholder="답글을 작성하세요."
 											style="resize: none; overflow: hidden; border: none; box-shadow: none;"
@@ -184,7 +185,6 @@
     // 댓글 등록
     function addComment(replyNo) {
         
-        let prevNo = document.querySelector(`form#box-comments-\${replyNo} input[name=prevNo]`).value;
         let no = document.querySelector(`form#box-comments-\${replyNo} input[name=rno]`).value;
         let type = document.querySelector(`form#box-comments-\${replyNo} input[name=type]`).value;
         let typeNo = document.querySelector(`form#box-comments-\${replyNo} input[name=typeNo]`).value;
@@ -196,13 +196,11 @@
             return;
         }
 
-        formData.append("prevNo", prevNo);
         formData.append("no", no);
         formData.append("type", type);
         formData.append("typeNo", typeNo);
         formData.append("content", content);
-
-
+				
         $.ajax({
             method: "post",
             url: "/community/board/add-comment",

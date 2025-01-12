@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.CrewForm;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.CrewMapper;
 import store.seub2hu2.community.mapper.CrewReplyMapper;
@@ -160,7 +161,12 @@ public class CrewService {
         Crew crew = crewMapper.getCrewDetailByNo(crewNo);
         UploadFile uploadThumbnail = uploadMapper.getThumbnailByCrewNo(crewNo);
         UploadFile uploadFile = uploadMapper.getFileByCrewNo(crewNo);
-        List<Reply> reply = replyMapper.getRepliesByTypeNo(crewNo);
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType("crew");
+        dto.setTypeNo(crewNo);
+
+        List<Reply> reply = replyMapper.getRepliesByTypeNo(dto);
 
         if (crew == null) {
             throw new CommunityException("존재하지 않는 게시글입니다.");

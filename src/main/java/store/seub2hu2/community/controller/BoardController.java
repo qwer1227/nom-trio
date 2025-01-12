@@ -87,7 +87,7 @@ public class BoardController {
             , @AuthenticationPrincipal LoginUser loginUser
             , Model model) {
         Board board = boardService.getBoardDetail(boardNo);
-        List<Reply> replyList = replyService.getReplies(boardNo);
+        List<Reply> replyList = replyService.getReplies("board", boardNo);
         board.setReply(replyList);
         int replyCnt = likeService.getLikeCnt("boardReply", boardNo);
 
@@ -105,9 +105,6 @@ public class BoardController {
             for (Reply reply : replyList) {
                 int replyResult = likeService.getCheckLike("boardReply", reply.getNo(), loginUser);
                 reply.setReplyLiked(replyResult);
-
-                Reply prev = replyService.getReplyDetail(reply.getNo());
-                reply.setPrevUser(prev.getPrevUser());
             }
         }
 

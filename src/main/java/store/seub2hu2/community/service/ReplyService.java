@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.dto.ReplyForm;
 import store.seub2hu2.community.mapper.ReplyMapper;
 import store.seub2hu2.community.vo.Reply;
@@ -51,7 +52,11 @@ public class ReplyService {
     public Reply addNewComment(ReplyForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
         Reply reply = new Reply();
-        reply.setPrevNo(form.getPrevNo());
+
+        System.out.println("~~~~~~~~~~~~" + form.getPrevNo());
+        System.out.println("~~~~~~~~~~~~" + form.getNo());
+
+        reply.setPrevNo(form.getNo());
         reply.setType(form.getType());
         reply.setTypeNo(form.getTypeNo());
         reply.setContent(form.getContent());
@@ -69,11 +74,24 @@ public class ReplyService {
     public Reply getReplyDetail(int replyNo){
         Reply reply = replyMapper.getReplyByReplyNo(replyNo);
 
+        System.out.println("--------------" + reply.getPrevUser().getNickname());
+
         return reply;
     }
 
-    public List<Reply> getReplies(int typeNo) {
-        List<Reply> replyList = replyMapper.getRepliesByTypeNo(typeNo);
+    public List<Reply> getReplies(String type, int typeNo) {
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType(type);
+        dto.setTypeNo(typeNo);
+
+        List<Reply> replyList = replyMapper.getRepliesByTypeNo(dto);
+
+        for (Reply reply : replyList) {
+
+            Reply prev = replyMapper.getReplyByReplyNo(reply.getNo());
+            reply.setPrevUser(prev.getPrevUser());
+        }
 
         return replyList;
     }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.BoardForm;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.*;
@@ -160,7 +161,12 @@ public class BoardService {
     public Board getBoardDetail(int boardNo) {
         Board board = boardMapper.getBoardDetailByNo(boardNo);
         UploadFile uploadFile = uploadMapper.getFileByBoardNo(boardNo);
-        List<Reply> reply = replyMapper.getRepliesByTypeNo(boardNo);
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType("board");
+        dto.setTypeNo(boardNo);
+
+        List<Reply> reply = replyMapper.getRepliesByTypeNo(dto);
 
         if (board == null) {
             throw new CommunityException("존재하지 않는 게시글입니다.");
