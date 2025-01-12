@@ -53,9 +53,6 @@ public class ReplyService {
             , @AuthenticationPrincipal LoginUser loginUser) {
         Reply reply = new Reply();
 
-        System.out.println("~~~~~~~~~~~~" + form.getPrevNo());
-        System.out.println("~~~~~~~~~~~~" + form.getNo());
-
         reply.setPrevNo(form.getNo());
         reply.setType(form.getType());
         reply.setTypeNo(form.getTypeNo());
@@ -73,8 +70,6 @@ public class ReplyService {
 
     public Reply getReplyDetail(int replyNo){
         Reply reply = replyMapper.getReplyByReplyNo(replyNo);
-
-        System.out.println("--------------" + reply.getPrevUser().getNickname());
 
         return reply;
     }

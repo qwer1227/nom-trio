@@ -61,7 +61,7 @@
               , b.board_title as title
               , b.board_content as content
               , b.board_view_cnt as viewCnt
-              , b.board_like_cnt as `like`
+              , b.board_like_cnt as likeCnt
               , b.is_deleted as deleted
               , b.board_created_date as createdDate
               , u.user_nickname as "user.nickname"
@@ -124,12 +124,12 @@
                 , b.board_cat_no as category
                 , b.board_title as title
                 , b.board_view_cnt as viewCnt
-                , b.board_like_cnt as `like`
+                , b.board_like_cnt as likeCnt
                 , u.user_nickname as "user.nickname"
           from BOARDS b join USERS u
                 on b.user_no = u.user_no
           where b.is_deleted = 'N'
-          order by viewCnt desc, `like` desc, rn) board limit 5
+          order by viewCnt desc, likeCnt desc, rn) board limit 5
   </select>
 
   <!-- int getTotalRowsForBoard(@Param("dto") RequestParamsDto dto); -->
@@ -192,7 +192,7 @@
     update
       BOARDS
     set board_view_cnt = #{board.viewCnt}
-      , board_like_cnt = #{board.like}
+      , board_like_cnt = #{board.likeCnt}
     where board_no = #{board.no}
   </update>
 
@@ -211,7 +211,7 @@
      , b.scrap_cnt               as scrapCnt
      , b.is_deleted              as deleted
      , b.is_report               as report
-     , b.board_like_cnt          as `like`
+     , b.board_like_cnt          as likeCnt
      , (select bp.board_no from BOARDS bp
             where bp.board_no &lt; #{no} and bp.is_deleted = 'N' order by bp.board_no desc LIMIT 1) as prevNo
          , (select bp.board_title from BOARDS bp
@@ -263,7 +263,7 @@
   <update id="updateCnt">
     update
       BOARDS
-    set board_like_cnt = #{board.like}
+    set board_like_cnt = #{board.likeCnt}
       , scrap_cnt      = #{board.scrapCnt}
     where board_no = #{board.no}
   </update>

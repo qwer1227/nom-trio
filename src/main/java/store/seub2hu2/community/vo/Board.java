@@ -27,7 +27,7 @@ public class Board {
     private Date updatedDate;
     private int viewCnt;
     private int scrapCnt;
-    private int like;
+    private int likeCnt;
     private String deleted;
     private String keep;
     private Report report;
