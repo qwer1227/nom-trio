@@ -42,6 +42,7 @@ public class LikeService {
         FunctionCheckDto dto = new FunctionCheckDto();
         dto.setType(type);
         dto.setTypeNo(typeNo);
+        dto.setUserNo(loginUser.getNo());
 
         int result = likeMapper.hasUserLiked(dto);
 

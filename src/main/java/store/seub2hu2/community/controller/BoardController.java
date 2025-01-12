@@ -103,7 +103,7 @@ public class BoardController {
             model.addAttribute("Scrapped", scrapResult);
 
             for (Reply reply : replyList) {
-                int replyResult = replyService.getCheckLike(reply.getNo(), "boardReply", loginUser);
+                int replyResult = likeService.getCheckLike("boardReply", reply.getNo(), loginUser);
                 reply.setReplyLiked(replyResult);
 
                 Reply prev = replyService.getReplyDetail(reply.getNo());
