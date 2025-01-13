@@ -80,6 +80,7 @@
       on r.reply_type_no = c.crew_no
     </if>
     where c.is_deleted = 'N'
+    and c.is_report = 'N'
     and cm.is_reader = 'Y'
     <if test="dto.category != null and dto.category != ''">
       and c.is_entered = #{dto.category}
@@ -172,6 +173,7 @@
                    and f.file_save_name = c.crew_thumbnail
                    and f.is_deleted = 'N'), null) as "thumbnail.saveName"
      , c.is_entered             as entered
+     , c.is_report              as reported
      , c.crew_view_cnt          as viewCnt
      , u.user_no                as "user.no"
      , u.user_nickname          as "user.nickname"
@@ -324,5 +326,13 @@
     update CREWS
     set crew_like_cnt = #{crew.likeCnt}
     where crew_no = #{crew.no}
+  </update>
+
+  <!-- void updateCrewReport(@Param("no") int crewNo); -->
+  <update id="updateCrewReport">
+    update CREWS
+    set is_report = 'Y'
+        , is_entered = 'N'
+    where crew_no = #{no}
   </update>
 </mapper>

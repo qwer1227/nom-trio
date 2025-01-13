@@ -23,8 +23,8 @@ public interface ReplyMapper {
     void updateReply(@Param("reply") Reply reply);
 
     int hasUserLikedReply(@Param("rno") int replyNo, @Param("type") String type, @Param("userNo") int userNo);
-    void insertReplyLike(@Param("no") int replyNo, @Param("type") String type, @Param("userNo") int userNo);
-    void deleteReplyLike(@Param("rno") int replyNo, @Param("type") String type, @Param("userNo") int userNo);
-
     void updateCnt(@Param("reply") Reply reply);
+
+    Integer getReplyNoByReportNo(@Param("no") int reportNo);
+    void updateReplyReport(@Param("no") int replyNo);
 }

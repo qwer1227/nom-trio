@@ -61,6 +61,7 @@
                      on u.user_no = i.user_no
     where reply_type_no = #{dto.typeNo}
       and reply_type = #{dto.type}
+    group by r.reply_no
     order by
         r.prev_reply_no asc, r.reply_no asc
   </select>
@@ -143,5 +144,12 @@
     update REPLIES
     set reply_like_cnt = #{reply.replyLikeCnt}
     where reply_no = #{reply.no}
+  </update>
+
+  <!-- void updateReplyReport(@Param("no") int replyNo); -->
+  <update id="updateReplyReport">
+    update REPLIES
+    set is_report = 'Y'
+    where reply_no = #{no}
   </update>
 </mapper>

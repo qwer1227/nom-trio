@@ -75,7 +75,12 @@
 		<div>
 			<div class="col d-flex d-flex justify-content-between">
 				<div>
+				<c:if test="${crew.reported == 'Y'}">
+					<a href="main">가입 불가</a>
+				</c:if>
+				<c:if test="${crew.reported == 'N'}">
 					<a href="main?category=${crew.entered}">${crew.entered eq 'Y' ? '모집중' : '모집마감'}</a>
+				</c:if>
 				</div>
 			</div>
 			<div class="title h4 d-flex justify-content-between align-items-center">
@@ -129,29 +134,37 @@
 							</tr>
 							<tr>
 								<th>가 입</th>
-								<td>: ${memberCnt} / 5
-									<c:if test="${memberCnt == 5}">
-										<button class="btn btn-secondary">모임 마감</button>
-									</c:if>
-									<security:authorize access="isAuthenticated()">
-										<security:authentication property="principal" var="loginUser"/>
-										<c:if test="${loginUser.no ne crew.user.no}">
-											<c:choose>
-												<c:when test="${isExists}">
-													<button id="btn-crew-leave" class="btn btn-danger btn-sm"
-																	onclick="crewLeaveButton(${crew.no})">
-														모임 탈퇴
-													</button>
-												</c:when>
-												<c:otherwise>
-													<button id="btn-crew_join" class="btn btn-primary btn-sm"
-																	onclick="crewJoinButton(${crew.no})">
-														모임 가입
-													</button>
-												</c:otherwise>
-											</c:choose>
+								<c:if test="${crew.reported == 'Y'}">
+									<td>
+										: <button>가입 불가</button>
+									</td>
+								</c:if>
+								<c:if test="${crew.reported == 'N'}">
+									<td>: ${memberCnt} / 5
+										<c:if test="${memberCnt == 5}">
+											<button class="btn btn-secondary">모임 마감</button>
 										</c:if>
-									</security:authorize></td>
+										<security:authorize access="isAuthenticated()">
+											<security:authentication property="principal" var="loginUser"/>
+											<c:if test="${loginUser.no ne crew.user.no}">
+												<c:choose>
+													<c:when test="${isExists}">
+														<button id="btn-crew-leave" class="btn btn-danger btn-sm"
+																		onclick="crewLeaveButton(${crew.no})">
+															모임 탈퇴
+														</button>
+													</c:when>
+													<c:otherwise>
+														<button id="btn-crew_join" class="btn btn-primary btn-sm"
+																		onclick="crewJoinButton(${crew.no})">
+															모임 가입
+														</button>
+													</c:otherwise>
+												</c:choose>
+											</c:if>
+										</security:authorize>
+										</td>
+									</c:if>
 							</tr>
 							</tbody>
 						</table>

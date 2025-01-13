@@ -155,4 +155,8 @@ public class ReplyService {
         reply.setReplyLikeCnt(cnt);
         replyMapper.updateCnt(reply);
     }
+
+    public void updateReplyReport(int reportNo){
+        replyMapper.updateReplyReport(reportNo);
+    }
 }

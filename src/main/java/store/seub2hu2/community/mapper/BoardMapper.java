@@ -3,6 +3,7 @@ package store.seub2hu2.community.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.vo.Board;
 import store.seub2hu2.util.RequestParamsDto;
 
@@ -25,4 +26,7 @@ public interface BoardMapper {
     void updateCnt(@Param("board") Board board);
 
     int getTotalRowsForHistory(@Param("dto") RequestParamsDto dto, @Param("userNo") int userNo);
+
+    int getBoardNoByReportNo(@Param("no") int reportNo);
+    void updateBoardReport(@Param("no") int boardNo);
 }

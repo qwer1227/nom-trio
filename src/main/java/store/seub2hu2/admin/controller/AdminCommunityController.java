@@ -9,8 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import store.seub2hu2.admin.dto.ReportDto;
 import store.seub2hu2.admin.service.AdminService;
-import store.seub2hu2.community.service.MarathonService;
-import store.seub2hu2.community.service.NoticeService;
+import store.seub2hu2.community.service.*;
 import store.seub2hu2.community.vo.Marathon;
 import store.seub2hu2.community.vo.Notice;
 import store.seub2hu2.mypage.dto.AnswerDTO;
@@ -34,6 +33,7 @@ public class AdminCommunityController {
     private final QnaService qnaService;
     private final MarathonService marathonService;
     private final NoticeService noticeService;
+    private final ReportService reportService;
 
     @GetMapping("/qna")
     public String qna(@ModelAttribute RequestParamsDto dto , Model model, @AuthenticationPrincipal LoginUser loginUser) {
@@ -73,9 +73,9 @@ public class AdminCommunityController {
         condition.put("reportNo", reportNo);
         condition.put("reportType", reportType);
 
-        adminService.UpdateReport(condition);
+//        adminService.UpdateReport(condition);
 
-
+        reportService.updateReport(reportType, reportNo);
 
         return "redirect:/admin/community/report";
     }

@@ -30,7 +30,7 @@ public class Board {
     private int likeCnt;
     private String deleted;
     private String keep;
-    private Report report;
+    private String reported;
     private List<Reply> reply;
     private int replyCnt;
     private int boardCnt;

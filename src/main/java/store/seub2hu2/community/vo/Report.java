@@ -15,9 +15,9 @@ import java.util.Date;
 @Setter
 public class Report {
 
-    private int id;
-    private int no;
-    private String type;
+    private int id; // 신고 고유번호
+    private int no; // 신고 게시글 번호
+    private String type; // 신고 게시글 타입
     private int reason;
     private String detail;
     private User user;
@@ -25,4 +25,5 @@ public class Report {
     private Date createdDate;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date resolvedDate;
+    private String complete;
 }

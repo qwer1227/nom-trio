@@ -3,6 +3,7 @@ package store.seub2hu2.community.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.security.core.parameters.P;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.vo.Crew;
 import store.seub2hu2.community.vo.CrewMember;
 import store.seub2hu2.community.vo.Notice;
@@ -34,4 +35,7 @@ public interface CrewMapper {
     void exitCrew(@Param("readerNo") int readerNo, @Param("crewNo") int crewNo);
 
     void updateCnt(@Param("crew") Crew crew);
+
+    int getCrewNoByReportNo(@Param("no") int reportNo);
+    void updateCrewReport(@Param("no") int crewNo);
 }

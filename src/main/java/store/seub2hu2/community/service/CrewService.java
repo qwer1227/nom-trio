@@ -379,4 +379,8 @@ public class CrewService {
         // 위임이라는 기능을 사용하기 위해서는 리더의 계정 로그인을 필수로 해야해서 user.getNo를 통해서 리더의 번호를 넘겨줌
         crewMapper.exitCrew(readerNo, crewNo);
     }
+
+    public void updateCrewReport(int reportNo){
+        crewMapper.updateCrewReport(reportNo);
+    }
 }

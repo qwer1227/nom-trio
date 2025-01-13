@@ -76,6 +76,7 @@
     join BOARD_CATEGORIES bc
     on b.board_cat_no = bc.board_cat_no
     where b.is_deleted = 'N'
+      and b.is_report = 'N'
     <if test="dto.category != null and dto.category != ''">
       and bc.board_cat_no = #{dto.category}
     </if>
@@ -186,7 +187,7 @@
      , b.board_view_cnt          as viewCnt
      , b.scrap_cnt               as scrapCnt
      , b.is_deleted              as deleted
-     , b.is_report               as report
+     , b.is_report               as reported
      , b.board_like_cnt          as likeCnt
      , (select bp.board_no from BOARDS bp
             where bp.board_no &lt; #{no} and bp.is_deleted = 'N' order by bp.board_no desc LIMIT 1) as prevNo
@@ -293,4 +294,18 @@
     </if>
   </select>
 
+  <!-- int getBoardNoByReportNo(@Param("no") int reportNo); -->
+  <select id="getBoardNoByReportNo" parameterType="int">
+    select b.board_no
+    from BOARDS b join REPORTS r
+        on b.board_no = r.report_no
+    where r.report_id = #{no}
+  </select>
+
+  <!-- void updateBoardReport(@Param("no") int boardNo); -->
+  <update id="updateBoardReport">
+    update BOARDS
+    set is_report = 'Y'
+    where board_no = #{no}
+  </update>
 </mapper>

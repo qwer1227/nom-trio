@@ -87,32 +87,36 @@ public class BoardController {
             , @AuthenticationPrincipal LoginUser loginUser
             , Model model) {
         Board board = boardService.getBoardDetail(boardNo);
-        List<Reply> replyList = replyService.getReplies("board", boardNo);
-        board.setReply(replyList);
-        int replyCnt = likeService.getLikeCnt("boardReply", boardNo);
 
-        Map<String, Object> condition = new HashMap<>();
-        ListDto<Board> dto = boardService.getBoardsTop(condition);
-        model.addAttribute("boards", dto.getData());
+        if (board.getReported().equals("Y")) {
+            return "webapp/WEB-INF/views/error/report.jsp";
+        } else {
+            List<Reply> replyList = replyService.getReplies("board", boardNo);
+            board.setReply(replyList);
+            int replyCnt = likeService.getLikeCnt("boardReply", boardNo);
 
-        if (loginUser != null) {
-            int boardResult = boardService.getCheckLike(boardNo, loginUser);
-            model.addAttribute("boardLiked", boardResult);
+            Map<String, Object> condition = new HashMap<>();
+            ListDto<Board> dto = boardService.getBoardsTop(condition);
+            model.addAttribute("boards", dto.getData());
 
-            int scrapResult = scrapService.getCheckScrap(boardNo, loginUser);
-            model.addAttribute("Scrapped", scrapResult);
+            if (loginUser != null) {
+                int boardResult = boardService.getCheckLike(boardNo, loginUser);
+                model.addAttribute("boardLiked", boardResult);
 
-            for (Reply reply : replyList) {
-                int replyResult = likeService.getCheckLike("boardReply", reply.getNo(), loginUser);
-                reply.setReplyLiked(replyResult);
+                int scrapResult = scrapService.getCheckScrap(boardNo, loginUser);
+                model.addAttribute("Scrapped", scrapResult);
+
+                for (Reply reply : replyList) {
+                    int replyResult = likeService.getCheckLike("boardReply", reply.getNo(), loginUser);
+                    reply.setReplyLiked(replyResult);
+                }
             }
+
+            model.addAttribute("board", board);
+            model.addAttribute("replies", replyList);
+            model.addAttribute("replyCnt", replyCnt);
+            return "community/board/detail";
         }
-
-        model.addAttribute("board", board);
-        model.addAttribute("replies", replyList);
-        model.addAttribute("replyCnt", replyCnt);
-
-        return "community/board/detail";
     }
 
     @GetMapping("/hit")
@@ -280,7 +284,7 @@ public class BoardController {
             , @RequestParam("rno") int replyNo
             , @AuthenticationPrincipal LoginUser loginUser) {
 
-        replyService.updateReplyLike(replyNo,"boardReply", loginUser);
+        replyService.updateReplyLike(replyNo, "boardReply", loginUser);
         return "redirect:detail?no=" + boardNo;
     }
 

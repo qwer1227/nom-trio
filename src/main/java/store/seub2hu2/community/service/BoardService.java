@@ -160,6 +160,9 @@ public class BoardService {
 
     public Board getBoardDetail(int boardNo) {
         Board board = boardMapper.getBoardDetailByNo(boardNo);
+
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~" + board.getReported());
+
         UploadFile uploadFile = uploadMapper.getFileByBoardNo(boardNo);
 
         FunctionCheckDto dto = new FunctionCheckDto();
@@ -282,5 +285,9 @@ public class BoardService {
         board.setScrapCnt(board.getScrapCnt());
 
         boardMapper.updateCnt(board);
+    }
+
+    public void updateBoardReport(int reportNo){
+        boardMapper.updateBoardReport(reportNo);
     }
 }

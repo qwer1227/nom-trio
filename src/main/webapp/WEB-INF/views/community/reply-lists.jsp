@@ -25,7 +25,7 @@
 <c:forEach var="reply" items="${replies}">
 <div class="comment pt-3 ">
 	<c:choose>
-	<c:when test="${reply.deleted eq 'Y'}">
+	<c:when test="${reply.deleted eq 'Y' || reply.report eq 'Y'}">
 		<!-- 삭제된 댓글인 경우 -->
 		<div class="${reply.no ne reply.prevNo ? 'ps-5' : ''}">
 			<div class="row" style="text-align: start">
