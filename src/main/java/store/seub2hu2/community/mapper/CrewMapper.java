@@ -17,18 +17,21 @@ public interface CrewMapper {
     void insertCrew(@Param("crew") Crew crew);
     void insertCrewMember(@Param("member") CrewMember member);
     List<Crew> getCrews(@Param("dto") RequestParamsDto dto);
+    int getTotalRowsForCrew(@Param("dto")RequestParamsDto dto);
+    Crew getCrewDetailByNo(@Param("no") int crewNo);
+
     List<Crew> getCrewsTopFive(@Param("condition") Map<String, Object> condition);
     List<Integer> getCrewMembers(@Param("no") int crewNo);
     List<CrewMember> getByCrewNo(@Param("no") int crewNo);
     List<Crew> getCrewByUserNo(@Param("userNo") int userNo);
-    int getTotalRowsForCrew(@Param("dto")RequestParamsDto dto);
-    Crew getCrewDetailByNo(@Param("no") int crewNo);
+
+    void updateCrew(@Param("crew") Crew crew); // 크루 게시글 수정 및 삭제
     void updateCrewCnt(@Param("crew") Crew crew);
-    void updateCrew(@Param("crew") Crew crew);
-    void updateCrewCondition(@Param("no") int crewNo, @Param("condition") String condition);
+    void updateCrewCondition(@Param("no") int crewNo, @Param("condition") String condition); // 크루 가입 가능 여부 수정
     void updateCrewMember(@Param("member") CrewMember member);
     int getCrewMemberCnt(@Param("no") int crewNo);
     void updateReader(@Param("userNo") int userNo, @Param("crewNo") int crewNo );
     void exitCrew(@Param("readerNo") int readerNo, @Param("crewNo") int crewNo);
+
     void updateCnt(@Param("crew") Crew crew);
 }

@@ -111,7 +111,7 @@ public class BoardService {
         dto.setEnd(pagination.getEnd());
 
         // 조회범위에 맞는 데이터 조회하기
-        List<Board> boards = boardMapper.getBoards(dto,0);
+        List<Board> boards = boardMapper.getBoards(dto);
         ListDto<Board> bDto = new ListDto<>(boards, pagination);
         for (Board board : bDto.getData()) {
             board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
@@ -135,7 +135,7 @@ public class BoardService {
         requestParamsDto.setEnd(pagination.getEnd());
 
         // 조회범위에 맞는 데이터 조회하기
-        List<Board> boards = boardMapper.getBoards(requestParamsDto, userNo);
+        List<Board> boards = boardMapper.getBoards(requestParamsDto);
         ListDto<Board> dto = new ListDto<>(boards, pagination);
 
         return dto;

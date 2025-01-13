@@ -9,7 +9,6 @@ import store.seub2hu2.community.dto.CrewForm;
 import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.CrewMapper;
-import store.seub2hu2.community.mapper.CrewReplyMapper;
 import store.seub2hu2.community.mapper.ReplyMapper;
 import store.seub2hu2.community.mapper.UploadMapper;
 import store.seub2hu2.community.vo.Crew;

@@ -124,7 +124,6 @@
 				<div class="col-11">
 					<div class="form-control" style="position: relative; padding-top: 1.5em; border: none; box-shadow: none;">
 						<!-- 닉네임 표시 부분 -->
-						${reply.prevNo} / ${reply.no} / ${reply.prevUser.nickname}
 						<span
 							style="position: absolute; top: 0.5em; left: 0.5em; color: #6c757d;">@ ${reply.user.nickname}</span>
 						<!-- 텍스트 입력 영역 -->

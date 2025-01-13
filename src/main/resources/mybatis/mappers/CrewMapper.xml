@@ -54,7 +54,7 @@
            , #{member.user.no})
   </insert>
 
-  <!-- List<Crew> getCrews(@Param("condition") Map<String, Object> condition); -->
+  <!-- List<Crew> getCrews(@Param("dto") RequestParamsDto dto); -->
   <select id="getCrews" resultType="store.seub2hu2.community.vo.Crew">
     select *
     from (select row_number() over(order by c.crew_created_date desc) rn
@@ -113,32 +113,7 @@
     order by rn
   </select>
 
-  <!-- List<Crew> getCrewsTopFive(@Param("condition") Map<String, Object> condition); -->
-  <select id="getCrewsTopFive" resultType="store.seub2hu2.community.vo.Crew">
-    select *
-    from (select row_number() over(order by c.crew_view_cnt desc) rn
-                    , c.crew_no as no
-                    , c.crew_title as title
-                    , c.crew_name as name
-                    , (select count(*)
-                            from CREW_MEMBERS cm
-                            where cm.is_join = 'Y'
-                                and cm.crew_no = c.crew_no
-                                ) as memberCnt
-          from CREWS c
-          where c.is_deleted = 'N'
-            and c.is_entered = 'Y') crew limit 5
-  </select>
-
-  <!-- List<CrewMember> getCrewMembers(@Param("no") int crewNo);); -->
-  <select id="getCrewMembers" resultType="int">
-    select cm.user_no
-    from CREW_MEMBERS cm
-    where cm.is_join = 'Y'
-      and cm.crew_no = #{no}
-  </select>
-
-  <!-- int getTotalRowsForCrew(@Param("condition") Map<String, Object> condition); -->
+  <!-- int getTotalRowsForCrew(@Param("dto")RequestParamsDto dto); -->
   <select id="getTotalRowsForCrew" resultType="int">
     select count(distinct c.crew_no)
     from CREWS c
@@ -210,12 +185,73 @@
       and cm.is_join = 'Y'
   </select>
 
-  <!-- void updateCrewCnt(@Param("crew") Crew crew); -->
-  <update id="updateCrewCnt">
-    update CREWS
-    set crew_view_cnt = #{crew.viewCnt}
-    where crew_no = #{crew.no}
-  </update>
+  <!-- List<Crew> getCrewsTopFive(@Param("condition") Map<String, Object> condition); -->
+  <select id="getCrewsTopFive" resultType="store.seub2hu2.community.vo.Crew">
+    select *
+    from (select row_number() over(order by c.crew_view_cnt desc) rn
+                    , c.crew_no as no
+                    , c.crew_title as title
+                    , c.crew_name as name
+                    , (select count(*)
+                            from CREW_MEMBERS cm
+                            where cm.is_join = 'Y'
+                                and cm.crew_no = c.crew_no
+                                ) as memberCnt
+          from CREWS c
+          where c.is_deleted = 'N'
+            and c.is_entered = 'Y') crew limit 5
+  </select>
+
+  <!-- List<Integer> getCrewMembers(@Param("no") int crewNo); -->
+  <select id="getCrewMembers" resultType="int">
+    select cm.user_no
+    from CREW_MEMBERS cm
+    where cm.is_join = 'Y'
+      and cm.crew_no = #{no}
+  </select>
+
+  <!-- List<CrewMember> getByCrewNo(@Param("no") int crewNo); -->
+  <select id="getByCrewNo" resultType="store.seub2hu2.community.vo.CrewMember">
+    select
+      cm.crew_no as crewNo
+         ,   cm.is_reader as reader
+         ,   cm.is_join as "join"
+         ,   cm.user_no as "user"
+         ,   u.user_nickname as "user.nickname"
+         ,   u.user_no as "user.no"
+    from
+      CREW_MEMBERS cm
+        JOIN
+      USERS u
+      ON
+        cm.user_no = u.user_no
+    where
+      crew_no = #{no}
+      and
+      cm.is_join = 'Y'
+  </select>
+
+  <!-- List<Crew> getCrewByUserNo(@Param("userNo") int userNo); -->
+  <select id="getCrewByUserNo" resultType="store.seub2hu2.community.vo.Crew">
+    select *
+    from (select c.crew_no as no
+            , c.crew_title as title
+            , c.crew_name as name
+            , c.crew_description as description
+            , c.crew_thumbnail as "thumbnail.saveName"
+            , cm.is_reader as reader
+            , (select count(*)
+               from CREW_MEMBERS cm
+               where cm.crew_no =  c.crew_no
+               and cm.is_join = 'Y'
+                   ) as memberCnt
+          from CREWS c
+            inner join CREW_MEMBERS cm
+          on cm.crew_no = c.crew_no
+          where c.is_deleted = 'N'
+            and cm.is_join = 'Y'
+            and cm.user_no = #{userNo}) crew
+  </select>
 
   <!-- void updateCrew(@Param("crew") Crew crew); -->
   <update id="updateCrew">
@@ -233,7 +269,13 @@
     , is_deleted = #{crew.deleted}
     where
     crew_no = #{crew.no}
+  </update>
 
+  <!-- void updateCrewCnt(@Param("crew") Crew crew); -->
+  <update id="updateCrewCnt">
+    update CREWS
+    set crew_view_cnt = #{crew.viewCnt}
+    where crew_no = #{crew.no}
   </update>
 
   <!-- void updateCrewCondition(@Param("no") int crewNo, @Param("condition") String condition); -->
@@ -261,48 +303,6 @@
       and crew_no = #{no}
   </select>
 
-  <!-- List<Crew> getCrewByUserNo(@Param("userNo") int userNo); -->
-  <select id="getCrewByUserNo" resultType="store.seub2hu2.community.vo.Crew">
-    select *
-    from (select c.crew_no as no
-            , c.crew_title as title
-            , c.crew_name as name
-            , c.crew_description as description
-            , c.crew_thumbnail as "thumbnail.saveName"
-            , cm.is_reader as reader
-            , (select count(*)
-               from CREW_MEMBERS cm
-               where cm.crew_no =  c.crew_no
-               and cm.is_join = 'Y'
-                   ) as memberCnt
-          from CREWS c
-            inner join CREW_MEMBERS cm
-          on cm.crew_no = c.crew_no
-          where c.is_deleted = 'N'
-            and cm.is_join = 'Y'
-            and cm.user_no = #{userNo}) crew
-  </select>
-
-  <!-- List<CrewMember> getByCrewNo(@Param("no") int crewNo); -->
-  <select id="getByCrewNo" resultType="store.seub2hu2.community.vo.CrewMember">
-    select
-      cm.crew_no as crewNo
-         ,   cm.is_reader as reader
-         ,   cm.is_join as "join"
-         ,   cm.user_no as "user"
-         ,   u.user_nickname as "user.nickname"
-         ,   u.user_no as "user.no"
-    from
-      CREW_MEMBERS cm
-        JOIN
-      USERS u
-      ON
-        cm.user_no = u.user_no
-    where
-      crew_no = #{no}
-      and
-      cm.is_join = 'Y'
-  </select>
   <!-- void updateReader(@Param("userNo") int userNo); -->
   <update id="updateReader">
     update CREW_MEMBERS
@@ -310,6 +310,7 @@
     where user_no = #{userNo}
       and crew_no = #{crewNo}
   </update>
+
   <!-- void exitCrew(@Param("readerNo") int readerNo); -->
   <update id="exitCrew">
     update CREW_MEMBERS

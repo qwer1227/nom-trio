@@ -61,8 +61,8 @@
                      on u.user_no = i.user_no
     where reply_type_no = #{dto.typeNo}
       and reply_type = #{dto.type}
-    group by r.reply_no
-    order by r.prev_reply_no asc, r.reply_no asc
+    order by
+        r.prev_reply_no asc, r.reply_no asc
   </select>
 
   <!-- Reply getReplyByReplyNo(@Param("no") int replyNo); -->

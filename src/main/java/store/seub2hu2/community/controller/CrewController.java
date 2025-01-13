@@ -98,15 +98,13 @@ public class CrewController {
             int crewResult = likeService.getCheckLike("crew", crewNo, loginUser);
             model.addAttribute("crewLiked", crewResult);
 
+            boolean isExists = crewService.isExistCrewMember(crewNo, loginUser);
+            model.addAttribute("isExists", isExists);
+
             for (Reply reply : replyList) {
                 int replyResult = likeService.getCheckLike( "crewReply", reply.getNo(), loginUser);
                 reply.setReplyLiked(replyResult);
-
-                Reply prev = replyService.getReplyDetail(reply.getNo());
-                reply.setPrevUser(prev.getPrevUser());
             }
-            boolean isExists = crewService.isExistCrewMember(crewNo, loginUser);
-            model.addAttribute("isExists", isExists);
         }
 
         if (memberCnt < 5){
