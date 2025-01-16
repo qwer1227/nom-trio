@@ -2,8 +2,10 @@ package store.seub2hu2.community.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +17,15 @@ import store.seub2hu2.community.vo.MarathonOrgan;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.RequestParamsDto;
 
+import java.time.Duration;
 import java.util.*;
 
 @Controller
 @RequestMapping("/community/marathon")
 @RequiredArgsConstructor
 public class MarathonController {
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     public final MarathonService marathonService;
 
@@ -36,10 +41,31 @@ public class MarathonController {
         return "community/marathon/main";
     }
 
+    @Transactional
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int marathonNo){
-        marathonService.updateMarathonViewCnt(marathonNo);
+        try{
+            String redisKey = "marathon:viewCount" + marathonNo;
+
+            // 남은 시간(초) 반환
+            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+
+            // Redis에서 키가 존재하지 않으면 set
+            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+
+            if (Boolean.FALSE.equals(isFirstAccess)){
+                System.out.println("30분 내 조회수 업데이트 제한");
+                return "redirect:detail?no=" + marathonNo;
+            }
+
+            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+            marathonService.updateMarathonViewCnt(marathonNo);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         return "redirect:detail?no=" + marathonNo;
+
     }
 
     @GetMapping("/detail")

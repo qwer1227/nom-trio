@@ -1,29 +1,26 @@
 package store.seub2hu2.community.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import store.seub2hu2.community.dto.BoardForm;
 import store.seub2hu2.community.dto.ReplyForm;
 import store.seub2hu2.community.dto.ReportForm;
-import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.community.service.*;
 import store.seub2hu2.community.vo.*;
-import store.seub2hu2.mypage.service.PostService;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
@@ -32,14 +29,18 @@ import store.seub2hu2.util.S3Service;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller("communityController")
 @RequestMapping("/community/board")
 @RequiredArgsConstructor
 public class BoardController {
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${upload.directory.board.files}")
     private String saveDirectory;
@@ -119,9 +120,28 @@ public class BoardController {
         }
     }
 
+    @Transactional
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int boardNo) {
-        boardService.updateBoardViewCnt(boardNo);
+        try{
+            String redisKey = "board:viewCount" + boardNo;
+            System.out.println("=========================" + redisKey);
+            // 남은 시간(초) 반환
+            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+
+            // Redis에서 키가 존재하지 않으면 set
+            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+
+            if (Boolean.FALSE.equals(isFirstAccess)){
+                System.out.println("30분 내 조회수 업데이트 제한");
+                return "redirect:detail?no=" + boardNo;
+            }
+
+            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+            boardService.updateBoardViewCnt(boardNo);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return "redirect:detail?no=" + boardNo;
     }
 

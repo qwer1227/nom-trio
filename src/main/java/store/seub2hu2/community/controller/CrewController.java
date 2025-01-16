@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,7 @@ import store.seub2hu2.util.S3Service;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +44,8 @@ import java.util.Map;
 @RequestMapping("/community/crew")
 @RequiredArgsConstructor
 public class CrewController {
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final LikeService likeService;
     @Value("${upload.directory.crew.images}")
@@ -116,9 +121,28 @@ public class CrewController {
         return "community/crew/detail";
     }
 
+    @Transactional
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int crewNo){
-        crewService.updateCrewViewCnt(crewNo);
+        try{
+            String redisKey = "crew:viewCount" + crewNo;
+
+            // 남은 시간(초) 반환
+            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+
+            // Redis에서 키가 존재하지 않으면 set
+            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+
+            if (Boolean.FALSE.equals(isFirstAccess)){
+                System.out.println("30분 내 조회수 업데이트 제한");
+                return "redirect:detail?no=" + crewNo;
+            }
+
+            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+            crewService.updateCrewViewCnt(crewNo);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return "redirect:detail?no=" + crewNo;
     }
 
