@@ -20,12 +20,11 @@ import store.seub2hu2.user.mapper.UserMapper;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @Transactional
@@ -413,20 +412,32 @@ public class AdminService {
         return condition;
     }
 
-    public ListDto<OrderProductDto> getOrderProduct(Map<String, Object> condition) {
+    public ListDto<OrderProductDto> getOrderProduct(RequestParamsDto requestParamsDto) {
 
-        int totalRows = adminMapper.getTotalOrderProd(condition);
+        if (requestParamsDto.getDay() == null || requestParamsDto.getDay().isEmpty()) {
+            // 현재 날짜로 기본 설정
 
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = sdf.format(new Date());
+            requestParamsDto.setDay(currentDate);
+        }
+
+
+
+        if (requestParamsDto.getRows() <= 0) { // rows가 0 이하이거나 잘못된 값일 경우
+            requestParamsDto.setRows(10); // 기본값 10 설정
+        }
+
+        int totalRows = adminMapper.getTotalOrderProd(requestParamsDto);
+
+        int page = requestParamsDto.getPage();
+        int rows = requestParamsDto.getRows();
 
         Pagination pagination = new Pagination(page, totalRows, rows);
-        int begin = pagination.getBegin();
-        int end = pagination.getEnd();
-        condition.put("begin", begin);
-        condition.put("end", end);
+        requestParamsDto.setBegin(pagination.getBegin());
+        requestParamsDto.setEnd(pagination.getEnd());
 
-        List<OrderProductDto> orderProductDtos = adminMapper.getSettleProdList(condition);
+        List<OrderProductDto> orderProductDtos = adminMapper.getSettleProdList(requestParamsDto);
 
         ListDto<OrderProductDto> dto = new ListDto<>(orderProductDtos, pagination);
 
@@ -604,12 +615,12 @@ public class AdminService {
     }
 
 
-    public int getDailySale(Map<String, Object> condition) {
-        return adminMapper.getDailySales(condition);
+    public int getDailySale(RequestParamsDto requestParamsDto) {
+        return adminMapper.getDailySales(requestParamsDto);
     }
 
-    public int getMonthlySale(Map<String, Object> condition) {
-        return adminMapper.getMonthlySales(condition);
+    public int getMonthlySale(RequestParamsDto requestParamsDto) {
+        return adminMapper.getMonthlySales(requestParamsDto);
     }
 
     public Map<String, Object> getTotalSubjectMonthly(String day) {

@@ -55,8 +55,8 @@
         <div class="row mt-3">
           <div class="col-12">
             <form id="form-search" method="get" action="/admin/settlement/p-settlement">
-              <input type="hidden" name="page" />
-              <input type="hidden" name="rows" />
+              <input type="hidden" name="page" value="1"/>
+              <input type="hidden" name="rows" value="10"/>
               <div class="row g-3">
                 <div class="row col-2 align-items-center pr-2 ">
                   <label for="dateInput" class="col-auto col-form-label">날짜</label>

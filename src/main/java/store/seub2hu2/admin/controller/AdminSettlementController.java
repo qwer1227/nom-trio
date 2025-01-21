@@ -16,6 +16,7 @@ import store.seub2hu2.product.vo.Color;
 import store.seub2hu2.product.vo.Product;
 import store.seub2hu2.product.vo.Size;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -246,42 +247,14 @@ public class AdminSettlementController {
     }
 
     @GetMapping("/p-settlement")
-    public String pSettlement(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                              @RequestParam(name = "rows", required = false, defaultValue = "10") int rows,
-                              @RequestParam(name = "sort", required = false) String sort,
-                              @RequestParam(name = "opt", required = false, defaultValue = "all") String opt,
-                              @RequestParam(name = "day", required = false) String day,
-                              @RequestParam(name = "keyword", required = false, defaultValue = "all") String keyword,
-                              @RequestParam(name = "value", required = false) String value,
+    public String pSettlement(@ModelAttribute RequestParamsDto requestParamsDto,
                               Model model) {
 
-        if (day == null || day.isEmpty()) {
-            // 현재 날짜로 기본 설정
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            day = sdf.format(new Date());
-        }
+        int dailySales = adminService.getDailySale(requestParamsDto);
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
-        condition.put("opt", opt);
+        int monthlySales = adminService.getMonthlySale(requestParamsDto);
 
-        if (StringUtils.hasText(day)) {
-            condition.put("day", day);
-        }
-
-        if (StringUtils.hasText(value)) {
-            condition.put("keyword", keyword);
-            condition.put("value", value);
-        }
-
-        int dailySales = adminService.getDailySale(condition);
-
-
-        int monthlySales = adminService.getMonthlySale(condition);
-
-        ListDto<OrderProductDto> dto = adminService.getOrderProduct(condition);
+        ListDto<OrderProductDto> dto = adminService.getOrderProduct(requestParamsDto);
 
         int totalPriceSum = dto.getData().stream()
                 .mapToInt(OrderProductDto::getTotalPrice)
@@ -290,7 +263,6 @@ public class AdminSettlementController {
                 .sum();
 
         model.addAttribute("totalPriceSum", totalPriceSum);
-
         model.addAttribute("dto", dto.getData());
         model.addAttribute("paging", dto.getPaging());
         model.addAttribute("dailySales", dailySales);
@@ -298,6 +270,60 @@ public class AdminSettlementController {
 
         return "admin/settlement/p-settlement";
     }
+
+//    @GetMapping("/p-settlement")
+//    public String pSettlement(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+//                              @RequestParam(name = "rows", required = false, defaultValue = "10") int rows,
+//                              @RequestParam(name = "sort", required = false) String sort,
+//                              @RequestParam(name = "opt", required = false, defaultValue = "all") String opt,
+//                              @RequestParam(name = "day", required = false) String day,
+//                              @RequestParam(name = "keyword", required = false, defaultValue = "all") String keyword,
+//                              @RequestParam(name = "value", required = false) String value,
+//                              Model model) {
+//
+//        if (day == null || day.isEmpty()) {
+//            // 현재 날짜로 기본 설정
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//            day = sdf.format(new Date());
+//        }
+//
+//        Map<String, Object> condition = new HashMap<>();
+//        condition.put("page", page);
+//        condition.put("rows", rows);
+//        condition.put("sort", sort);
+//        condition.put("opt", opt);
+//
+//        if (StringUtils.hasText(day)) {
+//            condition.put("day", day);
+//        }
+//
+//        if (StringUtils.hasText(value)) {
+//            condition.put("keyword", keyword);
+//            condition.put("value", value);
+//        }
+//
+//        int dailySales = adminService.getDailySale(condition);
+//
+//
+//        int monthlySales = adminService.getMonthlySale(condition);
+//
+//        ListDto<OrderProductDto> dto = adminService.getOrderProduct(condition);
+//
+//        int totalPriceSum = dto.getData().stream()
+//                .mapToInt(OrderProductDto::getTotalPrice)
+//                .distinct()   // 중복된 값 제거 (한 번만 합산)
+//                .limit(1)     // 첫 번째 값만 선택
+//                .sum();
+//
+//        model.addAttribute("totalPriceSum", totalPriceSum);
+//
+//        model.addAttribute("dto", dto.getData());
+//        model.addAttribute("paging", dto.getPaging());
+//        model.addAttribute("dailySales", dailySales);
+//        model.addAttribute("monthlySales", monthlySales);
+//
+//        return "admin/settlement/p-settlement";
+//    }
 
     @GetMapping("/l-settlement")
     public String settlement(@RequestParam(name = "page", required = false, defaultValue = "1") int page,

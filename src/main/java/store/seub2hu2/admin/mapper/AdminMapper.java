@@ -10,6 +10,7 @@ import store.seub2hu2.lesson.vo.LessonReservation;
 import store.seub2hu2.product.dto.ProdListDto;
 import store.seub2hu2.product.vo.*;
 import store.seub2hu2.user.vo.User;
+import store.seub2hu2.util.RequestParamsDto;
 
 import java.util.HashMap;
 import java.util.List;
@@ -104,9 +105,9 @@ public interface AdminMapper {
 
     int getTotalPriceByDay(String yesterday);
 
-    int getTotalOrderProd(@Param("condition") Map<String, Object> condition);
+    int getTotalOrderProd(@Param("condition") RequestParamsDto requestParamsDto);
 
-    List<OrderProductDto> getSettleProdList(@Param("condition") Map<String, Object> condition);
+    List<OrderProductDto> getSettleProdList(@Param("condition") RequestParamsDto requestParamsDto);
 
     List<prevOrderProdDto> orderProdPrev(int orderNo);
 
@@ -152,9 +153,9 @@ public interface AdminMapper {
 
     void updateReportStatus(@Param("condition") Map<String, Object> condition);
 
-    int getDailySales(@Param("condition")Map<String, Object> condition);
+    int getDailySales(@Param("dto")RequestParamsDto requestParamsDto);
 
-    int getMonthlySales(@Param("condition")Map<String, Object> condition);
+    int getMonthlySales(@Param("dto")RequestParamsDto requestParamsDto);
 
     int getTotalBreathMonthly(@Param("day")String day);
 

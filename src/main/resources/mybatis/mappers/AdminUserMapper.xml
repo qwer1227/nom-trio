@@ -677,9 +677,9 @@
     </select>
 
     <!--
-        int getDailySales(@Param("condition")Map<String, Object> condition);
+        int getDailySales(@Param("dto")RequestParamsDto requestParamsDto);
 
-        int getMonthlySale(@Param("condition")Map<String, Object> condition);
+        int getMonthlySales(@Param("dto")RequestParamsDto requestParamsDto);
     -->
     <select id="getDailySales" resultType="int">
         SELECT
@@ -689,7 +689,7 @@
         WHERE
             PM.pay_type = '상품'
           AND PM.pay_status = '결제완료'
-          AND DATE(PM.pay_date) = #{condition.day}
+          AND DATE(PM.pay_date) = #{dto.day}
     </select>
 
     <select id="getMonthlySales" resultType="int">
@@ -700,12 +700,12 @@
         WHERE
             PM.pay_type = '상품'
             AND PM.pay_status = '결제완료'
-            AND PM.pay_date >= DATE_SUB(#{condition.day}, INTERVAL 1 MONTH)
-            AND PM.pay_date &lt; DATE_ADD(#{condition.day}, INTERVAL 1 DAY)
+            AND PM.pay_date >= DATE_SUB(#{dto.day}, INTERVAL 1 MONTH)
+            AND PM.pay_date &lt; DATE_ADD(#{dto.day}, INTERVAL 1 DAY)
     </select>
 
     <!--
-        List<OrderProductDto> getSettleProdList(Map<String, Object> condition);
+        List<OrderProductDto> getSettleProdList(@Param("condition") RequestParamsDto requestParamsDto);
     -->
     <select id="getSettleProdList" resultType="store.seub2hu2.admin.dto.OrderProductDto">
         select
@@ -806,7 +806,7 @@
         </if>
     </select>
     <!--
-        int getTotalOrderProd(condition);
+        int getTotalOrderProd(@Param("condition") RequestParamsDto requestParamsDto);
     -->
     <select id="getTotalOrderProd" resultType="int">
         select

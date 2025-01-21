@@ -16,4 +16,6 @@ public class RequestParamsDto {
     private String category;
     private int begin;
     private int end;
+    private String value;
+    private String day;
 }
