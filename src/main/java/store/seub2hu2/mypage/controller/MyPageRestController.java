@@ -1,5 +1,6 @@
 package store.seub2hu2.mypage.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.web.mappings.MappingsEndpoint;
@@ -32,26 +33,18 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/mypage")
+@RequiredArgsConstructor
 public class MyPageRestController {
 
-    @Autowired
-    private PostService postService;
+    private final PostService postService;
 
-    @Autowired
-    private BoardService boardService;
+    private final FileUploadService fileUploadService;
 
-    @Autowired
-    private FileUploadService fileUploadService;
+    private final CrewService crewService;
 
-    @Autowired
-    private CrewService crewService;
+    private final UserService userService;
 
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private WorkoutService workoutService;
-    private MappingsEndpoint mappingsEndpoint;
+    private final WorkoutService workoutService;
 
     @PostMapping("/public/insert")
     public ResponseEntity<Map<String, Object>> insertPost(@RequestParam("content") String postContent,
@@ -61,6 +54,7 @@ public class MyPageRestController {
         try {
             // 1. 게시글 생성
             Post post = new Post();
+
             post.setPostContent(postContent);
             post.setThumbnail(thumb);
             int postNo = postService.insertPost(post, loginUser.getNo());  // 게시글 생성 후 postNo 반환
@@ -158,9 +152,7 @@ public class MyPageRestController {
             response.put("message", "서버 오류");
             return ResponseEntity.status(500).body(response);
         }
-
     }
-
 
     @PostMapping("/detail/comment")
     public ResponseEntity<Map<String, Object>> addComment(@RequestBody CommentRequest request, @AuthenticationPrincipal LoginUser loginUser) {
@@ -192,6 +184,13 @@ public class MyPageRestController {
             response.put("message", "서버 오류");
             return ResponseEntity.status(500).body(response);
         }
+    }
+
+    @PutMapping("comment/update")
+    public ResponseEntity<Map<String, Object>> updateComment(@RequestBody CommentRequest request, @AuthenticationPrincipal LoginUser loginUser) {
+        Map<String, Object> response = new HashMap<>();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/getworkout")

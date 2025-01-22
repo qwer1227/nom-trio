@@ -380,7 +380,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <p><strong class="user-name">\${comment.userName}:</strong> \${comment.commentRequest.postComment}</p>
                             <div class="comment-actions">
-                                <!-- 필요한 동작 버튼 -->
+                                <button class="btn-primary" id="commentEdit" data-id="\${comment.no}">수정</button>
+                                <button class="btn-secondary" id="commentDelete" data-id="\${comment.no}">삭제</button>
                             </div>
                         </div>
                     </div>
@@ -393,6 +394,28 @@
             }
         });
     }
+
+
+        // 수정 버튼 클릭 시
+        $(document).on('click', '#commentEdit', function() {
+            const dataId = $(this).data('id');  // data-id에서 댓글 id 가져오기
+            console.log('수정 버튼 클릭:', dataId);
+
+            $.ajax({
+                url : "mypage/comment/update" + dataId,
+                type : "PUT"
+
+            });
+        });
+
+        // 삭제 버튼 클릭 시
+        $(document).on('click', '#commentDelete', function() {
+            const dataId = $(this).data('id');  // data-id에서 댓글 id 가져오기
+            console.log('삭제 버튼 클릭:', dataId);
+
+            // 여기에 삭제 처리 코드 작성 (예: 삭제 확인 후 삭제)
+        });
+
 
 
     // 새글 작성 버튼 클릭 시
@@ -737,11 +760,6 @@
         let thumbnailImage = $('#thumbnailImage').val();  // 썸네일 이미지
         let formData = new FormData();
 
-        // 유효성 검사
-        if (!postContent) {
-            alert("게시글 내용을 작성해주세요.");
-            return;  // 유효성 검사 실패 시 함수 종료
-        }
 
         if (!thumbnailImage) {
             alert("썸네일 이미지를 선택해주세요.");
