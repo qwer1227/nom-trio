@@ -237,8 +237,7 @@ public class AdminSettlementController {
 
     @GetMapping("/p-settlement/preview")
     @ResponseBody
-    public List<prevOrderProdDto> prodPreview(@RequestParam("orderNo") int orderNo
-    ) {
+    public List<prevOrderProdDto> prodPreview(@RequestParam("orderNo") int orderNo) {
 
         List<prevOrderProdDto> dtos = adminService.getOrderProdPrev(orderNo);
 
