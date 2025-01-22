@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="store.seub2hu2.community.mapper.LikeMapper">
+  <!-- void insertLike(@Param("dto") FunctionCheckDto dto); -->
+  <insert id="insertLike">
+    insert into LIKES
+    ( like_type
+    , like_type_no
+    , user_no)
+    values ( #{dto.type}
+           , #{dto.typeNo}
+           , #{dto.userNo})
+  </insert>
+
+  <!-- void deleteLike(@Param("dto") FunctionCheckDto dto); -->
+  <delete id="deleteLike">
+    delete
+    from LIKES
+    where like_type = #{dto.type}
+      and like_type_no = #{dto.typeNo}
+      and user_no = #{dto.userNo}
+  </delete>
+
+  <!-- int hasUserLiked(@Param("dto") FunctionCheckDto dto); -->
+  <select id="hasUserLiked" resultType="int">
+    select EXISTS (SELECT 1
+                   FROM LIKES
+                   WHERE like_type = #{dto.type}
+                     and like_type_no = #{dto.typeNo}
+                     and user_no = #{dto.userNo})
+  </select>
+
+  <!-- int getLikeCnt(@Param("type") String type, @Param("no") int typeNo); -->
+  <select id="getLikeCnt" resultType="int">
+    select count(*)
+    from LIKES
+    where like_type = #{type}
+        and like_type_no = #{no}
+  </select>
+
+</mapper>

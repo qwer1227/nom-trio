@@ -24,13 +24,13 @@
 		<div class="p-1 col d-flex justify-content-end">
 			<input type="hidden" name="page" value="${param.page != null ? param.page : 1}">
 			<div class="form-check-inline">
-				<input class="form-check-input" type="radio" name="sort" value="import" onchange="changeSort()"
-				${empty param.sort or param.sort eq 'import' ? 'checked' : ''}>
+				<input class="form-check-input" type="radio" name="sort" value="date" onchange="changeSort()"
+				${empty param.sort or param.sort eq 'date' ? 'checked' : ''}>
 				<label class="form-check-label">중요도순</label>
 			</div>
 			<div class="form-check form-check-inline">
-				<input class="form-check-input" type="radio" name="sort" value="date" onchange="changeSort()"
-				${param.sort eq 'date' ? 'checked' : ''}>
+				<input class="form-check-input" type="radio" name="sort" value="new" onchange="changeSort()"
+				${param.sort eq 'new' ? 'checked' : ''}>
 				<label class="form-check-label">최신순</label>
 			</div>
 			<div class="form-check-inline">
@@ -75,7 +75,7 @@
 					<c:otherwise>
 						<c:forEach var="notice" items="${notices}" varStatus="status">
 							<tr>
-								<td>${notice.rn}</td>
+								<td>${status.count}</td>
 								<td id="content-title" style="text-align: start">
 									<a href="hit?no=${notice.no}"
 										 style="text-decoration-line: none; color: ${notice.first eq 'true' ? 'red' : 'black'}">

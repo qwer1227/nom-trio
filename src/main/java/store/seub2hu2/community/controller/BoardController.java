@@ -1,27 +1,26 @@
 package store.seub2hu2.community.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import store.seub2hu2.community.dto.BoardForm;
 import store.seub2hu2.community.dto.ReplyForm;
 import store.seub2hu2.community.dto.ReportForm;
 import store.seub2hu2.community.service.*;
 import store.seub2hu2.community.vo.*;
-import store.seub2hu2.mypage.service.PostService;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
@@ -30,13 +29,18 @@ import store.seub2hu2.util.S3Service;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller("communityController")
 @RequestMapping("/community/board")
+@RequiredArgsConstructor
 public class BoardController {
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${upload.directory.board.files}")
     private String saveDirectory;
@@ -44,26 +48,21 @@ public class BoardController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Autowired
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
-    @Autowired
-    public BoardService boardService;
+    public final BoardService boardService;
 
-    @Autowired
-    public ReplyService replyService;
+    public final ReplyService replyService;
 
-    @Autowired
-    public ScrapService scrapService;
+    public final ScrapService scrapService;
 
-    @Autowired
-    public ReportService reportService;
+    public final ReportService reportService;
 
-    @Autowired
-    private CrewService crewService;
+    public final CrewService crewService;
 
-    @Autowired
-    private MarathonService marathonService;
+    public final MarathonService marathonService;
+
+    public final LikeService likeService;
 
     @GetMapping("/main")
     public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
@@ -89,40 +88,60 @@ public class BoardController {
             , @AuthenticationPrincipal LoginUser loginUser
             , Model model) {
         Board board = boardService.getBoardDetail(boardNo);
-        List<Reply> replyList = replyService.getReplies(boardNo);
-        board.setReply(replyList);
-        int replyCnt = replyService.getReplyCnt(boardNo);
 
-        Map<String, Object> condition = new HashMap<>();
-        ListDto<Board> dto = boardService.getBoardsTop(condition);
-        model.addAttribute("boards", dto.getData());
+        if (board.getReported().equals("Y")) {
+            return "webapp/WEB-INF/views/error/report.jsp";
+        } else {
+            List<Reply> replyList = replyService.getReplies("board", boardNo);
+            board.setReply(replyList);
+            int replyCnt = likeService.getLikeCnt("boardReply", boardNo);
 
-        if (loginUser != null) {
-            int boardResult = boardService.getCheckLike(boardNo, loginUser);
-            model.addAttribute("boardLiked", boardResult);
+            Map<String, Object> condition = new HashMap<>();
+            ListDto<Board> dto = boardService.getBoardsTop(condition);
+            model.addAttribute("boards", dto.getData());
 
-            int scrapResult = scrapService.getCheckScrap(boardNo, loginUser);
-            model.addAttribute("Scrapped", scrapResult);
+            if (loginUser != null) {
+                int boardResult = boardService.getCheckLike(boardNo, loginUser);
+                model.addAttribute("boardLiked", boardResult);
 
-            for (Reply reply : replyList) {
-                int replyResult = replyService.getCheckLike(reply.getNo(), "boardReply", loginUser);
-                reply.setReplyLiked(replyResult);
+                int scrapResult = scrapService.getCheckScrap(boardNo, loginUser);
+                model.addAttribute("Scrapped", scrapResult);
 
-                Reply prev = replyService.getReplyDetail(reply.getNo());
-                reply.setPrevUser(prev.getPrevUser());
+                for (Reply reply : replyList) {
+                    int replyResult = likeService.getCheckLike("boardReply", reply.getNo(), loginUser);
+                    reply.setReplyLiked(replyResult);
+                }
             }
+
+            model.addAttribute("board", board);
+            model.addAttribute("replies", replyList);
+            model.addAttribute("replyCnt", replyCnt);
+            return "community/board/detail";
         }
-
-        model.addAttribute("board", board);
-        model.addAttribute("replies", replyList);
-        model.addAttribute("replyCnt", replyCnt);
-
-        return "community/board/detail";
     }
 
+    @Transactional
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int boardNo) {
-        boardService.updateBoardViewCnt(boardNo);
+        try{
+            String redisKey = "board:viewCount" + boardNo;
+            System.out.println("=========================" + redisKey);
+            // 남은 시간(초) 반환
+            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+
+            // Redis에서 키가 존재하지 않으면 set
+            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+
+            if (Boolean.FALSE.equals(isFirstAccess)){
+                System.out.println("30분 내 조회수 업데이트 제한");
+                return "redirect:detail?no=" + boardNo;
+            }
+
+            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+            boardService.updateBoardViewCnt(boardNo);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -265,6 +284,7 @@ public class BoardController {
             , @AuthenticationPrincipal LoginUser loginUser) {
 
         boardService.updateBoardLike(boardNo, loginUser);
+
         return "redirect:detail?no=" + boardNo;
     }
 
@@ -274,6 +294,7 @@ public class BoardController {
             , @AuthenticationPrincipal LoginUser loginUser) {
 
         boardService.deleteBoardLike(boardNo, loginUser);
+
         return "redirect:detail?no=" + boardNo;
     }
 

@@ -6,9 +6,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.CrewForm;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.CrewMapper;
-import store.seub2hu2.community.mapper.CrewReplyMapper;
 import store.seub2hu2.community.mapper.ReplyMapper;
 import store.seub2hu2.community.mapper.UploadMapper;
 import store.seub2hu2.community.vo.Crew;
@@ -52,6 +52,8 @@ public class CrewService {
 
     @Autowired
     private ReplyMapper replyMapper;
+    @Autowired
+    private LikeService likeService;
 
 
     public Crew addNewCrew(CrewForm form
@@ -160,7 +162,12 @@ public class CrewService {
         Crew crew = crewMapper.getCrewDetailByNo(crewNo);
         UploadFile uploadThumbnail = uploadMapper.getThumbnailByCrewNo(crewNo);
         UploadFile uploadFile = uploadMapper.getFileByCrewNo(crewNo);
-        List<Reply> reply = replyMapper.getRepliesByTypeNo(crewNo);
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType("crew");
+        dto.setTypeNo(crewNo);
+
+        List<Reply> reply = replyMapper.getRepliesByTypeNo(dto);
 
         if (crew == null) {
             throw new CommunityException("존재하지 않는 게시글입니다.");
@@ -289,6 +296,26 @@ public class CrewService {
         return isExists;
     }
 
+    public void updateCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser) {
+        likeService.insertLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
+    }
+
+    public void deleteCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser){
+        likeService.deleteLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
+    }
+
     public int getEnterMemberCnt(int crewNo) {
         return crewMapper.getCrewMemberCnt(crewNo);
     }
@@ -351,5 +378,9 @@ public class CrewService {
         crewMapper.updateReader(userNo, crewNo);
         // 위임이라는 기능을 사용하기 위해서는 리더의 계정 로그인을 필수로 해야해서 user.getNo를 통해서 리더의 번호를 넘겨줌
         crewMapper.exitCrew(readerNo, crewNo);
+    }
+
+    public void updateCrewReport(int reportNo){
+        crewMapper.updateCrewReport(reportNo);
     }
 }

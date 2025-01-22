@@ -22,9 +22,10 @@
 <!doctype html>
 <html lang="ko">
 
+<c:forEach var="reply" items="${replies}">
 <div class="comment pt-3 ">
 	<c:choose>
-	<c:when test="${reply.deleted eq 'Y'}">
+	<c:when test="${reply.deleted eq 'Y' || reply.report eq 'Y'}">
 		<!-- 삭제된 댓글인 경우 -->
 		<div class="${reply.no ne reply.prevNo ? 'ps-5' : ''}">
 			<div class="row" style="text-align: start">
@@ -124,7 +125,7 @@
 					<div class="form-control" style="position: relative; padding-top: 1.5em; border: none; box-shadow: none;">
 						<!-- 닉네임 표시 부분 -->
 						<span
-							style="position: absolute; top: 0.5em; left: 0.5em; color: #6c757d;">@ ${reply.prevUser.nickname}</span>
+							style="position: absolute; top: 0.5em; left: 0.5em; color: #6c757d;">@ ${reply.user.nickname}</span>
 						<!-- 텍스트 입력 영역 -->
 						<textarea name="content" class="form-control auto-resize" rows="1" placeholder="답글을 작성하세요."
 											style="resize: none; overflow: hidden; border: none; box-shadow: none;"
@@ -177,12 +178,12 @@
 </div>
 </c:otherwise>
 </c:choose>
+</c:forEach>
 </html>
 <script>
     // 댓글 등록
     function addComment(replyNo) {
         
-        let prevNo = document.querySelector(`form#box-comments-\${replyNo} input[name=prevNo]`).value;
         let no = document.querySelector(`form#box-comments-\${replyNo} input[name=rno]`).value;
         let type = document.querySelector(`form#box-comments-\${replyNo} input[name=type]`).value;
         let typeNo = document.querySelector(`form#box-comments-\${replyNo} input[name=typeNo]`).value;
@@ -194,13 +195,11 @@
             return;
         }
 
-        formData.append("prevNo", prevNo);
         formData.append("no", no);
         formData.append("type", type);
         formData.append("typeNo", typeNo);
         formData.append("content", content);
-
-
+				
         $.ajax({
             method: "post",
             url: "/community/board/add-comment",

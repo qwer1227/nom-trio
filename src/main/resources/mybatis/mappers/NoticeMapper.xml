@@ -33,15 +33,15 @@
   <select id="getNotices" resultType="store.seub2hu2.community.vo.Notice">
     select *
     from (select
-    <if test="condition.sort != null">
+    <if test="dto.sort != null">
       <choose>
-        <when test="condition.sort == 'import'">
+        <when test="dto.sort == 'date'">
           row_number() over(order by notice_first desc, notice_created_date desc) rn
         </when>
-        <when test="condition.sort == 'date'">
+        <when test="dto.sort == 'new'">
           row_number() over(order by notice_created_date desc) rn
         </when>
-        <when test="condition.sort == 'viewCnt'">
+        <when test="dto.sort == 'viewCnt'">
           row_number() over(order by notice_view_cnt desc) rn
         </when>
       </choose>
@@ -54,18 +54,18 @@
     , notice_view_cnt     as viewCnt
     from NOTICES
     where is_deleted = 'N') n
-    where rn between #{condition.begin} and #{condition.end}
-    <if test="condition.opt != null">
+    where rn between #{dto.begin} and #{dto.end}
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and title like concat ('%', #{condition.keyword}, '%')
-          || content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (title like concat ('%', #{dto.keyword}, '%')
+          || content like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and content like concat('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>
@@ -88,17 +88,17 @@
     select count(*)
     from NOTICES
     where is_deleted = "N"
-    <if test="condition.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and notice_title like concat ('%', #{condition.keyword}, '%')
-          || notice_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (notice_title like concat ('%', #{dto.keyword}, '%')
+          || notice_content like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and notice_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and notice_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and notice_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and notice_content like concat('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>

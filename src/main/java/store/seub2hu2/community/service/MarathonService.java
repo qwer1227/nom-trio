@@ -77,7 +77,7 @@ public class MarathonService {
         int totalRows = marathonMapper.getTotalMarathons(dto);
 
         int page = dto.getPage();
-        int rows = dto.getRows();
+        int rows = 6;
         Pagination pagination = new Pagination(page, totalRows, rows);
 
         dto.setBegin(pagination.getBegin());

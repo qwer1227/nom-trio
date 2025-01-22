@@ -75,7 +75,12 @@
 		<div>
 			<div class="col d-flex d-flex justify-content-between">
 				<div>
+				<c:if test="${crew.reported == 'Y'}">
+					<a href="main">가입 불가</a>
+				</c:if>
+				<c:if test="${crew.reported == 'N'}">
 					<a href="main?category=${crew.entered}">${crew.entered eq 'Y' ? '모집중' : '모집마감'}</a>
+				</c:if>
 				</div>
 			</div>
 			<div class="title h4 d-flex justify-content-between align-items-center">
@@ -84,6 +89,7 @@
 				</div>
 				<span class="h5">
           <i class="bi bi-eye"></i> ${crew.viewCnt}
+          <i class="bi bi-hand-thumbs-up"></i> ${crew.likeCnt}
           <i class="bi bi-chat-square-text"></i> ${replyCnt}
         </span>
 			</div>
@@ -128,29 +134,37 @@
 							</tr>
 							<tr>
 								<th>가 입</th>
-								<td>: ${memberCnt} / 5
-									<c:if test="${memberCnt == 5}">
-										<button class="btn btn-secondary">모임 마감</button>
-									</c:if>
-									<security:authorize access="isAuthenticated()">
-										<security:authentication property="principal" var="loginUser"/>
-										<c:if test="${loginUser.no ne crew.user.no}">
-											<c:choose>
-												<c:when test="${isExists}">
-													<button id="btn-crew-leave" class="btn btn-danger btn-sm"
-																	onclick="crewLeaveButton(${crew.no})">
-														모임 탈퇴
-													</button>
-												</c:when>
-												<c:otherwise>
-													<button id="btn-crew_join" class="btn btn-primary btn-sm"
-																	onclick="crewJoinButton(${crew.no})">
-														모임 가입
-													</button>
-												</c:otherwise>
-											</c:choose>
+								<c:if test="${crew.reported == 'Y'}">
+									<td>
+										: <button>가입 불가</button>
+									</td>
+								</c:if>
+								<c:if test="${crew.reported == 'N'}">
+									<td>: ${memberCnt} / 5
+										<c:if test="${memberCnt == 5}">
+											<button class="btn btn-secondary">모임 마감</button>
 										</c:if>
-									</security:authorize></td>
+										<security:authorize access="isAuthenticated()">
+											<security:authentication property="principal" var="loginUser"/>
+											<c:if test="${loginUser.no ne crew.user.no}">
+												<c:choose>
+													<c:when test="${isExists}">
+														<button id="btn-crew-leave" class="btn btn-danger btn-sm"
+																		onclick="crewLeaveButton(${crew.no})">
+															모임 탈퇴
+														</button>
+													</c:when>
+													<c:otherwise>
+														<button id="btn-crew_join" class="btn btn-primary btn-sm"
+																		onclick="crewJoinButton(${crew.no})">
+															모임 가입
+														</button>
+													</c:otherwise>
+												</c:choose>
+											</c:if>
+										</security:authorize>
+										</td>
+									</c:if>
 							</tr>
 							</tbody>
 						</table>
@@ -164,7 +178,6 @@
 			<div class="row actions mb-4">
 				
 				<!-- 로그인 여부를 체크하기 위해 먼저 선언 -->
-				
 				<div class="col-6 d-flex justify-content-start">
 					<security:authorize access="isAuthenticated()">
 						<!-- principal 프로퍼티 안의 loginUser 정보를 가져옴 -->
@@ -181,30 +194,34 @@
 					</security:authorize>
 				</div>
 				<div class="col-6 d-flex justify-content-end">
+					<c:if test="${not empty loginUser}">
+						<button class="btn btn-outline-primary" id="likeCnt" style="margin-right: 10px;"
+										onclick="crewLikeButton(${crew.no})">
+							<i id="icon-heart"
+								 class="bi ${crewLiked == '1' ? 'bi-heart-fill' : (crewLiked == '0' ? 'bi-heart' : 'bi-heart')}"></i>
+						</button>
+					</c:if>
 					<a type="button" href="main" class="btn btn-secondary">목록</a>
 				</div>
 			</div>
-		
 		</div>
+		
+		<!-- 신고 모달 창 -->
+		<%@include file="/WEB-INF/views/community/report-modal.jsp" %>
 		
 		<!-- 댓글 작성 -->
 		<%@include file="../reply-form.jsp" %>
 		
 		<!-- 댓글 목록 -->
 		<c:if test="${not empty crew.reply}">
-		
 			<div class="row comments rounded" style="background-color: #f2f2f2">
 				<!--댓글 내용 -->
-				<c:forEach var="reply" items="${replies}">
-					<%@include file="../reply-lists.jsp" %>
-				</c:forEach>
+				<%@include file="../reply-lists.jsp" %>
 			</div>
 		</c:if>
 	
-	<!-- 신고 모달 창 -->
-	<%@include file="/WEB-INF/views/community/report-modal.jsp" %>
-</div>
-<%@include file="/WEB-INF/views/common/footer.jsp" %>
+	</div>
+	<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 <script>
     let formData = new FormData();
@@ -258,13 +275,6 @@
         }
     }
 
-    function reportButton() {
-        if (document.querySelector("#reason-etc").checked) {
-            document.querySelector("#reason-etc").value = document.querySelector("#etc").value;
-        }
-        $(".modal form").trigger("submit");
-    }
-
     function replyLikeButton(crewNo, replyNo) {
         let heart = document.querySelector("#icon-thumbs-" + replyNo);
         let isLiked = heart.classList.contains("bi-hand-thumbs-up");
@@ -309,6 +319,15 @@
             window.location.href = "leave-crew?no=" + crewNo;
         }
     }
+    
+    function crewLikeButton(crewNo){
+        let heart = document.querySelector("#icon-heart");
+        if (heart.classList.contains("bi-heart")) {
+            window.location.href = `update-crew-like?no=\${crewNo}`;
+        } else {
+            window.location.href = `delete-crew-like?no=\${crewNo}`;
+        }
+		}
 
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션

@@ -52,7 +52,7 @@
     <input type="hidden" name="typeNo" value="${board.no}">
     <div class="col d-flex justify-content-left">
       <div>
-        <a href="main?category=${board.catName}" style="text-decoration-line: none">${board.catName}</a>
+        <a href="main?category=${board.category}" style="text-decoration-line: none">${board.category}</a>
       </div>
     </div>
     <div class="title h4 d-flex justify-content-between align-items-center">
@@ -79,7 +79,7 @@
       <span>
                 <i class="bi bi-eye"></i> ${board.viewCnt}
                 <i class="bi bi-bookmark"></i> ${board.scrapCnt}
-                <i class="bi bi-hand-thumbs-up"></i> ${board.like}
+                <i class="bi bi-hand-thumbs-up"></i> ${board.likeCnt}
                 <i class="bi bi-chat-square-text"></i> ${replyCnt}
             </span>
     </div>
@@ -155,6 +155,9 @@
       </table>
     </div>
     
+    <!-- 신고 모달 창 -->
+    <%@include file="../report-modal.jsp" %>
+    
     <!-- 댓글 작성 -->
     <%@include file="../reply-form.jsp" %>
     
@@ -162,9 +165,7 @@
     <c:if test="${not empty board.reply}">
       <div class="row comments rounded mb-4" style="margin-left: 2px; width: 100%; background-color: #f2f2f2">
         <!--댓글 내용 -->
-        <c:forEach var="reply" items="${replies}">
           <%@include file="../reply-lists.jsp" %>
-        </c:forEach>
       </div>
     </c:if>
   </div>
@@ -189,27 +190,20 @@
       </tr>
       <c:forEach items="${boards}" var="b">
         <tr>
-          <td>${b.catName}</td>
+          <td>${b.category}</td>
           <td style="text-align: start">
             <a id="content-title" style="text-decoration: none" href="hit?no=${b.no}">${b.title}</a>
           </td>
           <td>${b.user.nickname}</td>
           <td><i class="bi bi-eye"></i>${b.viewCnt}</td>
-          <td><i class="bi bi-hand-thumbs-up"></i>${b.like}</td>
+          <td><i class="bi bi-hand-thumbs-up"></i>${b.likeCnt}</td>
         </tr>
       </c:forEach>
       </tbody>
     </table>
   </div>
-
-
-
-<!-- 신고 모달 창 -->
-<%@include file="../report-modal.jsp" %>
-
-
-<%@include file="/WEB-INF/views/common/footer.jsp" %>
 </div>
+  <%@include file="/WEB-INF/views/common/footer.jsp" %>
 </body>
 
 <script type="text/javascript">
@@ -263,14 +257,6 @@
                 myModalRepoter.show();
             }
         }
-    }
-
-    function reportButton() {
-        const etcReason = document.querySelector("#reason-etc");
-        if (etcReason.checked) {
-            etcReason.value = document.querySelector("#etc").value;
-        }
-        $(".modal form").trigger("submit");
     }
 
     function scrapButton(boardNo) {
