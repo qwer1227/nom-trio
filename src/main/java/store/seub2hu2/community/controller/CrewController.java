@@ -126,10 +126,8 @@ public class CrewController {
     public String hit(@RequestParam("no") int crewNo){
         try{
             String redisKey = "crew:viewCount" + crewNo;
-
             // 남은 시간(초) 반환
             System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
-
             // Redis에서 키가 존재하지 않으면 set
             Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
 
