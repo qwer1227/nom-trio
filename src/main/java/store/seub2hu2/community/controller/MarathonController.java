@@ -44,25 +44,25 @@ public class MarathonController {
     @Transactional
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int marathonNo){
-        try{
-            String redisKey = "marathon:viewCount" + marathonNo;
-
-            // 남은 시간(초) 반환
-            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
-
-            // Redis에서 키가 존재하지 않으면 set
-            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
-
-            if (Boolean.FALSE.equals(isFirstAccess)){
-                System.out.println("30분 내 조회수 업데이트 제한");
-                return "redirect:detail?no=" + marathonNo;
-            }
-
-            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
-            marathonService.updateMarathonViewCnt(marathonNo);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            String redisKey = "marathon:viewCount" + marathonNo;
+//
+//            // 남은 시간(초) 반환
+//            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+//
+//            // Redis에서 키가 존재하지 않으면 set
+//            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+//
+//            if (Boolean.FALSE.equals(isFirstAccess)){
+//                System.out.println("30분 내 조회수 업데이트 제한");
+//                return "redirect:detail?no=" + marathonNo;
+//            }
+//
+//            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+//            marathonService.updateMarathonViewCnt(marathonNo);
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
 
         return "redirect:detail?no=" + marathonNo;
 
