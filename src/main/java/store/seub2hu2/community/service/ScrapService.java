@@ -28,7 +28,7 @@ public class ScrapService {
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
         board.setScrapCnt((board.getScrapCnt() + 1));
-        board.setLike(board.getLike());
+        board.setLikeCnt(board.getLikeCnt());
 
         boardMapper.updateCnt(board);
     }
@@ -39,7 +39,7 @@ public class ScrapService {
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
         board.setScrapCnt((board.getScrapCnt() - 1));
-        board.setLike(board.getLike());
+        board.setLikeCnt(board.getLikeCnt());
 
         boardMapper.updateCnt(board);
     }

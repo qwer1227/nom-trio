@@ -6,9 +6,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.CrewForm;
+import store.seub2hu2.community.dto.FunctionCheckDto;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.CrewMapper;
-import store.seub2hu2.community.mapper.CrewReplyMapper;
 import store.seub2hu2.community.mapper.ReplyMapper;
 import store.seub2hu2.community.mapper.UploadMapper;
 import store.seub2hu2.community.vo.Crew;
@@ -19,6 +19,7 @@ import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
 import store.seub2hu2.util.Pagination;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 
@@ -51,6 +52,8 @@ public class CrewService {
 
     @Autowired
     private ReplyMapper replyMapper;
+    @Autowired
+    private LikeService likeService;
 
 
     public Crew addNewCrew(CrewForm form
@@ -131,20 +134,20 @@ public class CrewService {
         return crew;
     }
 
-    public ListDto<Crew> getCrews(Map<String, Object> condition) {
-        int totalRows = crewMapper.getTotalRowsForCrew(condition);
+    public ListDto<Crew> getCrews(RequestParamsDto dto) {
+        int totalRows = crewMapper.getTotalRowsForCrew(dto);
 
-        int page = (Integer) condition.get("page");
-        int rows = (Integer) condition.get("rows");
+        int page = dto.getPage();
+        int rows = 6;
         Pagination pagination = new Pagination(page, totalRows, rows);
 
-        condition.put("begin", pagination.getBegin());
-        condition.put("end", pagination.getEnd());
+        dto.setBegin(pagination.getBegin());
+        dto.setEnd(pagination.getEnd());
 
-        List<Crew> crews = crewMapper.getCrews(condition);
-        ListDto<Crew> dto = new ListDto<>(crews, pagination);
+        List<Crew> crews = crewMapper.getCrews(dto);
+        ListDto<Crew> cDto = new ListDto<>(crews, pagination);
 
-        return dto;
+        return cDto;
     }
 
     // 가입 가능한 조회수 높은 크루 목록 반환
@@ -159,7 +162,12 @@ public class CrewService {
         Crew crew = crewMapper.getCrewDetailByNo(crewNo);
         UploadFile uploadThumbnail = uploadMapper.getThumbnailByCrewNo(crewNo);
         UploadFile uploadFile = uploadMapper.getFileByCrewNo(crewNo);
-        List<Reply> reply = replyMapper.getRepliesByTypeNo(crewNo);
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType("crew");
+        dto.setTypeNo(crewNo);
+
+        List<Reply> reply = replyMapper.getRepliesByTypeNo(dto);
 
         if (crew == null) {
             throw new CommunityException("존재하지 않는 게시글입니다.");
@@ -288,6 +296,26 @@ public class CrewService {
         return isExists;
     }
 
+    public void updateCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser) {
+        likeService.insertLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
+    }
+
+    public void deleteCrewLike(int crewNo, @AuthenticationPrincipal LoginUser loginUser){
+        likeService.deleteLike("crew", crewNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("crew", crewNo);
+
+        Crew crew = crewMapper.getCrewDetailByNo(crewNo);
+        crew.setLikeCnt(cnt);
+        crewMapper.updateCnt(crew);
+    }
+
     public int getEnterMemberCnt(int crewNo) {
         return crewMapper.getCrewMemberCnt(crewNo);
     }
@@ -350,5 +378,9 @@ public class CrewService {
         crewMapper.updateReader(userNo, crewNo);
         // 위임이라는 기능을 사용하기 위해서는 리더의 계정 로그인을 필수로 해야해서 user.getNo를 통해서 리더의 번호를 넘겨줌
         crewMapper.exitCrew(readerNo, crewNo);
+    }
+
+    public void updateCrewReport(int reportNo){
+        crewMapper.updateCrewReport(reportNo);
     }
 }

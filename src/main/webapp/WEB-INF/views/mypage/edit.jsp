@@ -121,7 +121,6 @@
         phone: false,
         email: false,
         newPassword: false
-
     };
 
     // 유효성 검사 규칙

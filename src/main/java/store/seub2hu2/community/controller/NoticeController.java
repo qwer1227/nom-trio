@@ -1,10 +1,12 @@
 package store.seub2hu2.community.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -23,17 +26,22 @@ import store.seub2hu2.community.vo.Board;
 import store.seub2hu2.community.vo.Notice;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.util.ListDto;
+import store.seub2hu2.util.RequestParamsDto;
 import store.seub2hu2.util.S3Service;
 
 import java.io.File;
 import java.net.URLEncoder;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/community/notice")
+@RequiredArgsConstructor
 public class NoticeController {
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${upload.directory.notice.files}")
     private String saveDirectory;
@@ -41,35 +49,18 @@ public class NoticeController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Autowired
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
-    @Autowired
-    public NoticeService noticeService;
+    public final NoticeService noticeService;
 
 
     @GetMapping("/main")
-    public String list(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "10") int rows
-            , @RequestParam(name = "sort", required = false, defaultValue = "import") String sort
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String list(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
+        ListDto<Notice> nDto = noticeService.getNotices(dto);
 
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Notice> dto = noticeService.getNotices(condition);
-
-        model.addAttribute("notices", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("notices", nDto.getData());
+        model.addAttribute("paging", nDto.getPaging());
 
         return "community/notice/main";
     }
@@ -88,7 +79,23 @@ public class NoticeController {
 
     @GetMapping("/hit")
     public String hit(@RequestParam("no") int noticeNo) {
-        noticeService.updateNoticeViewCnt(noticeNo);
+        try{
+            String redisKey = "notice:viewCnt" + noticeNo;
+            // 남은 시간(초) 반환
+            System.out.println("TTL 설정 확인: " + redisTemplate.getExpire(redisKey));
+            // Redis에서 키가 존재하지 않으면 set
+            Boolean isFirstAccess = redisTemplate.opsForValue().setIfAbsent(redisKey, "30", Duration.ofMinutes(30));
+
+            if (Boolean.FALSE.equals(isFirstAccess)) {
+                System.out.println("30분 내 조회수 업데이트 제한");
+                return "redirect:detail?no=" + noticeNo;
+            }
+
+            redisTemplate.opsForValue().set(redisKey, "30", Duration.ofMinutes(30));
+            noticeService.updateNoticeViewCnt(noticeNo);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return "redirect:detail?no=" + noticeNo;
     }
 
@@ -102,6 +109,7 @@ public class NoticeController {
         return "community/notice/detail";
     }
 
+    @Transactional
     @GetMapping("/filedown")
     public ResponseEntity<ByteArrayResource> download(@RequestParam("no") int noticeNo) {
 

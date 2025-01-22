@@ -8,12 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import store.seub2hu2.community.dto.BoardForm;
+import store.seub2hu2.community.dto.FunctionCheckDto;
+import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.community.exception.CommunityException;
 import store.seub2hu2.community.mapper.*;
-import store.seub2hu2.community.vo.Board;
-import store.seub2hu2.community.vo.Notice;
-import store.seub2hu2.community.vo.Reply;
-import store.seub2hu2.community.vo.UploadFile;
+import store.seub2hu2.community.vo.*;
 import store.seub2hu2.security.user.LoginUser;
 import store.seub2hu2.user.vo.User;
 import store.seub2hu2.util.ListDto;
@@ -38,7 +37,6 @@ public class BoardService {
     @Autowired
     private S3Service s3Service;
 
-
     @Autowired
     private BoardMapper boardMapper;
 
@@ -50,13 +48,15 @@ public class BoardService {
 
     @Autowired
     private NoticeMapper noticeMapper;
+    @Autowired
+    private LikeService likeService;
 
     public Board addNewBoard(BoardForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
         // Board 객체를 생성하여 사용자가 입력한 제목과 내용을 저장한다.
         Board board = new Board();
         board.setNo(form.getNo());
-        board.setCatName(form.getCatName());
+        board.setCategory(Integer.toString(form.getCatNo()));
         board.setTitle(form.getTitle());
         board.setContent(form.getContent());
 
@@ -114,35 +114,40 @@ public class BoardService {
         List<Board> boards = boardMapper.getBoards(dto);
 
         ListDto<Board> bDto = new ListDto<>(boards, pagination);
+        for (Board board : bDto.getData()) {
+            board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
+        }
 
         return bDto;
     }
 
-//    public ListDto<Board> getHistoryBoards(Map<String, Object> condition) {
-//        // 검색 조건에 맞는 데이터 전체 갯수 조회
-//        int totalRows = boardMapper.getTotalRowsForHistory(condition);
-//
-//        System.out.println(totalRows);
-//
-//        // pagination 객체 생성
-//        int page = (Integer) condition.get("page");
-//        int rows = (Integer) condition.get("rows");
-//        Pagination pagination = new Pagination(page, totalRows, rows);
-//
-//        //데이터 검색범위를 조회해서 Map에 저장
-//        condition.put("begin", pagination.getBegin());
-//        condition.put("end", pagination.getEnd());
-//
-//        // 조회범위에 맞는 데이터 조회하기
-//        List<Board> boards = boardMapper.getBoards(condition);
-//        ListDto<Board> dto = new ListDto<>(boards, pagination);
-//
-//        return dto;
-//    }
+    public ListDto<Board> getHistoryBoards(RequestParamsDto requestParamsDto, int userNo) {
+        // 검색 조건에 맞는 데이터 전체 갯수 조회
+        int totalRows = boardMapper.getTotalRowsForHistory(requestParamsDto, userNo);
+
+
+        // pagination 객체 생성
+        int page = requestParamsDto.getPage();
+        int rows = requestParamsDto.getRows();
+        Pagination pagination = new Pagination(page, totalRows, rows);
+
+        //데이터 검색범위를 조회해서 Map에 저장
+        requestParamsDto.setBegin(pagination.getBegin());
+        requestParamsDto.setEnd(pagination.getEnd());
+
+        // 조회범위에 맞는 데이터 조회하기
+        List<Board> boards = boardMapper.getBoards(requestParamsDto);
+        ListDto<Board> dto = new ListDto<>(boards, pagination);
+
+        return dto;
+    }
 
     public ListDto<Board> getBoardsTop(Map<String, Object> condition) {
         List<Board> boards = boardMapper.getBoardsTopFive(condition);
         ListDto<Board> dto = new ListDto<>(boards);
+        for (Board board : dto.getData()) {
+            board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
+        }
 
         return dto;
     }
@@ -156,8 +161,16 @@ public class BoardService {
 
     public Board getBoardDetail(int boardNo) {
         Board board = boardMapper.getBoardDetailByNo(boardNo);
+
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~" + board.getReported());
+
         UploadFile uploadFile = uploadMapper.getFileByBoardNo(boardNo);
-        List<Reply> reply = replyMapper.getRepliesByTypeNo(boardNo);
+
+        FunctionCheckDto dto = new FunctionCheckDto();
+        dto.setType("board");
+        dto.setTypeNo(boardNo);
+
+        List<Reply> reply = replyMapper.getRepliesByTypeNo(dto);
 
         if (board == null) {
             throw new CommunityException("존재하지 않는 게시글입니다.");
@@ -165,6 +178,7 @@ public class BoardService {
 
         board.setUploadFile(uploadFile);
         board.setReply(reply);
+        board.setCategory(BoardCategory.getNameByCatNo(board.getCategory()));
 
         User user = new User();
         user.setNo(board.getUser().getNo());
@@ -183,9 +197,9 @@ public class BoardService {
     public Board updateBoard(BoardForm form
             , @AuthenticationPrincipal LoginUser loginUser) {
         Board savedBoard = boardMapper.getBoardDetailByNo(form.getNo());
+        savedBoard.setCategory(savedBoard.getCategory());
         savedBoard.setTitle(form.getTitle());
         savedBoard.setContent(form.getContent());
-        savedBoard.setCatName(form.getCatName());
 
         User user = new User();
         user.setNo(loginUser.getNo());
@@ -250,21 +264,31 @@ public class BoardService {
 
     public void updateBoardLike(int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
-        boardMapper.insertLike(boardNo, "board", loginUser.getNo());
+        likeService.insertLike("board", boardNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("board", boardNo);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike((board.getLike() + 1));
+        board.setLikeCnt(cnt);
         board.setScrapCnt(board.getScrapCnt());
+
         boardMapper.updateCnt(board);
     }
 
     public void deleteBoardLike(int boardNo
             , @AuthenticationPrincipal LoginUser loginUser) {
-        boardMapper.deleteLike(boardNo, "board", loginUser.getNo());
+        likeService.deleteLike("board", boardNo, loginUser);
+
+        int cnt = likeService.getLikeCnt("board", boardNo);
 
         Board board = boardMapper.getBoardDetailByNo(boardNo);
-        board.setLike((board.getLike() - 1));
+        board.setLikeCnt(cnt);
         board.setScrapCnt(board.getScrapCnt());
+
         boardMapper.updateCnt(board);
+    }
+
+    public void updateBoardReport(int reportNo){
+        boardMapper.updateBoardReport(reportNo);
     }
 }

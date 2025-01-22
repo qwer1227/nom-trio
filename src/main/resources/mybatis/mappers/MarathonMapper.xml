@@ -62,9 +62,9 @@
     from MARATHONS m join ORGANS o
     on m.marathon_no = o.marathon_no
     where m.is_deleted = 'N'
-    <if test="condition.category != null">
+    <if test="dto.category != null">
       <choose>
-        <when test="condition.category == '진행중'">
+        <when test="dto.category == '진행중'">
           and DATE(m.marathon_date) > DATE(now())
         </when>
         <otherwise>
@@ -72,25 +72,25 @@
         </otherwise>
       </choose>
     </if>
-    <if test="condition.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
-          || m.marathon_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (m.marathon_title like concat ('%', #{dto.keyword}, '%')
+          || m.marathon_content like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and m.marathon_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and m.marathon_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and m.marathon_content like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'organ'">
-          and o.organ_name like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'organ'">
+          and o.organ_name like concat ('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>
     group by no) as marathon
-    where rn between #{condition.begin} and #{condition.end}
+    where rn between #{dto.begin} and #{dto.end}
     order by rn
   </select>
 
@@ -110,14 +110,14 @@
   <select id="getTotalMarathons" resultType="int">
     select count(*)
     from MARATHONS m
-    <if test="condition.opt == 'organ'">
+    <if test="dto.opt == 'organ'">
       join ORGANS o
       on m.marathon_no = o.marathon_no
     </if>
     where is_deleted = 'N'
-    <if test="condition.category != null">
+    <if test="dto.category != null">
       <choose>
-        <when test="condition.category == '진행중'">
+        <when test="dto.category == '진행중'">
           and DATE(m.marathon_date) > DATE(now())
         </when>
         <otherwise>
@@ -125,20 +125,20 @@
         </otherwise>
       </choose>
     </if>
-    <if test="condition.opt != null">
+    <if test="dto.keyword != null and dto.keyword != ''">
       <choose>
-        <when test="condition.opt == 'all'">
-          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
-          || m.marathon_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'all'">
+          and (m.marathon_title like concat ('%', #{dto.keyword}, '%')
+          || m.marathon_content like concat('%', #{dto.keyword}, '%'))
         </when>
-        <when test="condition.opt == 'title'">
-          and m.marathon_title like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'title'">
+          and m.marathon_title like concat ('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'content'">
-          and m.marathon_content like concat('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'content'">
+          and m.marathon_content like concat('%', #{dto.keyword}, '%')
         </when>
-        <when test="condition.opt == 'organ'">
-          and o.organ_name like concat ('%', #{condition.keyword}, '%')
+        <when test="dto.opt == 'organ'">
+          and o.organ_name like concat ('%', #{dto.keyword}, '%')
         </when>
       </choose>
     </if>

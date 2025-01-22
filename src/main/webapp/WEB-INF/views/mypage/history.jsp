@@ -96,7 +96,7 @@
             <c:forEach var="board" items="${boards}">
               <tr style="text-align: center">
                 <td>${board.no}</td>
-                <td>${board.catName}</td>
+                <td>${board.category}</td>
                 <td id="content-title" style="text-align: start">
                   <a href="/community/board/detail?no=${board.no}" style="text-decoration-line: none; color: black">${board.title}</a>
                   <c:if test="${board.replyCnt gt 0}">
@@ -104,7 +104,7 @@
                   </c:if>
                 </td>
                 <td>${board.user.nickname}</td>
-                <td>${board.like}</td>
+                <td>${board.likeCnt}</td>
                 <td>${board.viewCnt}</td>
                 <td><fmt:formatDate value="${board.createdDate}" pattern="yyyy-MM-dd"/></td>
               </tr>

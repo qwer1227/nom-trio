@@ -9,8 +9,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import store.seub2hu2.admin.dto.ReportDto;
 import store.seub2hu2.admin.service.AdminService;
-import store.seub2hu2.community.service.MarathonService;
-import store.seub2hu2.community.service.NoticeService;
+import store.seub2hu2.community.service.*;
 import store.seub2hu2.community.vo.Marathon;
 import store.seub2hu2.community.vo.Notice;
 import store.seub2hu2.mypage.dto.AnswerDTO;
@@ -34,6 +33,7 @@ public class AdminCommunityController {
     private final QnaService qnaService;
     private final MarathonService marathonService;
     private final NoticeService noticeService;
+    private final ReportService reportService;
 
     @GetMapping("/qna")
     public String qna(@ModelAttribute RequestParamsDto dto , Model model, @AuthenticationPrincipal LoginUser loginUser) {
@@ -73,9 +73,9 @@ public class AdminCommunityController {
         condition.put("reportNo", reportNo);
         condition.put("reportType", reportType);
 
-        adminService.UpdateReport(condition);
+//        adminService.UpdateReport(condition);
 
-
+        reportService.updateReport(reportType, reportNo);
 
         return "redirect:/admin/community/report";
     }
@@ -116,59 +116,24 @@ public class AdminCommunityController {
     }
 
     @GetMapping("/notice")
-    public String notice(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "10") int rows
-            , @RequestParam(name = "sort", required = false, defaultValue = "import") String sort
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String notice(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
-        condition.put("sort", sort);
+        ListDto<Notice> nDto = noticeService.getNotices(dto);
 
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Notice> dto = noticeService.getNotices(condition);
-
-        model.addAttribute("notices", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("notices", nDto.getData());
+        model.addAttribute("paging", nDto.getPaging());
 
 
         return "admin/community/notice";
     }
 
     @GetMapping("/marathon")
-    public String marathon(@RequestParam(name = "page", required = false, defaultValue = "1") int page
-            , @RequestParam(name = "rows", required = false, defaultValue = "6") int rows
-            , @RequestParam(name = "opt", required = false) String opt
-            , @RequestParam(name = "category", required = false) String category
-            , @RequestParam(name = "keyword", required = false) String keyword
-            , Model model) {
+    public String marathon(@ModelAttribute("dto") RequestParamsDto dto, Model model) {
 
-        Map<String, Object> condition = new HashMap<>();
-        condition.put("page", page);
-        condition.put("rows", rows);
+        ListDto<Marathon> mDto = marathonService.getMarathons(dto);
 
-        // 카테고리 필터링 처리
-        if (StringUtils.hasText(category)) {
-            condition.put("category", category);
-        }
-
-        // 검색
-        if (StringUtils.hasText(keyword)) {
-            condition.put("opt", opt);
-            condition.put("keyword", keyword);
-        }
-
-        ListDto<Marathon> dto = marathonService.getMarathons(condition);
-
-        model.addAttribute("marathons", dto.getData());
-        model.addAttribute("paging", dto.getPaging());
+        model.addAttribute("marathons", mDto.getData());
+        model.addAttribute("paging", mDto.getPaging());
         model.addAttribute("now", new Date());
 
         return "admin/community/marathon";

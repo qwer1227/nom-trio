@@ -26,6 +26,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     implementation 'org.apache.opennlp:opennlp-tools:2.0.0'
     implementation 'org.apache.lucene:lucene-core:8.11.1'
     implementation 'org.apache.lucene:lucene-analyzers-nori:8.11.1'

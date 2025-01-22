@@ -2,6 +2,7 @@ package store.seub2hu2.community.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import store.seub2hu2.community.enums.BoardCategory;
 import store.seub2hu2.user.vo.User;
 
 import java.util.Date;
@@ -16,7 +17,7 @@ public class Board {
     private int no;
     private int prevNo;
     private int nextNo;
-    private String catName;
+    private String category;
     private User user;
     private String title;
     private String prevTitle;
@@ -27,10 +28,10 @@ public class Board {
     private Date updatedDate;
     private int viewCnt;
     private int scrapCnt;
-    private int like;
+    private int likeCnt;
     private String deleted;
     private String keep;
-    private Report report;
+    private String reported;
     private List<Reply> reply;
     private int replyCnt;
     private int boardCnt;

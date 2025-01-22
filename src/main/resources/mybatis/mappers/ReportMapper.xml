@@ -10,6 +10,7 @@
     , report_no
     , user_no
     , report_reason
+    , report_detail
     )
     values
     (
@@ -17,34 +18,27 @@
     , #{report.no}
     , #{report.user.no}
     , #{report.reason}
+    , #{report.detail}
     )
   </insert>
 
-  <!-- void updateDisableBoard(@Param("report") Report report); -->
-  <!-- 자세한 구현코드는 수정 필요 -->
-  <update id="updateDisableBoard">
-    update REPORTS
-    set
-    (
-    admin_no = #{report.adminNo}
-    , report_resolved_date = sysdate()
-    )
-    where report_type = #{report.type}
-    <if test="report.type == 'board">
-      and board_no = #{report.boardNo}
-    </if>
-    <if test="report.type == 'boardReply">
-      and reply_no = #{report.replyNo}
-    </if>
-  </update>
-
-  <!-- boolean isAlreadyReported(@Param("type") String type, @Param("no") int no, @Param("userNo") int userNo); -->
+  <!-- boolean isAlreadyReported(@Param("dto")FunctionCheckDto dto); -->
   <select id="isAlreadyReported">
     select count(*)
     from REPORTS
     where
-      report_type = #{type}
-      and report_no = #{no}
-      and user_no = #{userNo}
+      report_type = #{dto.type}
+      and report_no = #{dto.typeNo}
+      and user_no = #{dto.userNo}
   </select>
+
+  <!-- void updateReportStatus(@Param("dto")FunctionCheckDto dto); -->
+  <update id="updateReportStatus">
+    update REPORTS
+    set
+        iscomplete = '처리완료'
+        , report_resolved_date = sysdate()
+    where report_type = #{dto.type}
+      and report_no = #{dto.typeNo}
+  </update>
 </mapper>

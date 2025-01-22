@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="/WEB-INF/views/common/tags.jsp" %>
+<%@ page import="java.net.URLEncoder" %>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -175,7 +176,7 @@
         <h2>문의 내역</h2>
         <div class="category-tabs">
             <a href=/mypage/qna class="category-tab">전체</a>
-            <a href="?category=대여&opt=${param.opt}&keyword=${param.keyword}&page=1"
+            <a href="?category=대여&opt=${URLEncoder.encode(param.opt, 'UTF-8')}&keyword=${URLEncoder.encode(param.keyword, 'UTF-8')}&page=1"
                class="category-tab ${param.category == '대여' ? 'active' : ''}">대여</a>
             <a href="?category=주문&opt=${param.opt}&keyword=${param.keyword}&page=1"
                class="category-tab ${param.category == '주문' ? 'active' : ''}">주문</a>
@@ -195,7 +196,7 @@
                     <option value="content" ${param.opt == 'content' ? 'selected' : ''}>내용</option>
                 </select>
                 <input type="text" name="keyword" class="search-input" placeholder="검색어를 입력하세요"
-                       value="${param.keyword}">
+                       value="${URLEncoder.encode(param.keyword, 'UTF-8')}">
                 <button type="submit" class="btn-search">검색</button>
             </div>
         </form>
