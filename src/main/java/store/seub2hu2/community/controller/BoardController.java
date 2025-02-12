@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/community/board")
 @RequiredArgsConstructor
 public class BoardController {
-
+    // 조회수 지연을 위해 Redis 추가
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${upload.directory.board.files}")
